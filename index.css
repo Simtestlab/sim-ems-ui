@@ -1,0 +1,51 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Project overrides */
+html, body, #root {
+  height: 100%;
+}
+
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New', monospace;
+}
+
+/* Chevron and flow animations for EnergyFlowGauge */
+.chev-vert, .chev-horz {
+  transform-origin: center;
+  will-change: transform, opacity;
+}
+
+@keyframes moveDown {
+  0% { transform: translateY(-8px); opacity: 0; }
+  30% { opacity: 1; }
+  100% { transform: translateY(8px); opacity: 0; }
+}
+
+@keyframes moveRight {
+  0% { transform: translateX(-10px); opacity: 0; }
+  30% { opacity: 1; }
+  100% { transform: translateX(10px); opacity: 0; }
+}
+
+@keyframes moveLeft {
+  0% { transform: translateX(10px); opacity: 0; }
+  30% { opacity: 1; }
+  100% { transform: translateX(-10px); opacity: 0; }
+}
+
+.chev-vert { animation-name: moveDown; animation-iteration-count: infinite; animation-timing-function: linear; }
+.chev-horz-right { animation-name: moveRight; animation-iteration-count: infinite; animation-timing-function: linear; }
+.chev-horz-left { animation-name: moveLeft; animation-iteration-count: infinite; animation-timing-function: linear; }
+
+.battery-pulse {
+  transform-origin: center;
+  animation: pulse 1.2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0% { transform: scale(1); opacity: 0.85 }
+  50% { transform: scale(1.06); opacity: 1 }
+  100% { transform: scale(1); opacity: 0.85 }
+}

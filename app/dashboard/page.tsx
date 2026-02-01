@@ -26,6 +26,12 @@ import TariffAnalysisPanel from '@/presentation/components/features/TariffAnalys
 import BackendConnectionError from '@/presentation/components/features/BackendConnectionError';
 import dynamic from 'next/dynamic';
 import { mockSpaces } from '@/infrastructure/mock/spaces.mock';
+
+// Dynamic import for MySankeyChart to ensure client-side only rendering
+const MySankeyChart = dynamic(
+  () => import('@/src/components/MySankeyChart'),
+  { ssr: false, loading: () => <div className="flex items-center justify-center h-full"><p className="text-gray-500">Loading chart...</p></div> }
+);
 import { getEquipmentForSite } from '@/infrastructure/mock/equipment.mock';
 import { useState, useEffect, useMemo } from 'react';
 import { mergeSiteMetrics } from '@/shared/utils/site-metrics';
@@ -199,68 +205,81 @@ export default function DashboardPage() {
           <span className="text-sm text-gray-600">Portfolio Real-time Monitoring</span>
         </div>
 
-        {/* Portfolio Overview Header */}
-        <div className="space-y-1">
-          <div className="flex items-center gap-3">
-            <h2 className="text-2xl font-bold text-gray-900">Portfolio Overview</h2>
-            <div className="px-3 py-1 bg-blue-50 border border-blue-200 rounded-full">
-              <span className="text-sm font-semibold text-blue-700">{sites.length} Sites</span>
+        <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
+          {/* Energy Flow Gauge - Takes 2 columns */}
+          <div className="lg:col-span-2 bg-white rounded-lg shadow-md border border-gray-200 p-2">
+            <h2 className="text-xl font-bold text-gray-900 mb-2">Energy Flow</h2>
+            <div className="h-[380px]">
+              <MySankeyChart />
             </div>
           </div>
-          <p className="text-sm text-gray-600">Aggregated metrics consolidated across all active sites</p>
-        </div>
 
-        {/* Summary KPI Cards - Portfolio Level */}
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-          <SummaryCard
-            title="Energy Today"
-            value={dailyEnergy}
-            unit="kWh"
-            icon={Lightbulb}
-            color="blue"
-            decimals={0}
-          />
-          <SummaryCard
-            title="Peak Power"
-            value={peakPower}
-            unit="kW"
-            icon={TrendingUp}
-            color="orange"
-            decimals={1}
-          />
-          <SummaryCard
-            title="Cost Savings"
-            value={costSavings}
-            unit="₹"
-            icon={DollarSign}
-            color="green"
-            trend={{ value: 12.5, isPositive: true }}
-            decimals={0}
-          />
-          <SummaryCard
-            title="Carbon Avoided"
-            value={carbonAvoided}
-            unit="kg CO₂"
-            icon={Leaf}
-            color="green"
-            decimals={1}
-          />
-          <SummaryCard
-            title="System Health"
-            value={systemHealth}
-            unit="%"
-            icon={Activity}
-            color="cyan"
-            decimals={0}
-          />
-          <SummaryCard
-            title="Active Alerts"
-            value={activeAlerts}
-            unit="alerts"
-            icon={AlertTriangle}
-            color={activeAlerts > 0 ? 'red' : 'purple'}
-            decimals={0}
-          />
+          {/* KPI Cards Grid - Takes 3 columns with Portfolio Overview header */}
+          <div className="lg:col-span-3 space-y-4">
+            {/* Portfolio Overview Header */}
+            <div className="space-y-1">
+              <div className="flex items-center gap-3">
+                <h2 className="text-2xl font-bold text-gray-900">Portfolio Overview</h2>
+                <div className="px-3 py-1 bg-blue-50 border border-blue-200 rounded-full">
+                  <span className="text-sm font-semibold text-blue-700">{sites.length} Sites</span>
+                </div>
+              </div>
+              <p className="text-sm text-gray-600">Aggregated metrics consolidated across all active sites</p>
+            </div>
+
+            {/* KPI Cards */}
+            <div className="grid grid-cols-2 gap-4">
+            <SummaryCard
+              title="Energy Today"
+              value={dailyEnergy}
+              unit="kWh"
+              icon={Lightbulb}
+              color="blue"
+              decimals={0}
+            />
+            <SummaryCard
+              title="Peak Power"
+              value={peakPower}
+              unit="kW"
+              icon={TrendingUp}
+              color="orange"
+              decimals={1}
+            />
+            <SummaryCard
+              title="Cost Savings"
+              value={costSavings}
+              unit="₹"
+              icon={DollarSign}
+              color="green"
+              trend={{ value: 12.5, isPositive: true }}
+              decimals={0}
+            />
+            <SummaryCard
+              title="Carbon Avoided"
+              value={carbonAvoided}
+              unit="kg CO₂"
+              icon={Leaf}
+              color="green"
+              decimals={1}
+            />
+            <SummaryCard
+              title="System Health"
+              value={systemHealth}
+              unit="%"
+              icon={Activity}
+              color="cyan"
+              decimals={0}
+            />
+            <SummaryCard
+              title="Active Alerts"
+              value={activeAlerts}
+              unit="alerts"
+              icon={AlertTriangle}
+              color={activeAlerts > 0 ? 'red' : 'purple'}
+              decimals={0}
+            />
+            </div>
+          </div>
         </div>
 
         {/* Charts Section Header */}
