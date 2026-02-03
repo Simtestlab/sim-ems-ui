@@ -14,10 +14,12 @@ import {
   canViewAllOrganizations,
   canManageOrganizations,
   getUserFeatures,
+  User,
 } from './permissions';
 
 export function usePermissions() {
   const { user } = useAuth();
+  const typedUser = user as User | null;
 
   return {
     user,

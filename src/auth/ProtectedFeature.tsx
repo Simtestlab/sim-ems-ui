@@ -3,7 +3,7 @@
  */
 
 import { ReactNode } from 'react';
-import { usePermissions } from '@/auth/usePermissions';
+import { usePermissions } from './usePermissions';
 
 interface ProtectedFeatureProps {
   children: ReactNode;
