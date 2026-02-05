@@ -1,14 +1,18 @@
-import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 
-export default async function DashboardPage() {
-  const accessToken = (await cookies()).get('access_token')?.value;
-  if (!accessToken) redirect('/login');
+export default function Page({ searchParams }: { searchParams?: Record<string, string | string[]> }) {
+	const params = new URLSearchParams();
+	if (searchParams) {
+		for (const key of Object.keys(searchParams)) {
+			const val = searchParams[key];
+			if (Array.isArray(val)) {
+				val.forEach(v => params.append(key, v));
+			} else if (val !== undefined) {
+				params.append(key, String(val));
+			}
+		}
+	}
 
-  return (
-    <div className="p-6">
-      <h1 className="text-2xl font-bold">Dashboard</h1>
-      <p>Welcome to the dashboard.</p>
-    </div>
-  );
+	const query = params.toString();
+	redirect(`/livePage${query ? `?${query}` : ''}`);
 }
