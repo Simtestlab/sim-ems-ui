@@ -1,14 +1,13 @@
 'use client';
 
-import { useSearchParams } from 'next/navigation';
+import { useNavStore } from '@/store/useNavStore';
 
 export function SelectedSite() {
-  const searchParams = useSearchParams();
-  const site = searchParams?.get('site') || 'Site 1';
+  const { selectedSite } = useNavStore();
 
   return (
     <div className="mt-2 ml-0 text-sm md:text-base text-gray-600 text-center md:text-left">
-      Selected: <span className="font-medium text-gray-800">{site}</span>
+      Selected: <span className="font-medium text-gray-800">{selectedSite}</span>
     </div>
   );
 }
