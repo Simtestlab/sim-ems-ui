@@ -10,13 +10,44 @@ interface EnergyData {
 }
 
 export function RadialEnergyMonitor() {
-  // Fixed state to verify layout - all elements visible and active
-  const [energyData] = useState<EnergyData>({
-    solar: 5.0,    // Max value (Top visible)
-    grid: 2.5,     // Positive import (Left visible)
-    battery: -2.0, // Charging (Bottom visible)
-    home: 4.5      // Consumption (Right visible)
+  // Dynamic state for real-time simulation
+  const [energyData, setEnergyData] = useState<EnergyData>({
+    solar: 5.0,    // Starting values
+    grid: 2.5,
+    battery: -2.0,
+    home: 4.5
   });
+
+  // Real-time simulation effect
+  useEffect(() => {
+    const updateEnergyData = () => {
+      // Generate realistic energy flow simulation
+      const solar = Math.random() * 8.0; // 0.0 to 8.0 kW
+      const home = 1.0 + Math.random() * 5.0; // 1.0 to 6.0 kW
+      const battery = -2.5 + Math.random() * 5.0; // -2.5 to 2.5 kW (negative = charging)
+      const grid = home - solar; // Grid compensates difference
+      
+      const newData = {
+        solar: parseFloat(solar.toFixed(1)),
+        home: parseFloat(home.toFixed(1)),
+        battery: parseFloat(battery.toFixed(1)),
+        grid: parseFloat(grid.toFixed(1))
+      };
+      
+      console.log('Updating energy data:', newData); // Debug log
+      setEnergyData(newData);
+    };
+
+    // Update immediately on mount
+    updateEnergyData();
+    
+    const interval = setInterval(updateEnergyData, 1000);
+    
+    return () => {
+      console.log('Cleaning up interval'); // Debug log
+      clearInterval(interval);
+    };
+  }, []);
 
   const formatPower = (value: number) => {
     return `${Math.abs(value).toFixed(1)} kW`;
@@ -37,10 +68,10 @@ export function RadialEnergyMonitor() {
 
   // Hardcoded text positions (clear of icons)
   const textPositions = {
-    solar: { x: 250, y: 85, anchor: 'middle' as const },     // Above icon
-    battery: { x: 250, y: 430, anchor: 'middle' as const },  // Below icon
-    grid: { x: 80, y: 250, anchor: 'end' as const },         // Left of icon
-    home: { x: 420, y: 250, anchor: 'start' as const }       // Right of icon
+    solar: { x: 250, y: 10, anchor: 'middle' as const },     // Much higher above icon
+    battery: { x: 250, y: 495, anchor: 'middle' as const },  // Much lower below icon
+    grid: { x: 20, y: 250, anchor: 'end' as const },         // Much further left
+    home: { x: 475, y: 250, anchor: 'start' as const }       // Much further right
   };
 
   // Hardcoded flow line coordinates
@@ -116,7 +147,7 @@ export function RadialEnergyMonitor() {
 
       <div className="relative">
         {/* Main SVG Canvas */}
-        <svg viewBox="-20 -20 540 540" className="w-[calc(100vh-6rem)] h-[calc(100vh-6rem)] max-w-none overflow-visible">
+        <svg viewBox="-20 -20 580 580" className="w-[calc(100vh-6rem)] h-[calc(100vh-6rem)] max-w-none overflow-visible">
           <defs>
             {/* Gradients for flow effects */}
             <linearGradient id="solarFlow" x1="0%" y1="0%" x2="0%" y2="100%">
@@ -330,7 +361,7 @@ export function RadialEnergyMonitor() {
                   fontSize="14"
                   fontWeight="700"
                 >
-                  {displayValue} kW
+                  {displayValue}
                 </text>
               </g>
             );
@@ -339,11 +370,11 @@ export function RadialEnergyMonitor() {
           {/* Energy Hub Label */}
           <text
             x={centerX}
-            y={centerY + 65}
+            y={centerY}
             textAnchor="middle"
             dominantBaseline="central"
             fill="#6b7280"
-            fontSize="12"
+            fontSize="10"
             fontWeight="500"
           >
             Energy Hub
