@@ -31,9 +31,9 @@ export function Header() {
   const isActive = (p: string) => pathname === p;
 
   return (
-    <header className="bg-white h-8">
-      <div className="flex items-center justify-between px-0 h-12">
-        <div className="flex items-center gap-3">
+    <header className="bg-white h-10">
+      <div className="flex items-center justify-between px-3 h-12">
+        <div className="flex items-center gap-2">
           <Image src="/logo.png" alt="Simtestlab EMS Logo" width={20} height={20} />
           <span className="text-sm font-semibold text-gray-800">Sim-EMS</span>
         </div>
