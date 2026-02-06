@@ -1,25 +1,31 @@
 import { CSSProperties } from 'react';
 
 /**
- * Generates dynamic animation styles for energy flow elements
- * High power values result in faster pulse animations
- * @param isActive - Whether the animation should be active
- * @param value - The energy value (used to calculate pulse speed)
- * @returns CSS style object with animation or empty object
+ * Maps energy values to stroke width for visual proportionality
+ * @param value - The energy value (0-10kW typical range)
+ * @param min - Minimum stroke width in pixels
+ * @param max - Maximum stroke width in pixels
+ * @returns Calculated stroke width
  */
-export function getDynamicStyle(isActive: boolean, value: number): CSSProperties {
-  if (!isActive) {
-    return {};
-  }
+export function calculateStrokeWidth(value: number, min: number = 2, max: number = 10): number {
+  const absValue = Math.abs(value);
+  const maxCapacity = 10; // Assume 10kW as max for scaling
+  const ratio = Math.min(absValue / maxCapacity, 1); // Cap at 1.0
+  return min + (ratio * (max - min));
+}
 
-  // Calculate duration based on energy value
-  // High values (closer to 10) get faster animations (closer to 1s)
-  // Low values (closer to 0) get slower animations (closer to 4s)
-  const duration = Math.max(1, 4 - (Math.abs(value) / 2.5));
-  
-  return {
-    animation: `ring-pulse ${duration.toFixed(1)}s ease-in-out infinite`
-  };
+/**
+ * Calculates arc angle span based on energy value for gauge-like rings
+ * @param value - The energy value
+ * @param maxCapacity - Maximum capacity for scaling (default 10kW)
+ * @param maxAngleSpan - Maximum angle span in degrees (default 80°)
+ * @param minAngleSpan - Minimum angle span in degrees (default 10°)
+ * @returns Angle span in degrees
+ */
+export function calculateArcAngle(value: number, maxCapacity: number = 10, maxAngleSpan: number = 80, minAngleSpan: number = 10): number {
+  const absValue = Math.abs(value);
+  const ratio = Math.min(absValue / maxCapacity, 1);
+  return minAngleSpan + (ratio * (maxAngleSpan - minAngleSpan));
 }
 
 /**

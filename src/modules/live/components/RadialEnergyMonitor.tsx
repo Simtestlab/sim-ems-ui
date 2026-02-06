@@ -1,7 +1,7 @@
 'use client';
 import { Sun, Zap, Battery, Home } from 'lucide-react';
 import { useEnergySimulation } from '@/modules/live/hooks/useEnergySimulation';
-import { getDynamicStyle, formatEnergyDisplay } from '../utils/animationHelpers';
+import { calculateStrokeWidth, calculateArcAngle, formatEnergyDisplay } from '../utils/animationHelpers';
 
 export function RadialEnergyMonitor() {
   // Use the centralized energy simulation hook
@@ -72,51 +72,19 @@ export function RadialEnergyMonitor() {
 
   return (
     <div className="relative w-full h-[calc(100vh-6rem)] flex items-center justify-center p-4">
-      {/* CSS Animations for modern effects */}
+      {/* CSS Animations for flow effects only */}
       <style>{`
-        @keyframes hub-pulse {
-          0%, 100% { 
-            stroke-opacity: 0.4;
-            r: 30;
-          }
-          50% { 
-            stroke-opacity: 0.8;
-            r: 35;
-          }
-        }
-        
         @keyframes flow-pulse {
-          0%, 100% { 
-            stroke-opacity: 0.4;
+          0% { 
             stroke-dashoffset: 0;
           }
-          50% { 
-            stroke-opacity: 1.0;
+          100% { 
             stroke-dashoffset: 20;
           }
         }
         
-        @keyframes ring-pulse {
-          0%, 100% { 
-            stroke-opacity: 0.8;
-            stroke-width: 16px;
-          }
-          50% { 
-            stroke-opacity: 1.0;
-            stroke-width: 19px;
-          }
-        }
-        
-        .hub-pulse {
-          animation: hub-pulse 2s ease-in-out infinite;
-        }
-        
         .flow-pulse {
-          animation: flow-pulse 2s ease-in-out infinite;
-        }
-        
-        .ring-pulse {
-          animation: ring-pulse 3s ease-in-out infinite;
+          animation: flow-pulse 1.5s linear infinite;
         }
       `}</style>
 
@@ -175,55 +143,67 @@ export function RadialEnergyMonitor() {
             />
           ))}
 
-          {/* Active indicators (thick, full opacity) */}
+          {/* Dynamic gauge rings based on energy values */}
           <path
-            d={createArcPath(-40, 40, 210)}
+            d={(() => {
+              const angleSpan = calculateArcAngle(solar.value);
+              return createArcPath(-angleSpan/2, angleSpan/2, 210);
+            })()}
             stroke={colors.solar}
             strokeWidth="16"
             strokeLinecap="round"
             fill="none"
             filter="url(#glow)"
-            style={getDynamicStyle(flows.isSolarProducing, solar.value)}
+            strokeOpacity={flows.isSolarProducing ? "0.9" : "0.4"}
           />
           
           <path
-            d={createArcPath(50, 130, 210)}
+            d={(() => {
+              const angleSpan = calculateArcAngle(home.value);
+              return createArcPath(90 - angleSpan/2, 90 + angleSpan/2, 210);
+            })()}
             stroke={colors.home}
             strokeWidth="16"
             strokeLinecap="round"
             fill="none"
             filter="url(#glow)"
-            style={getDynamicStyle(flows.isHomeConsuming, home.value)}
+            strokeOpacity={flows.isHomeConsuming ? "0.9" : "0.4"}
           />
           
           <path
-            d={createArcPath(140, 220, 210)}
+            d={(() => {
+              const angleSpan = calculateArcAngle(battery.value);
+              return createArcPath(180 - angleSpan/2, 180 + angleSpan/2, 210);
+            })()}
             stroke={colors.battery}
             strokeWidth="16"
             strokeLinecap="round"
             fill="none"
             filter="url(#glow)"
-            style={getDynamicStyle(flows.isBatteryCharging || flows.isBatteryDischarging, battery.value)}
+            strokeOpacity={(flows.isBatteryCharging || flows.isBatteryDischarging) ? "0.9" : "0.4"}
           />
           
           <path
-            d={createArcPath(230, 310, 210)}
+            d={(() => {
+              const angleSpan = calculateArcAngle(grid.value);
+              return createArcPath(270 - angleSpan/2, 270 + angleSpan/2, 210);
+            })()}
             stroke={colors.grid}
             strokeWidth="16"
             strokeLinecap="round"
             fill="none"
             filter="url(#glow)"
-            style={getDynamicStyle(flows.isGridImporting || flows.isGridExporting, grid.value)}
+            strokeOpacity={(flows.isGridImporting || flows.isGridExporting) ? "0.9" : "0.4"}
           />
 
-          {/* Hardcoded Flow Lines with Conditional Animations */}
+          {/* Flow Lines with Dynamic Thickness */}
           <line
             x1={flowLines.solar.x1}
             y1={flowLines.solar.y1}
             x2={flowLines.solar.x2}
             y2={flowLines.solar.y2}
             stroke={colors.solar}
-            strokeWidth="6"
+            strokeWidth={calculateStrokeWidth(solar.value, 2, 8)}
             strokeOpacity={flows.isSolarProducing ? "0.8" : "0.3"}
             strokeLinecap="round"
             strokeDasharray={flows.isSolarProducing ? "10 5" : "none"}
@@ -236,7 +216,7 @@ export function RadialEnergyMonitor() {
             x2={flowLines.battery.x2}
             y2={flowLines.battery.y2}
             stroke={colors.battery}
-            strokeWidth="6"
+            strokeWidth={calculateStrokeWidth(battery.value, 2, 8)}
             strokeOpacity={flows.isBatteryCharging || flows.isBatteryDischarging ? "0.8" : "0.3"}
             strokeLinecap="round"
             strokeDasharray={flows.isBatteryCharging || flows.isBatteryDischarging ? "10 5" : "none"}
@@ -249,7 +229,7 @@ export function RadialEnergyMonitor() {
             x2={flowLines.grid.x2}
             y2={flowLines.grid.y2}
             stroke={colors.grid}
-            strokeWidth="6"
+            strokeWidth={calculateStrokeWidth(grid.value, 2, 8)}
             strokeOpacity={flows.isGridImporting || flows.isGridExporting ? "0.8" : "0.3"}
             strokeLinecap="round"
             strokeDasharray={flows.isGridImporting || flows.isGridExporting ? "10 5" : "none"}
@@ -262,7 +242,7 @@ export function RadialEnergyMonitor() {
             x2={flowLines.home.x2}
             y2={flowLines.home.y2}
             stroke={colors.home}
-            strokeWidth="6"
+            strokeWidth={calculateStrokeWidth(home.value, 2, 8)}
             strokeOpacity={flows.isHomeConsuming ? "0.8" : "0.3"}
             strokeLinecap="round"
             strokeDasharray={flows.isHomeConsuming ? "10 5" : "none"}
@@ -277,7 +257,6 @@ export function RadialEnergyMonitor() {
             fill="none"
             stroke="#374151"
             strokeWidth="4"
-            className="hub-pulse"
             filter="url(#glow)"
           />
 
