@@ -37,10 +37,10 @@ export function RadialEnergyMonitor() {
 
   // Hardcoded text positions (clear of icons)
   const textPositions = {
-    solar: { x: 250, y: 85, anchor: 'middle' },     // Above icon
-    battery: { x: 250, y: 430, anchor: 'middle' },  // Below icon
-    grid: { x: 80, y: 250, anchor: 'end' },         // Left of icon
-    home: { x: 420, y: 250, anchor: 'start' }       // Right of icon
+    solar: { x: 250, y: 85, anchor: 'middle' as const },     // Above icon
+    battery: { x: 250, y: 430, anchor: 'middle' as const },  // Below icon
+    grid: { x: 80, y: 250, anchor: 'end' as const },         // Left of icon
+    home: { x: 420, y: 250, anchor: 'start' as const }       // Right of icon
   };
 
   // Hardcoded flow line coordinates
@@ -86,7 +86,7 @@ export function RadialEnergyMonitor() {
   };
 
   return (
-    <div className="relative w-full h-full flex items-center justify-center p-4">
+    <div className="relative w-full h-[calc(100vh-6rem)] flex items-center justify-center p-4">
       {/* CSS Animations for modern effects */}
       <style>{`
         @keyframes hub-pulse {
@@ -116,7 +116,7 @@ export function RadialEnergyMonitor() {
 
       <div className="relative">
         {/* Main SVG Canvas */}
-        <svg viewBox="-20 -20 540 540" className="w-full h-full max-w-full max-h-full overflow-visible">
+        <svg viewBox="-20 -20 540 540" className="w-[calc(100vh-6rem)] h-[calc(100vh-6rem)] max-w-none overflow-visible">
           <defs>
             {/* Gradients for flow effects */}
             <linearGradient id="solarFlow" x1="0%" y1="0%" x2="0%" y2="100%">

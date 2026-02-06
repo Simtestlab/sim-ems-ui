@@ -3,7 +3,7 @@ import { Header } from '@/components/Header';
 import { SiteTabs } from '@/components/SiteTabs';
 import Footer from '@/components/Footer';
 
-export default function LivePageLayout({ children }: { children: React.ReactNode }) {
+export default function PageLayout({ children }: { children: React.ReactNode }) {
   return (
     <div className="bg-gray-50 flex flex-col flex-1 min-h-screen">
       <div className="bg-white border-b border-gray-200">
