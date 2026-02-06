@@ -1,6 +1,6 @@
 import React from 'react';
-import LivePageLayout from '@/modules/layout';
+import PageLayout from '@/app/shared/PageLayout';
 
 export default function Layout({ children }: { children: React.ReactNode }) {
-  return <LivePageLayout>{children}</LivePageLayout>;
+  return <PageLayout>{children}</PageLayout>;
 }

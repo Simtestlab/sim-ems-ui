@@ -26,8 +26,8 @@ export function Header() {
   const links = [
     { label: 'Live', path: '/live' },
     { label: 'Site Map', path: '/sitemap' },
-    { label: 'Analytics', path: '/live/analytics' },
-    { label: 'Alerts', path: '/live/alerts' },
+    { label: 'Analytics', path: '/analytics' },
+    { label: 'Alerts', path: '/alerts' },
   ];
 
   const buildHref = (p: string) => (siteParam ? `${p}?site=${encodeURIComponent(siteParam)}` : p);
