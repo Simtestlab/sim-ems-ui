@@ -1,11 +1,18 @@
 'use client';
 import { Sun, Zap, Battery, Home } from 'lucide-react';
 import { useEnergySimulation } from '@/modules/live/hooks/useEnergySimulation';
+import { useSmoothValue } from '@/modules/live/hooks/useSmoothValue';
 import { calculateStrokeWidth, calculateArcAngle, formatEnergyDisplay } from '../utils/animationHelpers';
 
 export function RadialEnergyMonitor() {
   // Use the centralized energy simulation hook
   const { solar, grid, battery, home, flows } = useEnergySimulation();
+
+  // Smooth value interpolation to prevent SVG path distortion
+  const smoothSolar = useSmoothValue(solar.value, 0.1);
+  const smoothGrid = useSmoothValue(Math.abs(grid.value), 0.1);
+  const smoothBattery = useSmoothValue(Math.abs(battery.value), 0.1);
+  const smoothHome = useSmoothValue(home.value, 0.1);
 
   // Fixed coordinate system (500x500 Canvas)
   const centerX = 250;
@@ -146,7 +153,7 @@ export function RadialEnergyMonitor() {
           {/* Dynamic gauge rings based on energy values */}
           <path
             d={(() => {
-              const angleSpan = calculateArcAngle(solar.value);
+              const angleSpan = calculateArcAngle(smoothSolar);
               return createArcPath(-angleSpan/2, angleSpan/2, 210);
             })()}
             stroke={colors.solar}
@@ -159,7 +166,7 @@ export function RadialEnergyMonitor() {
           
           <path
             d={(() => {
-              const angleSpan = calculateArcAngle(home.value);
+              const angleSpan = calculateArcAngle(smoothHome);
               return createArcPath(90 - angleSpan/2, 90 + angleSpan/2, 210);
             })()}
             stroke={colors.home}
@@ -172,7 +179,7 @@ export function RadialEnergyMonitor() {
           
           <path
             d={(() => {
-              const angleSpan = calculateArcAngle(battery.value);
+              const angleSpan = calculateArcAngle(smoothBattery);
               return createArcPath(180 - angleSpan/2, 180 + angleSpan/2, 210);
             })()}
             stroke={colors.battery}
@@ -185,7 +192,7 @@ export function RadialEnergyMonitor() {
           
           <path
             d={(() => {
-              const angleSpan = calculateArcAngle(grid.value);
+              const angleSpan = calculateArcAngle(smoothGrid);
               return createArcPath(270 - angleSpan/2, 270 + angleSpan/2, 210);
             })()}
             stroke={colors.grid}
@@ -203,7 +210,7 @@ export function RadialEnergyMonitor() {
             x2={flowLines.solar.x2}
             y2={flowLines.solar.y2}
             stroke={colors.solar}
-            strokeWidth={calculateStrokeWidth(solar.value, 2, 8)}
+            strokeWidth={calculateStrokeWidth(smoothSolar, 2, 8)}
             strokeOpacity={flows.isSolarProducing ? "0.8" : "0.3"}
             strokeLinecap="round"
             strokeDasharray={flows.isSolarProducing ? "10 5" : "none"}
@@ -216,7 +223,7 @@ export function RadialEnergyMonitor() {
             x2={flowLines.battery.x2}
             y2={flowLines.battery.y2}
             stroke={colors.battery}
-            strokeWidth={calculateStrokeWidth(battery.value, 2, 8)}
+            strokeWidth={calculateStrokeWidth(smoothBattery, 2, 8)}
             strokeOpacity={flows.isBatteryCharging || flows.isBatteryDischarging ? "0.8" : "0.3"}
             strokeLinecap="round"
             strokeDasharray={flows.isBatteryCharging || flows.isBatteryDischarging ? "10 5" : "none"}
@@ -229,7 +236,7 @@ export function RadialEnergyMonitor() {
             x2={flowLines.grid.x2}
             y2={flowLines.grid.y2}
             stroke={colors.grid}
-            strokeWidth={calculateStrokeWidth(grid.value, 2, 8)}
+            strokeWidth={calculateStrokeWidth(smoothGrid, 2, 8)}
             strokeOpacity={flows.isGridImporting || flows.isGridExporting ? "0.8" : "0.3"}
             strokeLinecap="round"
             strokeDasharray={flows.isGridImporting || flows.isGridExporting ? "10 5" : "none"}
@@ -242,7 +249,7 @@ export function RadialEnergyMonitor() {
             x2={flowLines.home.x2}
             y2={flowLines.home.y2}
             stroke={colors.home}
-            strokeWidth={calculateStrokeWidth(home.value, 2, 8)}
+            strokeWidth={calculateStrokeWidth(smoothHome, 2, 8)}
             strokeOpacity={flows.isHomeConsuming ? "0.8" : "0.3"}
             strokeLinecap="round"
             strokeDasharray={flows.isHomeConsuming ? "10 5" : "none"}
