@@ -77,11 +77,118 @@ export function RadialEnergyMonitor() {
     return `M ${start.x} ${start.y} A ${radius} ${radius} 0 ${largeArcFlag} 1 ${end.x} ${end.y}`;
   };
 
+  // Helper function to calculate animation duration based on energy magnitude
+  const calculateAnimationDuration = (value: number, maxValue: number = 10): number => {
+    const absValue = Math.abs(value);
+    const ratio = Math.min(absValue / maxValue, 1);
+    // Interpolate between 3s (slow, low power) and 0.8s (fast, high power)
+    return 3 - (ratio * 2.2); // Returns 3s to 0.8s
+  };
+
+  // Smart filtering for low-energy flows
+  const isFlowSignificant = (value: number): boolean => Math.abs(value) > 0.1;
+
+  // Helper function to determine animation direction based on flow
+  const getFlowAnimation = (
+    value: number,
+    isActive: boolean,
+    flowsToHub: boolean // true if energy flows TO hub, false if FROM hub
+  ) => {
+    if (!isActive || !isFlowSignificant(value)) {
+      return {
+        animationPlayState: 'paused'
+      };
+    }
+    
+    const duration = calculateAnimationDuration(value);
+    const direction = flowsToHub ? 'normal' : 'reverse';
+    
+    return {
+      animationName: 'dash-move',
+      animationDuration: `${duration}s`,
+      animationTimingFunction: 'linear',
+      animationIterationCount: 'infinite',
+      animationDirection: direction,
+      animationPlayState: 'running'
+    };
+  };
+
+  // Dynamic gradient generation based on active flows
+  const generateFlowGradient = (sourceColor: string, sinkColor: string, id: string) => {
+    return (
+      <linearGradient key={id} id={id} x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor={sourceColor} />
+        <stop offset="100%" stopColor={sinkColor} />
+      </linearGradient>
+    );
+  };
+
+  // Determine stroke color/gradient based on flow context
+  const getStrokeColor = (sourceType: string, isActive: boolean) => {
+    if (!isActive) return colors[sourceType as keyof typeof colors];
+    
+    // Contextual gradient hand-offs
+    switch(sourceType) {
+      case 'solar':
+        if (flows.isHomeConsuming) return 'url(#solar-to-home)';
+        if (flows.isBatteryCharging) return 'url(#solar-to-battery)';
+        break;
+      case 'battery':
+        if (flows.isBatteryDischarging && flows.isHomeConsuming) return 'url(#battery-to-home)';
+        break;
+      case 'grid':
+        if (flows.isGridImporting && flows.isHomeConsuming) return 'url(#grid-to-home)';
+        break;
+    }
+    
+    return colors[sourceType as keyof typeof colors];
+  };
+
+  // Node state physics effects
+  const getNodeEffects = (nodeType: string) => {
+    const baseEffects = { filter: 'url(#dropshadow)' };
+    
+    switch(nodeType) {
+      case 'battery':
+        if (flows.isBatteryCharging) {
+          return {
+            ...baseEffects,
+            filter: 'url(#glow) url(#dropshadow)',
+            style: {
+              animation: 'breathing-gather 2s ease-in-out infinite'
+            }
+          };
+        }
+        if (flows.isBatteryDischarging) {
+          return {
+            ...baseEffects,
+            filter: 'url(#glow) url(#dropshadow)',
+            style: {
+              animation: 'radiating-pulse 1.5s ease-in-out infinite'
+            }
+          };
+        }
+        break;
+      case 'grid':
+        if (flows.isGridImporting) {
+          return {
+            ...baseEffects,
+            style: {
+              animation: 'breathing-opacity 2.5s ease-in-out infinite'
+            }
+          };
+        }
+        break;
+    }
+    
+    return baseEffects;
+  };
+
   return (
     <div className="relative w-full h-[calc(100vh-6rem)] flex items-center justify-center p-4">
-      {/* CSS Animations for flow effects only */}
+      {/* CSS Animations for dynamic vector-flow physics */}
       <style>{`
-        @keyframes flow-pulse {
+        @keyframes dash-move {
           0% { 
             stroke-dashoffset: 0;
           }
@@ -90,8 +197,43 @@ export function RadialEnergyMonitor() {
           }
         }
         
-        .flow-pulse {
-          animation: flow-pulse 1.5s linear infinite;
+        @keyframes breathing-gather {
+          0% { 
+            transform: scale(1);
+            filter: drop-shadow(0 0 5px currentColor);
+          }
+          50% { 
+            transform: scale(1.05);
+            filter: drop-shadow(0 0 15px currentColor);
+          }
+          100% { 
+            transform: scale(1);
+            filter: drop-shadow(0 0 5px currentColor);
+          }
+        }
+        
+        @keyframes radiating-pulse {
+          0% { 
+            filter: drop-shadow(0 0 8px currentColor);
+          }
+          50% { 
+            filter: drop-shadow(0 0 25px currentColor) drop-shadow(0 0 35px currentColor);
+          }
+          100% { 
+            filter: drop-shadow(0 0 8px currentColor);
+          }
+        }
+        
+        @keyframes breathing-opacity {
+          0% { 
+            opacity: 0.8;
+          }
+          50% { 
+            opacity: 1;
+          }
+          100% { 
+            opacity: 0.8;
+          }
         }
       `}</style>
 
@@ -99,19 +241,22 @@ export function RadialEnergyMonitor() {
         {/* Main SVG Canvas */}
         <svg viewBox="-20 -20 580 580" className="w-[calc(100vh-6rem)] h-[calc(100vh-6rem)] max-w-none overflow-visible">
           <defs>
-            {/* Gradients for flow effects */}
-            <linearGradient id="solarFlow" x1="0%" y1="0%" x2="0%" y2="100%">
-              <stop offset="0%" stopColor={colors.solar} />
-              <stop offset="100%" stopColor={colors.battery} />
-            </linearGradient>
-            <linearGradient id="homeFlow" x1="0%" y1="0%" x2="100%" y2="0%">
-              <stop offset="0%" stopColor={colors.battery} />
-              <stop offset="100%" stopColor={colors.home} />
-            </linearGradient>
-            <linearGradient id="gridFlow" x1="0%" y1="0%" x2="100%" y2="0%">
-              <stop offset="0%" stopColor={colors.grid} />
-              <stop offset="100%" stopColor="#374151" />
-            </linearGradient>
+            {/* Dynamic contextual gradients based on active flows */}
+            {flows.isSolarProducing && flows.isHomeConsuming && 
+              generateFlowGradient(colors.solar, colors.home, 'solar-to-home')
+            }
+            {flows.isSolarProducing && flows.isBatteryCharging && 
+              generateFlowGradient(colors.solar, colors.battery, 'solar-to-battery')
+            }
+            {flows.isBatteryDischarging && flows.isHomeConsuming && 
+              generateFlowGradient(colors.battery, colors.home, 'battery-to-home')
+            }
+            {flows.isGridImporting && flows.isHomeConsuming && 
+              generateFlowGradient(colors.grid, colors.home, 'grid-to-home')
+            }
+            {flows.isGridExporting && 
+              generateFlowGradient(colors.home, colors.grid, 'home-to-grid')
+            }
             
             {/* Glow filter for active elements */}
             <filter id="glow">
@@ -203,33 +348,40 @@ export function RadialEnergyMonitor() {
             strokeOpacity={(flows.isGridImporting || flows.isGridExporting) ? "0.9" : "0.4"}
           />
 
-          {/* Flow Lines with Dynamic Thickness */}
+          {/* Flow Lines with Visual Weight & Data Hierarchy */}
+          {/* Solar Line: Always flows TO hub when producing */}
           <line
             x1={flowLines.solar.x1}
             y1={flowLines.solar.y1}
             x2={flowLines.solar.x2}
             y2={flowLines.solar.y2}
-            stroke={colors.solar}
-            strokeWidth={calculateStrokeWidth(smoothSolar, 2, 8)}
-            strokeOpacity={flows.isSolarProducing ? "0.8" : "0.3"}
+            stroke={getStrokeColor('solar', flows.isSolarProducing)}
+            strokeWidth={calculateStrokeWidth(smoothSolar, 2, 12)}
+            strokeOpacity={isFlowSignificant(smoothSolar) && flows.isSolarProducing ? "0.9" : "0.1"}
             strokeLinecap="round"
-            strokeDasharray={flows.isSolarProducing ? "10 5" : "none"}
-            className={flows.isSolarProducing ? "flow-pulse" : ""}
+            strokeDasharray={flows.isSolarProducing && isFlowSignificant(smoothSolar) ? "10 5" : "none"}
+            style={getFlowAnimation(smoothSolar, flows.isSolarProducing, true)}
           />
           
+          {/* Battery Line: TO hub when discharging (normal), FROM hub when charging (reverse) */}
           <line
             x1={flowLines.battery.x1}
             y1={flowLines.battery.y1}
             x2={flowLines.battery.x2}
             y2={flowLines.battery.y2}
-            stroke={colors.battery}
-            strokeWidth={calculateStrokeWidth(smoothBattery, 2, 8)}
-            strokeOpacity={flows.isBatteryCharging || flows.isBatteryDischarging ? "0.8" : "0.3"}
+            stroke={getStrokeColor('battery', flows.isBatteryCharging || flows.isBatteryDischarging)}
+            strokeWidth={calculateStrokeWidth(smoothBattery, 2, 10)}
+            strokeOpacity={isFlowSignificant(smoothBattery) && (flows.isBatteryCharging || flows.isBatteryDischarging) ? "0.9" : "0.1"}
             strokeLinecap="round"
-            strokeDasharray={flows.isBatteryCharging || flows.isBatteryDischarging ? "10 5" : "none"}
-            className={flows.isBatteryCharging || flows.isBatteryDischarging ? "flow-pulse" : ""}
+            strokeDasharray={(flows.isBatteryCharging || flows.isBatteryDischarging) && isFlowSignificant(smoothBattery) ? "10 5" : "none"}
+            style={getFlowAnimation(
+              smoothBattery, 
+              flows.isBatteryCharging || flows.isBatteryDischarging,
+              flows.isBatteryDischarging // TO hub when discharging
+            )}
           />
           
+          {/* Grid Line: TO hub when importing (normal), FROM hub when exporting (reverse) */}
           <line
             x1={flowLines.grid.x1}
             y1={flowLines.grid.y1}
@@ -240,7 +392,43 @@ export function RadialEnergyMonitor() {
             strokeOpacity={flows.isGridImporting || flows.isGridExporting ? "0.8" : "0.3"}
             strokeLinecap="round"
             strokeDasharray={flows.isGridImporting || flows.isGridExporting ? "10 5" : "none"}
-            className={flows.isGridImporting || flows.isGridExporting ? "flow-pulse" : ""}
+            style={getFlowAnimation(
+              smoothGrid,
+              flows.isGridImporting || flows.isGridExporting,
+              flows.isGridImporting // TO hub when importing
+            )}
+          />
+          
+          {/* Home Line: Always flows FROM hub when consuming - Heavy visual weight */}
+          <line
+            x1={flowLines.home.x1}
+            y1={flowLines.home.y1}
+            x2={flowLines.home.x2}
+            y2={flowLines.home.y2}
+            stroke={colors.home}
+            strokeWidth={calculateStrokeWidth(smoothHome, 3, 14)}
+            strokeOpacity={isFlowSignificant(smoothHome) && flows.isHomeConsuming ? "0.9" : "0.1"}
+            strokeLinecap="round"
+            strokeDasharray={flows.isHomeConsuming && isFlowSignificant(smoothHome) ? "10 5" : "none"}
+            style={getFlowAnimation(smoothHome, flows.isHomeConsuming, false)}
+          />
+          
+          {/* Grid Line: TO hub when importing (normal), FROM hub when exporting (reverse) */}
+          <line
+            x1={flowLines.grid.x1}
+            y1={flowLines.grid.y1}
+            x2={flowLines.grid.x2}
+            y2={flowLines.grid.y2}
+            stroke={getStrokeColor('grid', flows.isGridImporting || flows.isGridExporting)}
+            strokeWidth={calculateStrokeWidth(smoothGrid, 2, 12)}
+            strokeOpacity={isFlowSignificant(smoothGrid) && (flows.isGridImporting || flows.isGridExporting) ? "0.9" : "0.1"}
+            strokeLinecap="round"
+            strokeDasharray={(flows.isGridImporting || flows.isGridExporting) && isFlowSignificant(smoothGrid) ? "10 5" : "none"}
+            style={getFlowAnimation(
+              smoothGrid,
+              flows.isGridImporting || flows.isGridExporting,
+              flows.isGridImporting // TO hub when importing
+            )}
           />
           
           <line
@@ -283,7 +471,7 @@ export function RadialEnergyMonitor() {
             
             return (
               <g key={`node-${key}`}>
-                {/* Glassmorphism icon circle */}
+                {/* State-aware node with physics effects */}
                 <circle
                   cx={pos.x}
                   cy={pos.y}
@@ -301,7 +489,7 @@ export function RadialEnergyMonitor() {
                   fill="none"
                   stroke={color}
                   strokeWidth="3"
-                  filter="url(#dropshadow)"
+                  {...getNodeEffects(key)}
                 />
                 <foreignObject
                   x={pos.x - 14}
