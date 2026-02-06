@@ -1,6 +1,6 @@
-import { SelectedSite } from '@/modules/dashboard/components/SelectedSite';
+import { SelectedSite } from '@/components/SelectedSite';
 
-export default function SiteMapPage() {
+export default function AnalyticsPage() {
   return (
     <div className="h-full flex flex-col">
       <div className="flex-1">
@@ -10,8 +10,8 @@ export default function SiteMapPage() {
           </div>
           <div className="flex items-center justify-center h-full text-gray-400">
             <div className="text-center">
-              <p className="text-lg mb-2">Site Map</p>
-              <p className="text-sm">Site-specific site map data will appear here</p>
+              <p className="text-lg mb-2">Analytics</p>
+              <p className="text-sm">Site-specific analytics and data will appear here</p>
             </div>
           </div>
         </div>

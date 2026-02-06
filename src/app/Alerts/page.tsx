@@ -1,3 +1,6 @@
-import AlertsPage from "@/modules/Alerts/alerts/page";
+import React from 'react';
+import AlertsPage from '@/modules/alerts/pages/AlertPage';
 
-export default AlertsPage;
+export default function Page() {
+  return <AlertsPage />;
+}

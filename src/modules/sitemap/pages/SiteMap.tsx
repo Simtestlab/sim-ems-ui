@@ -1,4 +1,4 @@
-import { SelectedSite } from '@/modules/dashboard/components/SelectedSite';
+import { SelectedSite } from '@/components/SelectedSite';
 
 export default function SiteMapPage() {
   return (

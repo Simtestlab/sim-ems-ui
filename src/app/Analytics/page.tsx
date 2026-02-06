@@ -1,3 +1,5 @@
-import AnalyticsPage from "@/modules/Analytics/analytics/page";
+import AnalyticsPage from '@/modules/analytics/pages/AnalyticsPage';
 
-export default AnalyticsPage;
+export default function Page() {
+  return <AnalyticsPage />;
+}

@@ -5,7 +5,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname, useSearchParams } from 'next/navigation';
 import { useAuth } from '@/modules/auth/context/AuthContext';
-import { LogoutIcon } from "@/components/icons/LogoutIcon";
+import { LogoutIcon } from '@/components/LogoutIcon';
 
 export function Header() {
   const { user, logout } = useAuth();
@@ -24,14 +24,14 @@ export function Header() {
   };
 
   const links = [
-    { label: 'Live', path: '/livePage' },
-    { label: 'Site Map', path: '/livePage/site-map' },
-    { label: 'Analytics', path: '/livePage/analytics' },
-    { label: 'Alerts', path: '/livePage/alerts' },
+    { label: 'Live', path: '/live' },
+    { label: 'Site Map', path: '/sitemap' },
+    { label: 'Analytics', path: '/live/analytics' },
+    { label: 'Alerts', path: '/live/alerts' },
   ];
 
   const buildHref = (p: string) => (siteParam ? `${p}?site=${encodeURIComponent(siteParam)}` : p);
-  const isActive = (p: string) => pathname === p || (p === '/livePage' && pathname === '/livePage');
+  const isActive = (p: string) => pathname === p || (p === '/live' && pathname === '/live');
 
   return (
     <header className="bg-white h-12">

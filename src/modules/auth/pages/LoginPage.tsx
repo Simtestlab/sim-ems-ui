@@ -4,7 +4,7 @@ import { useState, FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/modules/auth/context/AuthContext";
 
-export default function LoginClient() {
+export default function LoginPage() {
   const router = useRouter();
   const { refreshUser, login } = useAuth();
   const [email, setEmail] = useState("");
@@ -22,7 +22,7 @@ export default function LoginClient() {
       await login(email, password);
       // Refresh user state if needed, then navigate to dashboard
       await refreshUser();
-      router.push("/dashboard");
+      router.push("/sitemap");
     } catch (err) {
       console.error("[Login] Error:", err);
       setError(err instanceof Error ? err.message : "An error occurred");

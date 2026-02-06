@@ -1,7 +1,7 @@
 import React from 'react';
-import { Header } from '@/modules/Live/components/Header/header';
-import { SiteTabs } from '@/modules/Live/components/SiteTabs';
-import Footer from '@/modules/dashboard/components/Footer';
+import { Header } from '@/components/Header';
+import { SiteTabs } from '@/components/SiteTabs';
+import Footer from '@/components/Footer';
 
 export default function LivePageLayout({ children }: { children: React.ReactNode }) {
   return (

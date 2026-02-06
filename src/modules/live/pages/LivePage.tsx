@@ -1,5 +1,5 @@
 'use client';
-import { SelectedSite } from '@/modules/dashboard/components/SelectedSite';
+import { SelectedSite } from '@/components/SelectedSite';
 
 export function LivePage() {
   return (
