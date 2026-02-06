@@ -31,7 +31,7 @@ export function Header() {
   const isActive = (p: string) => pathname === p;
 
   return (
-    <header className="bg-white h-12">
+    <header className="bg-white h-8">
       <div className="flex items-center justify-between px-0 h-12">
         <div className="flex items-center gap-3">
           <Image src="/logo.png" alt="Simtestlab EMS Logo" width={20} height={20} />
@@ -66,10 +66,28 @@ export function Header() {
             </button>
 
             {showUserMenu && (
-              <button onClick={handleLogout} className="text-red-600">
-                <LogoutIcon />
-                Logout
-              </button>
+              <>
+                <div
+                  className="fixed inset-0 z-10"
+                  onClick={() => setShowUserMenu(false)}
+                />
+                <div className="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-20">
+                  <div className="px-4 py-3 border-b border-gray-100">
+                    <p className="text-sm font-medium text-gray-900">
+                      {user?.full_name || user?.username}
+                    </p>
+                    <p className="text-xs text-gray-500">{user?.email}</p>
+                    <p className="text-xs text-gray-400 mt-1">{user?.role_display}</p>
+                  </div>
+                  <button
+                    onClick={handleLogout}
+                    className="w-full flex items-center gap-3 px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors"
+                  >
+                    <LogoutIcon />
+                    <span>Logout</span>
+                  </button>
+                </div>
+              </>
             )}
           </div>
         </div>
