@@ -18,7 +18,7 @@ export function SiteTabs({
           <button
             key={site}
             onClick={() => setSite(site)}
-            className={`px-4 py-2 border-b-2 ${
+                className={`px-4 sm:px-6 py-2 text-xs font-medium transition-colors border-b-2 ${
               selectedSite === site
                 ? 'border-green-500 text-black'
                 : 'border-transparent text-gray-500'
