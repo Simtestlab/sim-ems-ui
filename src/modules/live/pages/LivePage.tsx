@@ -1,22 +1,14 @@
 'use client';
-import { SelectedSite } from '@/components/SelectedSite';
+
+import { RadialEnergyMonitor } from '@/modules/live/components/RadialEnergyMonitor';
 
 export function LivePage() {
   return (
-      <div className="h-full flex flex-col">
-        <div className="flex-1">
-          <div className="pt-4 sm:pt-6 md:pt-8 h-full">
-            <div className="pt-2">
-            <SelectedSite />
-            </div>
-            <div className="flex items-center justify-center h-full text-gray-400">
-              <div className="text-center">
-                <p className="text-lg mb-2">Live</p>
-                <p className="text-sm">Site-specific analytics and data will appear here</p>
-              </div>
-            </div>
-          </div>
-        </div>
+    <div className="flex flex-col flex-1 w-full h-full min-h-0">
+      {/* Main Content - Full viewport usage without padding */}
+      <div className="flex-1 flex items-center justify-center w-full h-full min-h-0 overflow-hidden bg-gray-50">
+        <RadialEnergyMonitor />
       </div>
-    );
+    </div>
+  );
 }

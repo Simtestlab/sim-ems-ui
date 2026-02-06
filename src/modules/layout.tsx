@@ -11,7 +11,7 @@ export default function LivePageLayout({ children }: { children: React.ReactNode
         <SiteTabs />
       </div>
 
-      <main className="flex-1 h-full overflow-auto bg-white">{children}</main>
+      <main className="flex-1 flex flex-col min-h-0 overflow-hidden bg-white">{children}</main>
 
       <Footer />
     </div>
