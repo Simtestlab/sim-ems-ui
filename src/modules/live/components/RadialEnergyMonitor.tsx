@@ -1,57 +1,11 @@
 'use client';
-import { useEffect, useState } from 'react';
 import { Sun, Zap, Battery, Home } from 'lucide-react';
-
-interface EnergyData {
-  solar: number;
-  grid: number;
-  battery: number;
-  home: number;
-}
+import { useEnergySimulation } from '@/modules/live/hooks/useEnergySimulation';
+import { getDynamicStyle, formatEnergyDisplay } from '../utils/animationHelpers';
 
 export function RadialEnergyMonitor() {
-  // Dynamic state for real-time simulation
-  const [energyData, setEnergyData] = useState<EnergyData>({
-    solar: 5.0,    // Starting values
-    grid: 2.5,
-    battery: -2.0,
-    home: 4.5
-  });
-
-  // Real-time simulation effect
-  useEffect(() => {
-    const updateEnergyData = () => {
-      // Generate realistic energy flow simulation
-      const solar = Math.random() * 8.0; // 0.0 to 8.0 kW
-      const home = 1.0 + Math.random() * 5.0; // 1.0 to 6.0 kW
-      const battery = -2.5 + Math.random() * 5.0; // -2.5 to 2.5 kW (negative = charging)
-      const grid = home - solar; // Grid compensates difference
-      
-      const newData = {
-        solar: parseFloat(solar.toFixed(1)),
-        home: parseFloat(home.toFixed(1)),
-        battery: parseFloat(battery.toFixed(1)),
-        grid: parseFloat(grid.toFixed(1))
-      };
-      
-      console.log('Updating energy data:', newData); // Debug log
-      setEnergyData(newData);
-    };
-
-    // Update immediately on mount
-    updateEnergyData();
-    
-    const interval = setInterval(updateEnergyData, 1000);
-    
-    return () => {
-      console.log('Cleaning up interval'); // Debug log
-      clearInterval(interval);
-    };
-  }, []);
-
-  const formatPower = (value: number) => {
-    return `${Math.abs(value).toFixed(1)} kW`;
-  };
+  // Use the centralized energy simulation hook
+  const { solar, grid, battery, home, flows } = useEnergySimulation();
 
   // Fixed coordinate system (500x500 Canvas)
   const centerX = 250;
@@ -132,8 +86,25 @@ export function RadialEnergyMonitor() {
         }
         
         @keyframes flow-pulse {
-          0%, 100% { stroke-opacity: 0.4; }
-          50% { stroke-opacity: 1.0; }
+          0%, 100% { 
+            stroke-opacity: 0.4;
+            stroke-dashoffset: 0;
+          }
+          50% { 
+            stroke-opacity: 1.0;
+            stroke-dashoffset: 20;
+          }
+        }
+        
+        @keyframes ring-pulse {
+          0%, 100% { 
+            stroke-opacity: 0.8;
+            stroke-width: 16px;
+          }
+          50% { 
+            stroke-opacity: 1.0;
+            stroke-width: 19px;
+          }
         }
         
         .hub-pulse {
@@ -142,6 +113,10 @@ export function RadialEnergyMonitor() {
         
         .flow-pulse {
           animation: flow-pulse 2s ease-in-out infinite;
+        }
+        
+        .ring-pulse {
+          animation: ring-pulse 3s ease-in-out infinite;
         }
       `}</style>
 
@@ -208,6 +183,7 @@ export function RadialEnergyMonitor() {
             strokeLinecap="round"
             fill="none"
             filter="url(#glow)"
+            style={getDynamicStyle(flows.isSolarProducing, solar.value)}
           />
           
           <path
@@ -217,6 +193,7 @@ export function RadialEnergyMonitor() {
             strokeLinecap="round"
             fill="none"
             filter="url(#glow)"
+            style={getDynamicStyle(flows.isHomeConsuming, home.value)}
           />
           
           <path
@@ -226,6 +203,7 @@ export function RadialEnergyMonitor() {
             strokeLinecap="round"
             fill="none"
             filter="url(#glow)"
+            style={getDynamicStyle(flows.isBatteryCharging || flows.isBatteryDischarging, battery.value)}
           />
           
           <path
@@ -235,9 +213,10 @@ export function RadialEnergyMonitor() {
             strokeLinecap="round"
             fill="none"
             filter="url(#glow)"
+            style={getDynamicStyle(flows.isGridImporting || flows.isGridExporting, grid.value)}
           />
 
-          {/* Hardcoded Flow Lines (Simple and Visible) */}
+          {/* Hardcoded Flow Lines with Conditional Animations */}
           <line
             x1={flowLines.solar.x1}
             y1={flowLines.solar.y1}
@@ -245,8 +224,10 @@ export function RadialEnergyMonitor() {
             y2={flowLines.solar.y2}
             stroke={colors.solar}
             strokeWidth="6"
-            strokeOpacity="0.8"
+            strokeOpacity={flows.isSolarProducing ? "0.8" : "0.3"}
             strokeLinecap="round"
+            strokeDasharray={flows.isSolarProducing ? "10 5" : "none"}
+            className={flows.isSolarProducing ? "flow-pulse" : ""}
           />
           
           <line
@@ -256,8 +237,10 @@ export function RadialEnergyMonitor() {
             y2={flowLines.battery.y2}
             stroke={colors.battery}
             strokeWidth="6"
-            strokeOpacity="0.8"
+            strokeOpacity={flows.isBatteryCharging || flows.isBatteryDischarging ? "0.8" : "0.3"}
             strokeLinecap="round"
+            strokeDasharray={flows.isBatteryCharging || flows.isBatteryDischarging ? "10 5" : "none"}
+            className={flows.isBatteryCharging || flows.isBatteryDischarging ? "flow-pulse" : ""}
           />
           
           <line
@@ -267,8 +250,10 @@ export function RadialEnergyMonitor() {
             y2={flowLines.grid.y2}
             stroke={colors.grid}
             strokeWidth="6"
-            strokeOpacity="0.8"
+            strokeOpacity={flows.isGridImporting || flows.isGridExporting ? "0.8" : "0.3"}
             strokeLinecap="round"
+            strokeDasharray={flows.isGridImporting || flows.isGridExporting ? "10 5" : "none"}
+            className={flows.isGridImporting || flows.isGridExporting ? "flow-pulse" : ""}
           />
           
           <line
@@ -278,8 +263,10 @@ export function RadialEnergyMonitor() {
             y2={flowLines.home.y2}
             stroke={colors.home}
             strokeWidth="6"
-            strokeOpacity="0.8"
+            strokeOpacity={flows.isHomeConsuming ? "0.8" : "0.3"}
             strokeLinecap="round"
+            strokeDasharray={flows.isHomeConsuming ? "10 5" : "none"}
+            className={flows.isHomeConsuming ? "flow-pulse" : ""}
           />
 
           {/* Central Hub (Hollow Ring) */}
@@ -300,10 +287,12 @@ export function RadialEnergyMonitor() {
             const IconComponent = key === 'solar' ? Sun : 
                                key === 'grid' ? Zap :
                                key === 'battery' ? Battery : Home;
-            const value = energyData[key as keyof EnergyData];
+            const energyValue = key === 'solar' ? solar :
+                             key === 'grid' ? grid :
+                             key === 'battery' ? battery : home;
             const displayValue = key === 'grid' || key === 'battery' 
-              ? `${value >= 0 ? '+' : ''}${value.toFixed(1)}` 
-              : formatPower(value);
+              ? formatEnergyDisplay(energyValue.value, energyValue.label, true)
+              : energyValue.label;
             const textPos = textPositions[key as keyof typeof textPositions];
             
             return (
