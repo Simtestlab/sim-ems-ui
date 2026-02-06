@@ -1,5 +1,5 @@
 'use client';
-import { Sun, Zap, Battery, Home } from 'lucide-react';
+import { Sun, Zap, Battery, BatteryCharging, Home } from 'lucide-react';
 import { useEnergySimulation } from '@/modules/live/hooks/useEnergySimulation';
 import { useSmoothValue } from '@/modules/live/hooks/useSmoothValue';
 import { calculateStrokeWidth, calculateArcAngle, formatEnergyDisplay } from '../utils/animationHelpers';
@@ -144,44 +144,9 @@ export function RadialEnergyMonitor() {
     return colors[sourceType as keyof typeof colors];
   };
 
-  // Node state physics effects
-  const getNodeEffects = (nodeType: string) => {
-    const baseEffects = { filter: 'url(#dropshadow)' };
-    
-    switch(nodeType) {
-      case 'battery':
-        if (flows.isBatteryCharging) {
-          return {
-            ...baseEffects,
-            filter: 'url(#glow) url(#dropshadow)',
-            style: {
-              animation: 'breathing-gather 2s ease-in-out infinite'
-            }
-          };
-        }
-        if (flows.isBatteryDischarging) {
-          return {
-            ...baseEffects,
-            filter: 'url(#glow) url(#dropshadow)',
-            style: {
-              animation: 'radiating-pulse 1.5s ease-in-out infinite'
-            }
-          };
-        }
-        break;
-      case 'grid':
-        if (flows.isGridImporting) {
-          return {
-            ...baseEffects,
-            style: {
-              animation: 'breathing-opacity 2.5s ease-in-out infinite'
-            }
-          };
-        }
-        break;
-    }
-    
-    return baseEffects;
+  // Grid breathing effect for imports
+  const getGridClass = () => {
+    return flows.isGridImporting ? 'breathing-opacity' : '';
   };
 
   return (
@@ -194,33 +159,6 @@ export function RadialEnergyMonitor() {
           }
           100% { 
             stroke-dashoffset: 20;
-          }
-        }
-        
-        @keyframes breathing-gather {
-          0% { 
-            transform: scale(1);
-            filter: drop-shadow(0 0 5px currentColor);
-          }
-          50% { 
-            transform: scale(1.05);
-            filter: drop-shadow(0 0 15px currentColor);
-          }
-          100% { 
-            transform: scale(1);
-            filter: drop-shadow(0 0 5px currentColor);
-          }
-        }
-        
-        @keyframes radiating-pulse {
-          0% { 
-            filter: drop-shadow(0 0 8px currentColor);
-          }
-          50% { 
-            filter: drop-shadow(0 0 25px currentColor) drop-shadow(0 0 35px currentColor);
-          }
-          100% { 
-            filter: drop-shadow(0 0 8px currentColor);
           }
         }
         
@@ -387,11 +325,11 @@ export function RadialEnergyMonitor() {
             y1={flowLines.grid.y1}
             x2={flowLines.grid.x2}
             y2={flowLines.grid.y2}
-            stroke={colors.grid}
-            strokeWidth={calculateStrokeWidth(smoothGrid, 2, 8)}
-            strokeOpacity={flows.isGridImporting || flows.isGridExporting ? "0.8" : "0.3"}
+            stroke={getStrokeColor('grid', flows.isGridImporting || flows.isGridExporting)}
+            strokeWidth={calculateStrokeWidth(smoothGrid, 2, 12)}
+            strokeOpacity={isFlowSignificant(smoothGrid) && (flows.isGridImporting || flows.isGridExporting) ? "0.9" : "0.1"}
             strokeLinecap="round"
-            strokeDasharray={flows.isGridImporting || flows.isGridExporting ? "10 5" : "none"}
+            strokeDasharray={(flows.isGridImporting || flows.isGridExporting) && isFlowSignificant(smoothGrid) ? "10 5" : "none"}
             style={getFlowAnimation(
               smoothGrid,
               flows.isGridImporting || flows.isGridExporting,
@@ -412,37 +350,6 @@ export function RadialEnergyMonitor() {
             strokeDasharray={flows.isHomeConsuming && isFlowSignificant(smoothHome) ? "10 5" : "none"}
             style={getFlowAnimation(smoothHome, flows.isHomeConsuming, false)}
           />
-          
-          {/* Grid Line: TO hub when importing (normal), FROM hub when exporting (reverse) */}
-          <line
-            x1={flowLines.grid.x1}
-            y1={flowLines.grid.y1}
-            x2={flowLines.grid.x2}
-            y2={flowLines.grid.y2}
-            stroke={getStrokeColor('grid', flows.isGridImporting || flows.isGridExporting)}
-            strokeWidth={calculateStrokeWidth(smoothGrid, 2, 12)}
-            strokeOpacity={isFlowSignificant(smoothGrid) && (flows.isGridImporting || flows.isGridExporting) ? "0.9" : "0.1"}
-            strokeLinecap="round"
-            strokeDasharray={(flows.isGridImporting || flows.isGridExporting) && isFlowSignificant(smoothGrid) ? "10 5" : "none"}
-            style={getFlowAnimation(
-              smoothGrid,
-              flows.isGridImporting || flows.isGridExporting,
-              flows.isGridImporting // TO hub when importing
-            )}
-          />
-          
-          <line
-            x1={flowLines.home.x1}
-            y1={flowLines.home.y1}
-            x2={flowLines.home.x2}
-            y2={flowLines.home.y2}
-            stroke={colors.home}
-            strokeWidth={calculateStrokeWidth(smoothHome, 2, 8)}
-            strokeOpacity={flows.isHomeConsuming ? "0.8" : "0.3"}
-            strokeLinecap="round"
-            strokeDasharray={flows.isHomeConsuming ? "10 5" : "none"}
-            className={flows.isHomeConsuming ? "flow-pulse" : ""}
-          />
 
           {/* Central Hub (Hollow Ring) */}
           <circle
@@ -458,9 +365,20 @@ export function RadialEnergyMonitor() {
           {/* Hardcoded nodes with icons and text */}
           {Object.entries(iconPositions).map(([key, pos]) => {
             const color = colors[key as keyof typeof colors];
-            const IconComponent = key === 'solar' ? Sun : 
-                               key === 'grid' ? Zap :
-                               key === 'battery' ? Battery : Home;
+            
+            // Dynamic icon selection based on battery state
+            const getIconComponent = () => {
+              if (key === 'solar') return Sun;
+              if (key === 'grid') return Zap;
+              if (key === 'home') return Home;
+              if (key === 'battery') {
+                if (flows.isBatteryCharging) return BatteryCharging;
+                return Battery; // Default for discharging or idle
+              }
+              return Battery;
+            };
+            
+            const IconComponent = getIconComponent();
             const energyValue = key === 'solar' ? solar :
                              key === 'grid' ? grid :
                              key === 'battery' ? battery : home;
@@ -489,7 +407,7 @@ export function RadialEnergyMonitor() {
                   fill="none"
                   stroke={color}
                   strokeWidth="3"
-                  {...getNodeEffects(key)}
+                  filter="url(#dropshadow)"
                 />
                 <foreignObject
                   x={pos.x - 14}
