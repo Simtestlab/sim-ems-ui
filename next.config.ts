@@ -2,9 +2,9 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   /* config options here */
-  turbopack: {
-    // Handle canvas package for react-leaflet
-  },
+  // Disable the experimental React compiler to avoid requiring
+  // `babel-plugin-react-compiler` during development.
+  reactCompiler: false,
 };
 
 export default nextConfig;
