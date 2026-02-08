@@ -1,5 +1,3 @@
-import { SelectedSite } from '@/components/SelectedSite';
-
 export default function SiteMapPage() {
   return (
     <div className="h-full flex flex-col">

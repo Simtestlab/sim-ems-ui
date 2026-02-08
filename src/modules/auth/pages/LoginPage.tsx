@@ -22,7 +22,7 @@ export default function LoginPage() {
       await login(email, password);
       // Refresh user state if needed, then navigate to dashboard
       await refreshUser();
-      router.push("/sitemap");
+      router.push("/live");
     } catch (err) {
       console.error("[Login] Error:", err);
       setError(err instanceof Error ? err.message : "An error occurred");
