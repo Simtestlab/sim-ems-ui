@@ -6,7 +6,7 @@ export default function AlertsPage() {
       <div className="flex-1">
         <div className="pt-4 sm:pt-6 md:pt-8 h-full">
           <div className="pt-2">
-          <SelectedSite />
+            <SelectedSite />
           </div>
           <div className="flex items-center justify-center h-full text-gray-400">
             <div className="text-center">

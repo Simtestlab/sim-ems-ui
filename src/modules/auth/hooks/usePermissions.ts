@@ -2,7 +2,7 @@
  * React hook for checking user permissions
  */
 
-import { useAuth } from '../modules/auth/context/AuthContext';
+import { useAuth } from '@/modules/auth/context/AuthContext';
 import {
   isSuperAdmin,
   isOrgAdmin,
@@ -15,7 +15,7 @@ import {
   canManageOrganizations,
   getUserFeatures,
   User,
-} from './permissions';
+} from '@/modules/auth/services/permissions';
 
 export function usePermissions() {
   const { user } = useAuth();
@@ -23,15 +23,15 @@ export function usePermissions() {
 
   return {
     user,
-    isSuperAdmin: isSuperAdmin(user),
-    isOrgAdmin: isOrgAdmin(user),
-    isSiteManager: isSiteManager(user),
-    canManageUsers: canManageUsers(user),
-    canControlDevices: canControlDevices(user),
-    canViewAnalytics: canViewAnalytics(user),
-    canModifySettings: canModifySettings(user),
-    canViewAllOrganizations: canViewAllOrganizations(user),
-    canManageOrganizations: canManageOrganizations(user),
-    features: getUserFeatures(user),
+    isSuperAdmin: isSuperAdmin(typedUser),
+    isOrgAdmin: isOrgAdmin(typedUser),
+    isSiteManager: isSiteManager(typedUser),
+    canManageUsers: canManageUsers(typedUser),
+    canControlDevices: canControlDevices(typedUser),
+    canViewAnalytics: canViewAnalytics(typedUser),
+    canModifySettings: canModifySettings(typedUser),
+    canViewAllOrganizations: canViewAllOrganizations(typedUser),
+    canManageOrganizations: canManageOrganizations(typedUser),
+    features: getUserFeatures(typedUser),
   };
 }

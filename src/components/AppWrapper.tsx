@@ -4,7 +4,11 @@ import { usePathname } from "next/navigation";
 import React from "react";
 
 function PageShell({ children }: { children: React.ReactNode }) {
-  return <div className="page-shell">{children}</div>;
+  return (
+    <div className="bg-white min-h-screen flex flex-col">
+      {children}
+    </div>
+  );
 }
 
 interface Props {

@@ -1,18 +1,28 @@
-import React from 'react';
+'use client';
+
 import { Header } from '@/components/Header';
 import { SiteTabs } from '@/components/SiteTabs';
 import Footer from '@/components/Footer';
 
-export default function LivePageLayout({ children }: { children: React.ReactNode }) {
+interface RootPageLayoutProps {
+  children: React.ReactNode;
+}
+
+export function RootPageLayout({ children }: RootPageLayoutProps) {
   return (
     <div className="bg-gray-50 flex flex-col flex-1 min-h-screen">
+      {/* Header Section */}
       <div className="bg-white border-b border-gray-200">
         <Header />
         <SiteTabs />
       </div>
 
-      <main className="flex-1 h-full overflow-auto bg-white">{children}</main>
+      {/* Main Content */}
+      <main className="flex-1 flex flex-col min-h-0 overflow-hidden bg-gray-50">
+        {children}
+      </main>
 
+      {/* Footer */}
       <Footer />
     </div>
   );
