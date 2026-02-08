@@ -1,16 +1,17 @@
-import { Suspense } from 'react';
+import React, { Suspense } from 'react';
 import AppWrapper from '@/components/AppWrapper';
 import { RootPageLayout } from '@/components/RootPageLayout';
-import SiteMapPage from '@/modules/sitemap/pages/SiteMap';
+import AlertsPage from '@/modules/alerts/pages/AlertPage';
 
 export default function Page() {
   return (
     <AppWrapper>
       <Suspense fallback={<div>Loading...</div>}>
         <RootPageLayout>
-          <SiteMapPage />
+          <AlertsPage />
         </RootPageLayout>
       </Suspense>
     </AppWrapper>
   );
 }
+

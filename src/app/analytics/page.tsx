@@ -1,14 +1,14 @@
 import { Suspense } from 'react';
 import AppWrapper from '@/components/AppWrapper';
 import { RootPageLayout } from '@/components/RootPageLayout';
-import SiteMapPage from '@/modules/sitemap/pages/SiteMap';
+import AnalyticsPage from '@/modules/analytics/pages/AnalyticsPage';
 
 export default function Page() {
   return (
     <AppWrapper>
       <Suspense fallback={<div>Loading...</div>}>
         <RootPageLayout>
-          <SiteMapPage />
+          <AnalyticsPage />
         </RootPageLayout>
       </Suspense>
     </AppWrapper>

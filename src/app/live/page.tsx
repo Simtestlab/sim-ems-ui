@@ -1,13 +1,16 @@
 import { Suspense } from "react";
-import PageShell from "@/components/AppWrapper";
+import AppWrapper from "@/components/AppWrapper";
+import { RootPageLayout } from "@/components/RootPageLayout";
 import { LivePage } from "@/modules/live/pages/LivePage";
 
 export default function LiveRoute() {
   return (
-    <PageShell>
+    <AppWrapper>
       <Suspense fallback={<div>Loading...</div>}>
-        <LivePage />
+        <RootPageLayout>
+          <LivePage />
+        </RootPageLayout>
       </Suspense>
-    </PageShell>
+    </AppWrapper>
   );
 }
