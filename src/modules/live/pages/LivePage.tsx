@@ -2,8 +2,7 @@
 import { SolarCard, GridCard, LoadCard, BatteryCard } from '@/modules/live/components/KPICards';
 import SystemMetricsBar from '@/modules/live/components/SystemMetricsBar';
 import { RadialEnergyMonitor } from '@/modules/live/components/RadialEnergyMonitor';
-import { SiteTabs } from '@/components/SiteTabs';
-import { Header } from '@/components/Header';
+import { AdvancedTelemetryGrid } from '@/modules/live/components/AdvancedTelemetryGrid';
 
 export function LivePage() {
   return (
@@ -35,8 +34,11 @@ export function LivePage() {
             <SystemMetricsBar />
           </div>
 
+          {/* Advanced Telemetry Grid */}
+          <AdvancedTelemetryGrid />
+
         </div>
       </main>
     </div>
-    );
+  );
 }

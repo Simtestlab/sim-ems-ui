@@ -7,17 +7,24 @@ import { calculateStrokeWidth } from '../utils/animationHelpers';
 import { isFlowSignificant } from '../utils/svgHelpers';
 import { getFlowAnimation, getFlowAnimationStyles } from '../utils/flowAnimations';
 import { getSvgFilterDefs } from '../utils/svgFilters';
-import { 
-  LAYOUT_CONFIG, 
-  ICON_POSITIONS, 
-  TEXT_POSITIONS, 
-  FLOW_LINES, 
-  COLORS, 
-  ENERGY_UNIT 
+import {
+  LAYOUT_CONFIG,
+  ICON_POSITIONS,
+  TEXT_POSITIONS,
+  FLOW_LINES,
+  COLORS,
+  ENERGY_UNIT
 } from '../utils/constants';
 
 export function RadialEnergyMonitor() {
-  const { solar, grid, battery, home, flows } = useEnergySimulation();
+  const energyData = useEnergySimulation();
+
+  // Return null only if completely disconnected (error page will show)
+  if (!energyData) {
+    return null;
+  }
+
+  const { solar, grid, battery, home, flows } = energyData;
   const { getIconComponent } = useEnergyIcons(flows);
 
   const smoothSolar = useSmoothValue(solar.value, 0.1);
