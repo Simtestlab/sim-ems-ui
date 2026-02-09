@@ -3,6 +3,7 @@ import { useEnergySimulation } from '@/modules/live/hooks/useEnergySimulation';
 import { useSmoothValue } from '@/modules/live/hooks/useSmoothValue';
 import { useEnergyIcons } from '@/modules/live/hooks/useEnergyIcons';
 import { useEnergyArcs } from '@/modules/live/hooks/useEnergyArcs';
+import { useNavStore } from '@/store/useNavStore';
 import { calculateStrokeWidth } from '../utils/animationHelpers';
 import { isFlowSignificant } from '../utils/svgHelpers';
 import { getFlowAnimation, getFlowAnimationStyles } from '../utils/flowAnimations';
@@ -17,16 +18,28 @@ import {
 } from '../utils/constants';
 
 export function RadialEnergyMonitor() {
-  const energyData = useEnergySimulation();
+  const { selectedSite } = useNavStore();
+  const energyData = useEnergySimulation(selectedSite);
 
-  // Return null only if completely disconnected (error page will show)
-  if (!energyData) {
-    return null;
-  }
+  // Call all hooks before any conditional returns to maintain hook order
+  // Provide default values to ensure component can render even without data
+  const defaultFlows = {
+    isSolarProducing: false,
+    isBatteryCharging: false,
+    isBatteryDischarging: false,
+    isGridImporting: false,
+    isGridExporting: false,
+    isHomeConsuming: false
+  };
 
-  const { solar, grid, battery, home, flows } = energyData;
+  const flows = energyData?.flows || defaultFlows;
+  const solar = energyData?.solar || { value: 0, label: '0 kW' };
+  const grid = energyData?.grid || { value: 0, label: '0 kW' };
+  const battery = energyData?.battery || { value: 0, label: '0 kW' };
+  const home = energyData?.home || { value: 0, label: '0 kW' };
+
   const { getIconComponent } = useEnergyIcons(flows);
-
+  
   const smoothSolar = useSmoothValue(solar.value, 0.1);
   const smoothGrid = useSmoothValue(Math.abs(grid.value), 0.1);
   const smoothBattery = useSmoothValue(Math.abs(battery.value), 0.1);

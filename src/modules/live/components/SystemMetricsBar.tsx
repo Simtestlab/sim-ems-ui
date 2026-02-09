@@ -1,22 +1,24 @@
 "use client";
 
-import { useLiveTelemetry } from '@/modules/live/context/LiveTelemetryContext';
 import { useEnergySimulation } from '@/modules/live/hooks/useEnergySimulation';
+import { useNavStore } from '@/store/useNavStore';
 
 export default function SystemMetricsBar() {
-  const { isConnected, latestTelemetry } = useLiveTelemetry();
-  const energyData = useEnergySimulation();
+  const { selectedSite } = useNavStore();
+  const energyData = useEnergySimulation(selectedSite);
 
-  if (!isConnected) {
+  if (!energyData) {
     return null;
   }
 
+  const { rawTelemetry } = energyData;
+
   // Calculate self-consumption: (Solar Power - Grid Export) / Solar Power
   const calculateSelfConsumption = (): string => {
-    if (!energyData || !latestTelemetry) return '—';
+    if (!energyData || !rawTelemetry) return '—';
     
-    const solarPower = Math.max(0, latestTelemetry.solar.power_ac_kw);
-    const gridExport = Math.min(0, latestTelemetry.grid.power_kw); // Negative values are exports
+    const solarPower = Math.max(0, rawTelemetry.solar.power_ac_kw);
+    const gridExport = Math.min(0, rawTelemetry.grid.power_kw); // Negative values are exports
     
     if (solarPower <= 0.1) return '0%'; // No solar production
     
@@ -26,12 +28,12 @@ export default function SystemMetricsBar() {
     return `${percentage.toFixed(0)}%`;
   };
 
-  const solarEfficiency = latestTelemetry?.solar.efficiency 
-    ? `${(latestTelemetry.solar.efficiency * 100).toFixed(1)}%` 
+  const solarEfficiency = rawTelemetry?.solar.efficiency 
+    ? `${(rawTelemetry.solar.efficiency * 100).toFixed(1)}%` 
     : '—';
     
-  const currentPrice = latestTelemetry?.grid.price 
-    ? `$${latestTelemetry.grid.price.toFixed(3)}/kWh` 
+  const currentPrice = rawTelemetry?.grid.price 
+    ? `$${rawTelemetry.grid.price.toFixed(3)}/kWh` 
     : '—';
     
   const selfConsumption = calculateSelfConsumption();

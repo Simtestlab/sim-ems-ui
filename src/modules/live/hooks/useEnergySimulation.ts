@@ -1,6 +1,7 @@
 'use client';
 import { useEffect, useState } from 'react';
-import { useLiveTelemetry } from '../context/LiveTelemetryContext';
+import { useSiteTelemetry } from './useSiteTelemetry';
+import { MicrogridTelemetry } from '../types/telemetry';
 
 interface EnergyValue {
   value: number;
@@ -22,6 +23,7 @@ interface EnergySimulationData {
   battery: EnergyValue;
   home: EnergyValue;
   flows: EnergyFlowState;
+  rawTelemetry: MicrogridTelemetry | null;
 }
 
 // Helper function to format power values with dynamic units
@@ -42,8 +44,8 @@ const formatPowerValue = (value: number): EnergyValue => {
   }
 };
 
-export function useEnergySimulation(): EnergySimulationData | null {
-  const { latestTelemetry, isConnected } = useLiveTelemetry();
+export function useEnergySimulation(siteId: string): EnergySimulationData | null {
+  const { telemetry: latestTelemetry, isConnected } = useSiteTelemetry(siteId);
   
   const [energyData, setEnergyData] = useState<{
     solar: number;
@@ -121,6 +123,7 @@ export function useEnergySimulation(): EnergySimulationData | null {
     grid: formatPowerValue(dataToUse.grid),
     battery: formatPowerValue(dataToUse.battery),
     home: formatPowerValue(dataToUse.home),
-    flows
+    flows,
+    rawTelemetry: latestTelemetry
   };
 }
