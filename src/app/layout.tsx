@@ -2,8 +2,7 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "@/modules/auth/context/AuthContext";
-import { LiveTelemetryProvider } from "@/modules/live/context/LiveTelemetryContext";
-import { ConnectionWrapper } from "@/components/ConnectionWrapper";
+import { AppWrapper } from "@/components/AppWrapper";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -24,11 +23,9 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <body className={`${inter.variable} font-sans antialiased bg-white min-h-screen flex flex-col overflow-hidden`}>
           <AuthProvider>
-            <LiveTelemetryProvider>
-              <ConnectionWrapper>
-                <div className="flex-1 overflow-auto py-0 no-scrollbar">{children}</div>
-              </ConnectionWrapper>
-            </LiveTelemetryProvider>
+            <AppWrapper>
+              <div className="flex-1 overflow-auto py-0 no-scrollbar">{children}</div>
+            </AppWrapper>
           </AuthProvider>
         </body>
     </html>

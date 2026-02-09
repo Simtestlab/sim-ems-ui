@@ -7,13 +7,13 @@ interface ConnectionWrapperProps {
 }
 
 export function ConnectionWrapper({ children }: ConnectionWrapperProps) {
-  const { isConnected } = useLiveTelemetry();
+  const { isConnected, status } = useLiveTelemetry();
 
-  // Show universal connection error page if WebSocket is disconnected
-  if (!isConnected) {
+  // Show error page if connection failed or in error state
+  if (status === 'ERROR' || (!isConnected && status === 'DISCONNECTED')) {
     return <ConnectionErrorPage />;
   }
 
-  // Show normal app content when connected
+  // Show normal app content when connected or connecting
   return <>{children}</>;
 }

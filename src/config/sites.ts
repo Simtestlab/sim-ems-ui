@@ -8,12 +8,12 @@ export const SITE_CONFIG: SiteConfig[] = [
   {
     id: 'ems_sim_01',
     name: 'Alpha',
-    wsUrl: 'wss://sim-ems-websocket.onrender.com/ws/dashboard/ems_sim_01',
+    wsUrl: 'ws://localhost:8000/ws/dashboard/ems_sim_01',
   },
   {
-    id: 'ems_002',
+    id: 'ems_sim_02',
     name: 'Beta',
-    wsUrl: 'wss://sim-ems-websocket.onrender.com/ws/dashboard/ems_002',
+    wsUrl: 'ws://localhost:8000/ws/dashboard/ems_sim_02',
   },
 ];
 

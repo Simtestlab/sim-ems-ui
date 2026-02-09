@@ -1,8 +1,14 @@
 'use client';
 import { useLiveTelemetry } from '../context/LiveTelemetryContext';
+import { useNavStore } from '@/store/useNavStore';
+import { getSiteConfig } from '@/config/sites';
 
 export function ConnectionErrorPage() {
-    const { connect, isConnected } = useLiveTelemetry();
+    const { connect, isConnected, status } = useLiveTelemetry();
+    const { selectedSite } = useNavStore();
+    const siteConfig = getSiteConfig(selectedSite);
+
+    console.log("Rendering ConnectionErrorPage - isConnected:", isConnected, "status:", status);
 
     return (
         <div className="min-h-screen bg-gray-50 flex items-center justify-center">
@@ -30,7 +36,7 @@ export function ConnectionErrorPage() {
                         Connection Failed
                     </h1>
                     <p className="text-gray-600 mb-6">
-                        Unable to establish connection with the real-time data server.
+                        Unable to establish connection with the real-time data server for site "{siteConfig?.name || selectedSite}".
                         Please check your connection and try again.
                     </p>
 
@@ -42,12 +48,16 @@ export function ConnectionErrorPage() {
                                 <span>WebSocket:</span>
                                 <div className="flex items-center">
                                     <div className={`w-2 h-2 rounded-full mr-2 ${isConnected ? 'bg-green-400' : 'bg-red-400'}`}></div>
-                                    <span className="font-medium">{isConnected ? 'Connected' : 'Disconnected'}</span>
+                                    <span className="font-medium">{status}</span>
                                 </div>
                             </div>
                             <div className="flex justify-between">
+                                <span>Site:</span>
+                                <span className="font-medium">{siteConfig?.name || selectedSite}</span>
+                            </div>
+                            <div className="flex justify-between">
                                 <span>Server:</span>
-                                <span className="font-mono text-xs">sim-ems-websocket.onrender.com</span>
+                                <span className="font-mono text-xs break-all">{siteConfig?.wsUrl || 'N/A'}</span>
                             </div>
                         </div>
                     </div>
