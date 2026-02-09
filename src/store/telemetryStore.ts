@@ -187,17 +187,7 @@ export const useTelemetryStore = create<TelemetryStore>((set, get) => ({
       };
 
       ws.onerror = (error) => {
-        console.error(`WebSocket error occurred for site ${siteId}:`, {
-          url: wsUrl,
-          readyState: ws.readyState,
-          readyStateText: ws.readyState === 0 ? 'CONNECTING' :
-                         ws.readyState === 1 ? 'OPEN' :
-                         ws.readyState === 2 ? 'CLOSING' :
-                         ws.readyState === 3 ? 'CLOSED' : 'UNKNOWN',
-          attempts: get().sites[siteId]?.reconnectAttempts || 0,
-          error,
-        });
-        updateStatus(siteId, 'ERROR', false);
+        console.log(`WebSocket connection error for site ${siteId} - will be handled by error page`);
       };
 
     } catch (error) {
