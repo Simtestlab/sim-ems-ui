@@ -52,7 +52,7 @@ function InverterStatusCard() {
   }
 
   const { inverter } = latestTelemetry;
-  
+
   const getBadgeType = (action: string) => {
     switch (action.toLowerCase()) {
       case 'peak_shaving':
@@ -100,7 +100,7 @@ function GridQualityCard() {
   }
 
   const { grid } = latestTelemetry;
-  
+
   // Check if frequency is out of normal range (49.8-50.2 Hz)
   const isFrequencyOutOfRange = grid.frequency < 49.8 || grid.frequency > 50.2;
   const frequencyColor = isFrequencyOutOfRange ? 'text-red-600 dark:text-red-400' : 'text-gray-900 dark:text-gray-100';
@@ -135,11 +135,11 @@ function BatteryHealthCard() {
   }
 
   const { battery } = latestTelemetry;
-  
+
   // Check if temperature is high (>40°C)
   const isHighTemp = battery.temperature_c > 40;
   const tempColor = isHighTemp ? 'text-orange-600 dark:text-orange-400' : 'text-gray-900 dark:text-gray-100';
-  
+
   const hasFaults = battery.faults && battery.faults.length > 0;
 
   return (
@@ -198,11 +198,13 @@ function SolarConditionsCard() {
 
 export default function SystemHealthGrid() {
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 w-full">
-      <InverterStatusCard />
-      <GridQualityCard />
-      <BatteryHealthCard />
-      <SolarConditionsCard />
+    <div className="h-full overflow-y-auto">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 w-full">
+        <InverterStatusCard />
+        <GridQualityCard />
+        <BatteryHealthCard />
+        <SolarConditionsCard />
+      </div>
     </div>
   );
 }

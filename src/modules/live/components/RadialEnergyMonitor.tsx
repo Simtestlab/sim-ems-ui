@@ -53,13 +53,13 @@ export function RadialEnergyMonitor() {
   });
 
   return (
-    <div className="relative w-full h-[calc(100vh-6rem)] flex items-center justify-center p-4">
+    <div className="relative h-full w-auto aspect-square max-h-full mx-auto">
       {/* CSS Animations for dynamic vector-flow physics */}
       <style>{getFlowAnimationStyles()}</style>
 
-      <div className="relative">
+      <div className="relative h-full w-full">
         {/* Main SVG Canvas */}
-        <svg viewBox="-50 -50 650 650" className="w-[calc(100vh-6rem)] h-[calc(100vh-6rem)] max-w-none overflow-visible">
+        <svg viewBox="-50 -50 650 650" className="w-full h-full overflow-visible">
           {getSvgFilterDefs()}
 
           {/* Background tracks (thin, low opacity) */}
