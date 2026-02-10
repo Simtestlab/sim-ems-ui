@@ -10,7 +10,7 @@ interface RootPageLayoutProps {
 
 export function RootPageLayout({ children }: RootPageLayoutProps) {
   return (
-    <div className="bg-slate-50 flex flex-col min-h-screen max-h-screen overflow-hidden">
+    <div className="bg-slate-50 flex flex-col h-screen max-h-screen overflow-hidden">
       {/* Header Section - Fixed height */}
       <div className="bg-white border-b border-gray-200 flex-shrink-0">
         <Header />
@@ -18,7 +18,7 @@ export function RootPageLayout({ children }: RootPageLayoutProps) {
       </div>
 
       {/* Main Content - Flexible with viewport constraints */}
-      <main className="flex-1 flex flex-col min-h-0 bg-slate-50 overflow-hidden">
+      <main className="flex-1 flex flex-col overflow-hidden bg-slate-50">
         {children}
       </main>
 

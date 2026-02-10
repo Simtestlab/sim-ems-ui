@@ -22,7 +22,7 @@ export function SiteTabs() {
 
   return (
     <div className="bg-white">
-      <div className="flex gap-0 overflow-x-auto">
+      <div className="flex gap-0 overflow-x-auto border-b border-gray-100">
         {sites.map((site) => {
           const isSelected = selectedSite === site.id;
           const isConnected = getConnectionStatus(site.id);
@@ -31,18 +31,18 @@ export function SiteTabs() {
             <button
               key={site.id}
               onClick={() => handleSiteChange(site.id)}
-              className={`relative px-4 sm:px-6 py-2 text-xs font-medium transition-colors border-b-2 ${
+              className={`relative px-3 sm:px-4 py-1.5 text-xs font-medium transition-colors border-b-2 ${
                 isSelected
-                  ? 'border-green-500 text-black'
-                  : 'border-transparent text-gray-500'
+                  ? 'border-emerald-500 text-black bg-emerald-50'
+                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:bg-gray-50'
               }`}
             >
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-1.5">
                 <span>{site.name}</span>
                 {/* Connection status indicator */}
                 <div
-                  className={`w-2 h-2 rounded-full ${
-                    isConnected ? 'bg-green-400' : 'bg-gray-300'
+                  className={`w-1.5 h-1.5 rounded-full ${
+                    isConnected ? 'bg-emerald-400' : 'bg-gray-300'
                   }`}
                   title={isConnected ? 'Connected' : 'Disconnected'}
                 />

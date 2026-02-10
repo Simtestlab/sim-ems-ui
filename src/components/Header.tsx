@@ -32,25 +32,25 @@ export function Header() {
 
   return (
     <header className="bg-white border-b border-gray-100">
-      <div className="flex items-center justify-between px-4 h-14">
-        <div className="flex items-center gap-3">
-          <Image src="/logo.png" alt="Simtestlab EMS Logo" width={24} height={24} />
+      <div className="flex items-center justify-between px-4 h-12">
+        <div className="flex items-center gap-2">
+          <Image src="/logo.png" alt="Simtestlab EMS Logo" width={20} height={20} />
           <div>
-            <span className="text-base font-bold text-gray-800 tracking-tight">Sim-EMS</span>
-            <div className="text-xs text-gray-500 font-medium">Energy Management System</div>
+            <span className="text-sm font-bold text-gray-800 tracking-tight">Sim-EMS</span>
+            <div className="text-[10px] text-gray-500 font-medium">Energy Management</div>
           </div>
         </div>
 
-        <div className="flex items-center gap-6">
-          <nav className="hidden md:flex items-center gap-6">
+        <div className="flex items-center gap-4">
+          <nav className="hidden md:flex items-center gap-4">
             {links.map((link) => (
               <Link
                 key={link.path}
                 href={link.path}   
                 className={`text-sm font-medium transition-colors duration-200 ${
                   isActive(link.path)
-                    ? 'text-emerald-600 bg-emerald-50 px-3 py-2 rounded-lg'
-                    : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50 px-3 py-2 rounded-lg'
+                    ? 'text-emerald-600 bg-emerald-50 px-2 py-1 rounded-lg'
+                    : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50 px-2 py-1 rounded-lg'
                 }`}
               >
                 {link.label}
@@ -61,9 +61,9 @@ export function Header() {
           <div className="relative">
             <button
               onClick={() => setShowUserMenu(!showUserMenu)}
-              className="p-1.5 hover:bg-gray-50 rounded-lg transition-colors duration-200"
+              className="p-1 hover:bg-gray-50 rounded-lg transition-colors duration-200"
             >
-              <div className="w-8 h-8 bg-gradient-to-br from-emerald-500 to-blue-600 rounded-full text-white flex items-center justify-center text-sm font-semibold shadow-md">
+              <div className="w-7 h-7 bg-gradient-to-br from-emerald-500 to-blue-600 rounded-full text-white flex items-center justify-center text-sm font-semibold shadow-md">
                 {user?.first_name?.[0] || user?.username?.[0]?.toUpperCase() || 'U'}
               </div>
             </button>
