@@ -1,17 +1,35 @@
 'use client';
 
 import { useNavStore } from '@/store/useNavStore';
-import { getAllSites, getSiteConfig } from '@/config/sites';
+import { getAllSites } from '@/config/sites';
 import { useTelemetryStore } from '@/store/telemetryStore';
+import { useEffect, useState } from 'react';
+import {
+  getConnectionHealthFromState,
+  getStatusTitle,
+} from './siteTabUtils';
 
 export function SiteTabs() {
   const sites = getAllSites();
   const { selectedSite, setSite } = useNavStore();
   
-  // Get connection status for each site to show visual indicators
+  const allSitesData = useTelemetryStore((state) => state.sites);
+
+  const [currentTime, setCurrentTime] = useState(Date.now());
+
+  useEffect(() => {
+    const interval = setInterval(() => setCurrentTime(Date.now()), 500);
+    return () => clearInterval(interval);
+  }, []);
+
+  // derive connection health from telemetry store + a moving clock
   const getConnectionStatus = (siteId: string) => {
-    const siteState = useTelemetryStore.getState().sites[siteId];
-    return siteState?.isConnected || false;
+    const health = getConnectionHealthFromState(allSitesData?.[siteId], currentTime);
+    return {
+      health,
+      isConnected: health === 'healthy',
+      title: getStatusTitle(health),
+    };
   };
 
   const handleSiteChange = (siteId: string) => {
@@ -25,7 +43,8 @@ export function SiteTabs() {
       <div className="flex gap-0 overflow-x-auto border-b border-gray-100">
         {sites.map((site) => {
           const isSelected = selectedSite === site.id;
-          const isConnected = getConnectionStatus(site.id);
+          const status = getConnectionStatus(site.id);
+          const isConnected = status.isConnected;
           
           return (
             <button
@@ -44,7 +63,7 @@ export function SiteTabs() {
                   className={`w-1.5 h-1.5 rounded-full ${
                     isConnected ? 'bg-emerald-400' : 'bg-gray-300'
                   }`}
-                  title={isConnected ? 'Connected' : 'Disconnected'}
+                  title={status.title}
                 />
               </div>
             </button>

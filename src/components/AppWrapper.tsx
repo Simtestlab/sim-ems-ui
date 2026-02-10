@@ -4,6 +4,7 @@ import { usePathname } from "next/navigation";
 import React from "react";
 import { LiveTelemetryProvider } from "@/modules/live/context/LiveTelemetryContext";
 import { ConnectionWrapper } from "@/components/ConnectionWrapper";
+import { AllSitesConnector } from "@/components/AllSitesConnector";
 import { useNavStore } from "@/store/useNavStore";
 
 function PageShell({ children }: { children: React.ReactNode }) {
@@ -11,6 +12,7 @@ function PageShell({ children }: { children: React.ReactNode }) {
   
   return (
     <div className="bg-white min-h-screen flex flex-col">
+      <AllSitesConnector/>
       <LiveTelemetryProvider siteId={selectedSite}>
         <ConnectionWrapper>
           {children}

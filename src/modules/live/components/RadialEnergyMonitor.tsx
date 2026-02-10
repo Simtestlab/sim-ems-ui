@@ -151,10 +151,10 @@ export function RadialEnergyMonitor() {
 
           {/* Grid Line: Outward when exporting (value < 0), inward when importing (value > 0) */}
           <line
-            x1={FLOW_LINES.grid.x1}
-            y1={FLOW_LINES.grid.y1}
-            x2={FLOW_LINES.grid.x2}
-            y2={FLOW_LINES.grid.y2}
+            x1={FLOW_LINES.grid.x2}
+            y1={FLOW_LINES.grid.y2}
+            x2={FLOW_LINES.grid.x1}
+            y2={FLOW_LINES.grid.y1}
             stroke={COLORS.grid}
             strokeWidth={calculateStrokeWidth(smoothGrid, 2, 12)}
             strokeOpacity={isFlowSignificant(smoothGrid) ? "0.9" : "0.1"}
@@ -170,7 +170,7 @@ export function RadialEnergyMonitor() {
             x2={FLOW_LINES.home.x2}
             y2={FLOW_LINES.home.y2}
             stroke={COLORS.home}
-            strokeWidth={calculateStrokeWidth(smoothHome, 3, 14)}
+            strokeWidth={calculateStrokeWidth(smoothHome, 2, 12)}
             strokeOpacity={isFlowSignificant(smoothHome) ? "0.9" : "0.1"}
             strokeLinecap="round"
             strokeDasharray={isFlowSignificant(smoothHome) ? "4 8" : "none"}
