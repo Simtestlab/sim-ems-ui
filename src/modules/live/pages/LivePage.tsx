@@ -36,13 +36,13 @@ export function LivePage() {
   })();
 
   return (
-    // Main Dashboard Container - Constrained to viewport with header/footer space
-    <div className="h-full bg-gradient-to-br from-slate-50 via-slate-100 to-slate-200 overflow-hidden">
+    // Main Dashboard Container - Properly constrained with calculated height
+    <div className="flex flex-col h-full bg-gradient-to-br from-slate-50 via-slate-100 to-slate-200">
       {/* Header Indicator Bar */}
-      <div className="h-0.5 bg-gradient-to-r from-blue-500 via-emerald-500 to-violet-500"></div>
+      <div className="h-0.5 bg-gradient-to-r from-blue-500 via-emerald-500 to-violet-500 flex-shrink-0"></div>
       
-      {/* Main Dashboard Content - Compact layout */}
-      <div className="h-full p-2 sm:p-3 lg:p-4 overflow-hidden">
+      {/* Main Dashboard Content - Uses remaining space */}
+      <div className="flex-1 p-2 sm:p-3 lg:p-4 overflow-hidden min-h-0">
         <div className="h-full grid grid-cols-1 xl:grid-cols-12 gap-2 sm:gap-3 lg:gap-4 overflow-hidden">
           
           {/* LEFT COLUMN: Solar & Grid - Compact responsive layout */}
