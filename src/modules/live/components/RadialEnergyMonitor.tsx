@@ -53,13 +53,17 @@ export function RadialEnergyMonitor() {
   });
 
   return (
-    <div className="relative h-full w-auto aspect-square max-h-full mx-auto">
+    <div className="relative w-full h-full flex items-center justify-center min-w-0 min-h-0">
       {/* CSS Animations for dynamic vector-flow physics */}
       <style>{getFlowAnimationStyles()}</style>
 
-      <div className="relative h-full w-full">
-        {/* Main SVG Canvas */}
-        <svg viewBox="-50 -50 650 650" className="w-full h-full overflow-visible">
+      <div className="relative w-full h-full max-w-full max-h-full flex items-center justify-center">
+        {/* Main SVG Canvas - Fully responsive and viewport-aware */}
+        <svg 
+          viewBox="-10 -30 500 550" 
+          className="w-full h-full max-w-full max-h-full overflow-visible drop-shadow-sm"
+          preserveAspectRatio="xMidYMid meet"
+        >
           {getSvgFilterDefs()}
 
           {/* Background tracks (thin, low opacity) */}
@@ -173,15 +177,30 @@ export function RadialEnergyMonitor() {
             style={getFlowAnimation(smoothHome, isFlowSignificant(smoothHome), true)}
           />
 
-          {/* Central Hub (Solid Core) */}
+          {/* Central Hub (Modern Design) */}
+          <circle
+            cx={LAYOUT_CONFIG.centerX}
+            cy={LAYOUT_CONFIG.centerY}
+            r={LAYOUT_CONFIG.hubRadius + 8}
+            fill="rgba(248, 250, 252, 0.9)"
+            stroke="rgba(226, 232, 240, 0.8)"
+            strokeWidth="1"
+            filter="url(#hub-glow)"
+          />
           <circle
             cx={LAYOUT_CONFIG.centerX}
             cy={LAYOUT_CONFIG.centerY}
             r={LAYOUT_CONFIG.hubRadius}
-            fill="#f3f4f6"
-            stroke="#e5e7eb"
+            fill="rgba(255, 255, 255, 0.95)"
+            stroke="rgba(203, 213, 225, 0.6)"
             strokeWidth="2"
-            filter="url(#hub-glow)"
+          />
+          {/* Central indicator dot */}
+          <circle
+            cx={LAYOUT_CONFIG.centerX}
+            cy={LAYOUT_CONFIG.centerY}
+            r="4"
+            fill="rgba(71, 85, 105, 0.8)"
           />
 
           {/* Hardcoded nodes with icons and text */}
@@ -199,24 +218,32 @@ export function RadialEnergyMonitor() {
 
             return (
               <g key={`node-${key}`}>
-                {/* State-aware node with physics effects */}
+                {/* Enhanced nodes with modern styling */}
                 <circle
                   cx={pos.x}
                   cy={pos.y}
-                  r={LAYOUT_CONFIG.nodeRadius}
-                  fill="rgba(255,255,255,0.9)"
-                  stroke={color}
-                  strokeWidth="3"
+                  r={LAYOUT_CONFIG.nodeRadius + 3}
+                  fill="rgba(255,255,255,0.1)"
+                  stroke="none"
                   filter="url(#glass)"
-                  style={{ backdropFilter: 'blur(10px)' }}
                 />
                 <circle
                   cx={pos.x}
                   cy={pos.y}
                   r={LAYOUT_CONFIG.nodeRadius}
+                  fill="rgba(255,255,255,0.95)"
+                  stroke={color}
+                  strokeWidth="2.5"
+                  filter="url(#glass)"
+                />
+                <circle
+                  cx={pos.x}
+                  cy={pos.y}
+                  r={LAYOUT_CONFIG.nodeRadius - 2}
                   fill="none"
                   stroke={color}
-                  strokeWidth="3"
+                  strokeWidth="1"
+                  strokeOpacity="0.3"
                 />
                 <foreignObject
                   x={pos.x - 14}
@@ -230,17 +257,17 @@ export function RadialEnergyMonitor() {
                   />
                 </foreignObject>
 
-                {/* Professional Typography Hierarchy */}
+                {/* Enhanced Typography Hierarchy */}
                 {/* Label (Top) */}
                 <text
                   x={textPos.x}
-                  y={textPos.y - 20}
+                  y={textPos.y - 22}
                   textAnchor={textPos.anchor}
                   dominantBaseline="central"
                   fill={color}
-                  fontSize="10"
-                  fontWeight="600"
-                  style={{ textTransform: 'uppercase', letterSpacing: '1px' }}
+                  fontSize="9"
+                  fontWeight="700"
+                  style={{ textTransform: 'uppercase', letterSpacing: '1.5px' }}
                 >
                   {key}
                 </text>
@@ -248,12 +275,13 @@ export function RadialEnergyMonitor() {
                 {/* Value (Middle) */}
                 <text
                   x={textPos.x}
-                  y={textPos.y + 5}
+                  y={textPos.y + 8}
                   textAnchor={textPos.anchor}
                   dominantBaseline="central"
-                  fill="#111827"
-                  fontSize="24"
-                  fontWeight="700"
+                  fill="#0f172a"
+                  fontSize="22"
+                  fontWeight="800"
+                  style={{ fontFamily: 'system-ui, -apple-system, sans-serif' }}
                 >
                   {valueText}
                 </text>
@@ -261,12 +289,13 @@ export function RadialEnergyMonitor() {
                 {/* Unit (Bottom) */}
                 <text
                   x={textPos.x}
-                  y={textPos.y + 25}
+                  y={textPos.y + 28}
                   textAnchor={textPos.anchor}
                   dominantBaseline="central"
-                  fill="#6b7280"
-                  fontSize="12"
-                  fontWeight="500"
+                  fill="#64748b"
+                  fontSize="11"
+                  fontWeight="600"
+                  style={{ letterSpacing: '0.5px' }}
                 >
                   {unit}
                 </text>

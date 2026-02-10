@@ -18,7 +18,7 @@ export function RootPageLayout({ children }: RootPageLayoutProps) {
       </div>
 
       {/* Main Content */}
-      <main className="flex-1 flex flex-col min-h-0 overflow-hidden bg-gray-50">
+      <main className="flex-1 flex flex-col min-h-0 bg-gray-50">
         {children}
       </main>
 
