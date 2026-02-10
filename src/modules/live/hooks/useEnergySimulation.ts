@@ -1,5 +1,7 @@
 'use client';
 import { useEffect, useState } from 'react';
+import { useSiteTelemetry } from './useSiteTelemetry';
+import { MicrogridTelemetry } from '../types/telemetry';
 
 interface EnergyValue {
   value: number;
@@ -21,6 +23,7 @@ interface EnergySimulationData {
   battery: EnergyValue;
   home: EnergyValue;
   flows: EnergyFlowState;
+  rawTelemetry: MicrogridTelemetry | null;
 }
 
 // Helper function to format power values with dynamic units
@@ -41,91 +44,86 @@ const formatPowerValue = (value: number): EnergyValue => {
   }
 };
 
-export function useEnergySimulation(): EnergySimulationData {
+export function useEnergySimulation(siteId: string): EnergySimulationData | null {
+  const { telemetry: latestTelemetry, isConnected } = useSiteTelemetry(siteId);
+  
   const [energyData, setEnergyData] = useState<{
     solar: number;
     grid: number;
     battery: number;
     home: number;
-  }>({
-    solar: 5.0,
-    grid: 2.5,
-    battery: -2.0,
-    home: 4.5
-  });
+  } | null>(null);
 
+  // Update energy data based on real telemetry only
   useEffect(() => {
-    const updateEnergyData = () => {
-      // Simulate day/night cycle and weather for solar (0-10 kW)
-      const timeOfDay = (Date.now() / 10000) % 24; // Fast simulation of 24h cycle
-      const isDaytime = timeOfDay > 6 && timeOfDay < 18;
-      const weatherVariation = 0.7 + Math.random() * 0.6; // 70-130% weather efficiency
-      const solarBase = isDaytime ? 8.0 : 0.0;
-      const solar = solarBase * weatherVariation * (1 + 0.3 * Math.sin((timeOfDay - 6) * Math.PI / 12));
+    if (isConnected && latestTelemetry) {
+      // Use real telemetry data
+      const solar = latestTelemetry.solar.power_ac_kw;
+      const battery = latestTelemetry.battery.power_kw;
+      const grid = latestTelemetry.grid.power_kw;
       
-      // Home consumption varies between 2-8 kW with some realistic patterns
-      const baseHome = 3.0;
-      const consumptionSpike = Math.random() < 0.3 ? 3.0 + Math.random() * 2.0 : 0; // 30% chance of spike
-      const home = Math.max(2.0, Math.min(8.0, baseHome + Math.random() * 2.0 + consumptionSpike));
+      // Calculate home consumption: Solar + Grid + Battery = Home
+      // Home consumption is positive, so: Home = Solar + Grid + Battery
+      // Note: Battery positive = discharging, negative = charging
+      // Note: Grid positive = importing, negative = exporting
+      const home = solar + grid + battery;
       
-      // Battery behavior: charging (negative), discharging (positive), or idle
-      let battery = 0;
-      const batteryAction = Math.random();
-      if (batteryAction < 0.4) {
-        // 40% chance of charging (negative values)
-        battery = -(0.5 + Math.random() * 3.0);
-      } else if (batteryAction < 0.8) {
-        // 40% chance of discharging (positive values)
-        battery = 0.5 + Math.random() * 4.0;
-      }
-      // 20% chance of being idle (battery = 0)
-      
-      // Grid balances the equation: Solar + Battery + Grid = Home
-      // Rearranged: Grid = Home - Solar - Battery
-      const grid = home - solar - battery;
-      
-      const newData = {
+      setEnergyData({
         solar: parseFloat(solar.toFixed(1)),
-        home: parseFloat(home.toFixed(1)),
         battery: parseFloat(battery.toFixed(1)),
-        grid: parseFloat(grid.toFixed(1))
-      };
-      
-      console.log('Energy balance check:', {
-        input: newData.solar + newData.battery + newData.grid,
-        output: newData.home,
-        balanced: Math.abs((newData.solar + newData.battery + newData.grid) - newData.home) < 0.1
+        grid: parseFloat(grid.toFixed(1)),
+        home: parseFloat(home.toFixed(1))
       });
       
-      setEnergyData(newData);
-    };
+      console.log('Real telemetry energy balance:', {
+        solar, battery, grid, home,
+        input: solar + grid + battery,
+        output: home,
+        balanced: Math.abs((solar + grid + battery) - home) < 0.1
+      });
+    } else if (isConnected && !latestTelemetry) {
+      // Connected but waiting for data - set to zero values
+      setEnergyData({
+        solar: 0,
+        grid: 0,
+        battery: 0,
+        home: 0
+      });
+    } else {
+      // Not connected - return null for error page
+      setEnergyData(null);
+    }
+  }, [latestTelemetry, isConnected]);
 
-    // Update immediately on mount
-    updateEnergyData();
-    
-    const interval = setInterval(updateEnergyData, 1000);
-    
-    return () => {
-      console.log('Cleaning up energy simulation interval');
-      clearInterval(interval);
-    };
-  }, []);
+  // Return null only if not connected (for error page)
+  if (!isConnected) {
+    return null;
+  }
+
+  // Return zero data if connected but no telemetry yet
+  const dataToUse = energyData || {
+    solar: 0,
+    grid: 0,
+    battery: 0,
+    home: 0
+  };
 
   // Calculate flow states
   const flows: EnergyFlowState = {
-    isSolarProducing: energyData.solar > 0.1,
-    isBatteryCharging: energyData.battery < -0.1,
-    isBatteryDischarging: energyData.battery > 0.1,
-    isGridImporting: energyData.grid > 0.1,
-    isGridExporting: energyData.grid < -0.1,
-    isHomeConsuming: energyData.home > 0.1
+    isSolarProducing: dataToUse.solar > 0.1,
+    isBatteryCharging: dataToUse.battery < -0.1,
+    isBatteryDischarging: dataToUse.battery > 0.1,
+    isGridImporting: dataToUse.grid > 0.1,
+    isGridExporting: dataToUse.grid < -0.1,
+    isHomeConsuming: dataToUse.home > 0.1
   };
 
   return {
-    solar: formatPowerValue(energyData.solar),
-    grid: formatPowerValue(energyData.grid),
-    battery: formatPowerValue(energyData.battery),
-    home: formatPowerValue(energyData.home),
-    flows
+    solar: formatPowerValue(dataToUse.solar),
+    grid: formatPowerValue(dataToUse.grid),
+    battery: formatPowerValue(dataToUse.battery),
+    home: formatPowerValue(dataToUse.home),
+    flows,
+    rawTelemetry: latestTelemetry
   };
 }

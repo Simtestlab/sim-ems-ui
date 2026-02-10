@@ -4,28 +4,34 @@ import { createContext, useContext, useState, useEffect, ReactNode } from 'react
 import { useRouter } from 'next/navigation';
 
 interface User {
-  id: string;
-  email: string;
+  id: number | string;
+  email?: string;
   username: string;
-  first_name: string;
-  last_name: string;
-  full_name: string;
+  name: string;
   role: string;
-  role_display: string;
-  organization: {
+  first_name?: string;
+  last_name?: string;
+  full_name?: string;
+  role_display?: string;
+  organization?: {
     id: string;
     name: string;
   } | null;
-  is_active: boolean;
-  date_joined: string;
-  last_login: string | null;
+  is_active?: boolean;
+  date_joined?: string;
+  last_login?: string | null;
+}
+
+interface LoginResult {
+  success: boolean;
+  error?: string;
 }
 
 interface AuthContextType {
   user: User | null;
   isLoading: boolean;
   isAuthenticated: boolean;
-  login: (email: string, password: string) => Promise<void>;
+  login: (email: string, password: string) => Promise<LoginResult>;
   logout: () => Promise<void>;
   refreshUser: () => Promise<void>;
 }
@@ -44,53 +50,106 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const refreshUser = async () => {
     try {
-      const response = await fetch('/api/auth/me', {
-        credentials: 'include',
+      const token = localStorage.getItem('access_token');
+      if (!token) {
+        setUser(null);
+        return;
+      }
+
+      const baseURL = process.env.NEXT_PUBLIC_BACKEND_API_BASE_URL || 'http://localhost:8000';
+      const response = await fetch(`${baseURL}/api/auth/me`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
       });
 
       if (response.ok) {
-        const data = await response.json();
-        setUser(data.user);
+        const userData = await response.json();
+        setUser(userData.user || userData);
       } else {
         setUser(null);
+        localStorage.removeItem('access_token');
       }
     } catch (error) {
       console.error('Failed to fetch user:', error);
       setUser(null);
+      localStorage.removeItem('access_token');
     } finally {
       setIsLoading(false);
     }
   };
 
   const login = async (email: string, password: string) => {
-    const response = await fetch('/api/auth/login', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ email, password }),
-      credentials: 'include',
-    });
+    try {
+      setIsLoading(true);
+      
+      const baseURL = process.env.NEXT_PUBLIC_BACKEND_API_BASE_URL || 'http://localhost:8000';
+      const response = await fetch(`${baseURL}/api/auth/login`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, password }),
+      });
 
-    if (!response.ok) {
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        const errorMessage = errorData.message || errorData.detail || 'Authentication failed';
+        return { success: false, error: errorMessage };
+      }
+
       const data = await response.json();
-      throw new Error(data.error || 'Login failed');
-    }
+      
+      console.log('Login successful, received data:', data);
 
-    const data = await response.json();
-    setUser(data.user);
+      // Validate response
+      if (!data.access || !data.user) {
+        return { success: false, error: 'Invalid response from server' };
+      }
+
+      // Store token and user
+      localStorage.setItem('access_token', data.access);
+      
+      const user: User = {
+        id: data.user.id,
+        name: data.user.full_name,
+        role: data.user.role,
+        username: data.user.username,
+        email: data.user.email,
+        first_name: data.user.first_name,
+        last_name: data.user.last_name,
+        full_name: data.user.full_name,
+        role_display: data.user.role_display,
+        organization: data.user.organization,
+        is_active: data.user.is_active,
+        date_joined: data.user.date_joined,
+        last_login: data.user.last_login,
+      };
+      
+      setUser(user);
+      return { success: true };
+
+    } catch (error) {
+      console.error('Login error:', error);
+      return { success: false, error: error instanceof Error ? error.message : 'Login failed. Please try again.' };
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const logout = async () => {
     try {
-      await fetch('/api/auth/logout', {
-        method: 'POST',
-        credentials: 'include',
-      });
+      setIsLoading(true);
+      
+      // Remove token from localStorage
+      localStorage.removeItem('access_token');
+      
     } catch (error) {
       console.error('Logout error:', error);
     } finally {
       setUser(null);
+      setIsLoading(false);
       router.push('/login');
       router.refresh();
     }

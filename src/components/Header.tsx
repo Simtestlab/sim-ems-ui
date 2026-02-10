@@ -31,11 +31,14 @@ export function Header() {
   const isActive = (p: string) => pathname === p;
 
   return (
-    <header className="bg-white h-10">
-      <div className="flex items-center justify-between px-3 h-12">
+    <header className="bg-white border-b border-gray-100">
+      <div className="flex items-center justify-between px-4 h-12">
         <div className="flex items-center gap-2">
           <Image src="/logo.png" alt="Simtestlab EMS Logo" width={20} height={20} />
-          <span className="text-sm font-semibold text-gray-800">Sim-EMS</span>
+          <div>
+            <span className="text-sm font-bold text-gray-800 tracking-tight">Sim-EMS</span>
+            <div className="text-[10px] text-gray-500 font-medium">Energy Management</div>
+          </div>
         </div>
 
         <div className="flex items-center gap-4">
@@ -44,10 +47,10 @@ export function Header() {
               <Link
                 key={link.path}
                 href={link.path}   
-                className={`text-xs ${
+                className={`text-sm font-medium transition-colors duration-200 ${
                   isActive(link.path)
-                    ? 'text-green-600 font-medium'
-                    : 'text-gray-600 hover:text-gray-900'
+                    ? 'text-emerald-600 bg-emerald-50 px-2 py-1 rounded-lg'
+                    : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50 px-2 py-1 rounded-lg'
                 }`}
               >
                 {link.label}
@@ -58,9 +61,9 @@ export function Header() {
           <div className="relative">
             <button
               onClick={() => setShowUserMenu(!showUserMenu)}
-              className="p-1"
+              className="p-1 hover:bg-gray-50 rounded-lg transition-colors duration-200"
             >
-              <div className="w-6 h-6 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full text-white flex items-center justify-center text-xs">
+              <div className="w-7 h-7 bg-gradient-to-br from-emerald-500 to-blue-600 rounded-full text-white flex items-center justify-center text-sm font-semibold shadow-md">
                 {user?.first_name?.[0] || user?.username?.[0]?.toUpperCase() || 'U'}
               </div>
             </button>

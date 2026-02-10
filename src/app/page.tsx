@@ -1,13 +1,7 @@
-import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 
-export default async function Home() {
-  const cookieStore = await cookies();
-  const accessToken = cookieStore.get("access_token")?.value;
-
-  if (accessToken) {
-    redirect("/live");
-  }
-
-  redirect("/login");
+export default function Home() {
+  // Since AuthWrapper handles authentication,
+  // just redirect to the main app route
+  redirect("/live");
 }

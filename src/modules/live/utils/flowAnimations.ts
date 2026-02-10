@@ -28,7 +28,7 @@ export function getFlowAnimation(
   }
 
   const duration = calculateAnimationDuration(value);
-  const direction = isFlowingOutward ? 'normal' : 'reverse';
+  const direction = 'normal';
 
   return {
     animationName: 'dash-move',
@@ -50,7 +50,7 @@ export function getFlowAnimationStyles(): string {
         stroke-dashoffset: 0;
       }
       100% { 
-        stroke-dashoffset: 24;
+        stroke-dashoffset: -24;
       }
     }
     

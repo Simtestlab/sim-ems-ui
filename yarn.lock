@@ -944,11 +944,11 @@ __metadata:
   linkType: hard
 
 "@types/node@npm:^20":
-  version: 20.19.32
-  resolution: "@types/node@npm:20.19.32"
+  version: 20.19.33
+  resolution: "@types/node@npm:20.19.33"
   dependencies:
     undici-types: "npm:~6.21.0"
-  checksum: 10c0/ae2a541c6f9454b102212c801f2a1e2869a4cbd1e6c05dabed42830a6a3c25f5b3259fbaadffde5f464263035b65cce1ae1324fbeb5f20639df2b92419bdb26b
+  checksum: 10c0/a1a6234a2b6fa577fbb1ccc471e5e54a79c6e1a51be10a67b034461b752a50017854810e943494f20b3c3c6d14df84c93757e0a2ec57aa81c830d6faeab72cf2
   languageName: node
   linkType: hard
 
@@ -2393,11 +2393,11 @@ __metadata:
   linkType: hard
 
 "get-tsconfig@npm:^4.10.0":
-  version: 4.13.5
-  resolution: "get-tsconfig@npm:4.13.5"
+  version: 4.13.6
+  resolution: "get-tsconfig@npm:4.13.6"
   dependencies:
     resolve-pkg-maps: "npm:^1.0.0"
-  checksum: 10c0/e3dc58005f199f5c563c8bd58dbb98c02afa3fc814abdf78fd81b3ab0b302bcfdc5233a56769edcfa765a72d1db041f77f75c4fb67eb5593b58a77b704f3131e
+  checksum: 10c0/bab6937302f542f97217cbe7cbbdfa7e85a56a377bc7a73e69224c1f0b7c9ae8365918e55752ae8648265903f506c1705f63c0de1d4bab1ec2830fef3e539a1a
   languageName: node
   linkType: hard
 
