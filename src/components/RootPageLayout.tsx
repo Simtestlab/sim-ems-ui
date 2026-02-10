@@ -10,9 +10,9 @@ interface RootPageLayoutProps {
 
 export function RootPageLayout({ children }: RootPageLayoutProps) {
   return (
-    <div className="bg-gray-50 flex flex-col flex-1 min-h-screen">
+    <div className="bg-gray-50 flex flex-col min-h-screen">
       {/* Header Section */}
-      <div className="bg-white border-b border-gray-200">
+      <div className="bg-white border-b border-gray-200 shrink-0">
         <Header />
         <SiteTabs />
       </div>
@@ -23,7 +23,9 @@ export function RootPageLayout({ children }: RootPageLayoutProps) {
       </main>
 
       {/* Footer */}
-      <Footer />
+      <div className="shrink-0">
+        <Footer />
+      </div>
     </div>
   );
 }
