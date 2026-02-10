@@ -10,20 +10,20 @@ interface RootPageLayoutProps {
 
 export function RootPageLayout({ children }: RootPageLayoutProps) {
   return (
-    <div className="bg-gray-50 flex flex-col min-h-screen">
-      {/* Header Section */}
-      <div className="bg-white border-b border-gray-200 shrink-0">
+    <div className="bg-slate-50 flex flex-col min-h-screen max-h-screen overflow-hidden">
+      {/* Header Section - Fixed height */}
+      <div className="bg-white border-b border-gray-200 flex-shrink-0">
         <Header />
         <SiteTabs />
       </div>
 
-      {/* Main Content */}
-      <main className="flex-1 flex flex-col min-h-0 bg-gray-50">
+      {/* Main Content - Flexible with viewport constraints */}
+      <main className="flex-1 flex flex-col min-h-0 bg-slate-50 overflow-hidden">
         {children}
       </main>
 
-      {/* Footer */}
-      <div className="shrink-0">
+      {/* Footer - Fixed height */}
+      <div className="flex-shrink-0">
         <Footer />
       </div>
     </div>
