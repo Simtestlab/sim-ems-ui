@@ -1,4 +1,4 @@
-export const DATA_FRESHNESS_THRESHOLD = 15000;
+export const DATA_FRESHNESS_THRESHOLD = 1500;
 
 export type ConnectionHealth = 'healthy' | 'stale' | 'disconnected';
 
