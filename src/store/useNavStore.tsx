@@ -7,7 +7,7 @@ type NavState = {
 };
 
 // Get the first available site ID as default
-const defaultSiteId = getAllSiteIds()[0] || 'ems_sim_01';
+const defaultSiteId = getAllSiteIds()[0] || 'device_01_id';
 
 export const useNavStore = create<NavState>((set) => ({
   selectedSite: defaultSiteId,

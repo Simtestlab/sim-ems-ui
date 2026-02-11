@@ -1,27 +1,29 @@
 'use client';
 import { MapContainer, TileLayer } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
-import { MOCK_SITES } from '../constants/mockData';
+import { getAllSites } from '@/config/sites'; 
 import { MapController } from './MapController';
 import { SiteMarker } from './SiteMarker';
 
 export default function MapView() {
+  const sites = getAllSites(); 
+
   return (
     <MapContainer 
-      center={[11.4102, 76.6950]} 
+      center={[12.9716, 77.5946]} 
       zoom={6} 
       className="h-full w-full"
       zoomControl={false}
     >
       <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
       <MapController />
-      {MOCK_SITES.map((site) => (
+      {sites.map((site) => (
         <SiteMarker
           key={site.id}
           id={site.id}
-          position={[site.lat, site.lng]}
+          position={[site.lat, site.lng]} 
           name={site.name}
-          capacity={site.capacity} // Passing capacity for the bubble and colors
+          capacity={site.capacity} 
         />
       ))}
     </MapContainer>

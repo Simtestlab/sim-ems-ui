@@ -2,42 +2,38 @@ export interface SiteConfig {
   id: string;
   name: string;
   wsUrl: string;
+  lat: number;   // Added for GPS emulation
+  lng: number;   // Added for GPS emulation
+  capacity: number;
 }
 
 export const SITE_CONFIG: SiteConfig[] = [
   {
-    id: 'ems_sim_01',
+    id: 'device_01_id',
     name: 'Alpha',
-    wsUrl: 'wss://sim-ems-websocket.onrender.com/ws/dashboard/ems_sim_01',
+    wsUrl: 'ws://localhost:8001/ws/dashboard/device_01_id',
+    lat: 13.0827,
+    lng: 80.2707,
+    capacity: 15,
   },
   {
-    id: 'ems_sim_02',
+    id: 'device_02_id',
     name: 'Beta',
-    wsUrl: 'wss://sim-ems-websocket.onrender.com/ws/dashboard/ems_sim_02',
+    wsUrl: 'ws://localhost:8001/ws/dashboard/device_02_id',
+    lat: 12.9716,
+    lng: 77.5946,
+    capacity: 5,
   },
 ];
 
-/**
- * Get site configuration by site ID
- * @param id - The site ID to look up
- * @returns SiteConfig if found, undefined otherwise
- */
 export function getSiteConfig(id: string): SiteConfig | undefined {
   return SITE_CONFIG.find(site => site.id === id);
 }
 
-/**
- * Get all available site IDs
- * @returns Array of all site IDs
- */
 export function getAllSiteIds(): string[] {
   return SITE_CONFIG.map(site => site.id);
 }
 
-/**
- * Get all available sites
- * @returns Array of all site configurations
- */
 export function getAllSites(): SiteConfig[] {
   return SITE_CONFIG;
 }
