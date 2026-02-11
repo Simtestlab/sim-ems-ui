@@ -6,14 +6,14 @@ export interface SiteConfig {
 
 export const SITE_CONFIG: SiteConfig[] = [
   {
-    id: 'ems_sim_01',
+    id: 'ems_sim_02',
     name: 'Alpha',
-    wsUrl: 'wss://sim-ems-websocket.onrender.com/ws/dashboard/ems_sim_01',
+    wsUrl: 'wss://sim-ems-websocket.onrender.com/ws/dashboard/ems_sim_02',
   },
   {
-    id: 'ems_sim_02',
+    id: 'ems_sim_01',
     name: 'Beta',
-    wsUrl: 'wss://sim-ems-websocket.onrender.com/ws/dashboard/ems_sim_02',
+    wsUrl: 'wss://sim-ems-websocket.onrender.com/ws/dashboard/ems_sim_01',
   },
 ];
 
