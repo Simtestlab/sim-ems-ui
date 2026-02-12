@@ -1,4 +1,5 @@
 'use client';
+import { useState, useEffect } from 'react';
 import { useNavStore } from '@/store/useNavStore';
 import { useTelemetryStore } from '@/store/telemetryStore';
 import { getSiteConfig } from '@/config/sites';
@@ -7,11 +8,32 @@ export default function SiteSidePanel() {
   const selectedSiteId = useNavStore((state) => state.selectedSite);
   const telemetryState = useTelemetryStore((state) => state.sites[selectedSiteId]);
   const config = getSiteConfig(selectedSiteId);
+  
+  const [now, setNow] = useState(new Date());
+
+  useEffect(() => {
+    const timer = setInterval(() => setNow(new Date()), 1000);
+    return () => clearInterval(timer);
+  }, []);
 
   if (!config) return null;
 
-  const isConnected = telemetryState?.status === 'CONNECTED';
-  const statusColor = isConnected ? 'text-green-600' : 'text-red-600';
+  const lastUpdate = telemetryState?.lastUpdateTime;
+  const secondsSinceUpdate = lastUpdate ? (now.getTime() - lastUpdate.getTime()) / 1000 : Infinity;
+  
+  let statusLabel = telemetryState?.status || 'OFFLINE';
+  let statusColor = 'text-red-600';
+
+  if (telemetryState?.status === 'CONNECTED') {
+    if (secondsSinceUpdate < 5) {
+      statusLabel = 'CONNECTED';
+      statusColor = 'text-green-600';
+    } else {
+      statusLabel = 'DISCONNECTED'; 
+      statusColor = 'text-orange-500';
+    }
+  }
+
   const data = telemetryState?.latestTelemetry;
 
   const MiniRow = ({ label, value, unit = "" }: { label: string; value: any; unit?: string }) => (
@@ -33,7 +55,9 @@ export default function SiteSidePanel() {
           <MiniRow label="Name" value={config.name} />
           <div className="flex justify-between items-center py-0.5 border-b border-gray-50">
             <span className="text-[10px] text-black font-bold uppercase">Status:</span>
-            <span className={`text-[10px] font-black uppercase ${statusColor}`}>● {telemetryState?.status || 'OFFLINE'}</span>
+            <span className={`text-[10px] font-black uppercase ${statusColor}`}>
+              ● {statusLabel}
+            </span>
           </div>
           <MiniRow label="Lat" value={config.lat.toFixed(3)} />
           <MiniRow label="Lng" value={config.lng.toFixed(3)} />
@@ -91,11 +115,12 @@ export default function SiteSidePanel() {
         </div>
       </section>
 
-      {/* FOOTER */}
-      <div className="pt-2 border-t border-dotted border-gray-200 flex justify-between items-center">
-         <span className="text-[9px] text-gray-400 font-mono">TS: {data?.timestamp?.split('T')[1].split('.')[0] || '00:00:00'}</span>
-         <span className="text-[9px] font-bold text-blue-500 italic uppercase">Live Telemetry</span>
-      </div>
+<div className="pt-2 border-t border-dotted border-gray-200">
+   <span className="text-[11px] text-gray-400 font-mono">
+
+      Last Updated Time: {lastUpdate ? lastUpdate.toLocaleTimeString() : '00:00:00'}
+   </span>
+</div>
     </div>
   );
 }
