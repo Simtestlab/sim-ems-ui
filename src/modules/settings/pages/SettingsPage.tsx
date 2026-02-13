@@ -158,7 +158,7 @@ function CheckboxInput(props: any) {
     <input
       type="checkbox"
       {...rest}
-      className={`w-4 h-4 accent-black focus:ring-black rounded ${className}`}
+      className={`w-4 h-4 accent-blue focus:ring-black rounded ${className}`}
     />
   );
 }
@@ -169,7 +169,7 @@ function RadioInput(props: any) {
     <input
       type="radio"
       {...rest}
-      className={`w-4 h-4 accent-black focus:ring-black ${className}`}
+      className={`w-4 h-4 accent-blue focus:ring-black ${className}`}
     />
   );
 }
@@ -241,7 +241,7 @@ function TimeRangeEditor({ value, onChange }: { value: any; onChange: (s: string
             className="px-2 py-1 text-sm border rounded"
             style={{ background: 'var(--color-input)', color: 'var(--color-card-foreground)', borderColor: 'var(--color-border)' }}
           />
-          <span className="text-sm text-gray-600">—</span>
+          <span className="text-sm text-gray-600">:</span>
           <input
             type="time"
             value={r.end}
@@ -249,12 +249,12 @@ function TimeRangeEditor({ value, onChange }: { value: any; onChange: (s: string
             className="px-2 py-1 text-sm border rounded"
             style={{ background: 'var(--color-input)', color: 'var(--color-card-foreground)', borderColor: 'var(--color-border)' }}
           />
-          <select
-            value={r.mode}
-            onChange={(e) => updateRange(i, { mode: e.target.value as any })}
-            className="px-2 py-1 text-sm border rounded"
-            style={{ background: r.mode === 'Charge' ? 'var(--color-accent)' : 'var(--secondary)', color: r.mode === 'Charge' ? 'var(--color-accent-foreground)' : 'var(--secondary-foreground)', borderColor: 'var(--color-border)' }}
-          >
+                <select
+                  value={r.mode}
+                  onChange={(e) => updateRange(i, { mode: e.target.value as any })}
+                  className="px-2 py-1 text-sm border rounded w-24"
+                  style={{ background: r.mode === 'Charge' ? 'var(--color-accent)' : 'var(--secondary)', color: r.mode === 'Charge' ? 'var(--color-accent-foreground)' : 'var(--secondary-foreground)', borderColor: 'var(--color-border)' }}
+                >
             <option>Charge</option>
             <option>Discharge</option>
           </select>
