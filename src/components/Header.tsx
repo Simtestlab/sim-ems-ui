@@ -3,15 +3,17 @@
 import { useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { useAuth } from '@/modules/auth/context/AuthContext';
 import { LogoutIcon } from '@/components/LogoutIcon';
+import { SettingsIcon } from '@/components/SettingsIcon';
 
 export function Header() {
   const { user, logout } = useAuth();
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [showMobileMenu, setShowMobileMenu] = useState(false);
   const pathname = usePathname();
+  const router = useRouter();
 
   const handleLogout = async () => {
     try {
@@ -19,6 +21,11 @@ export function Header() {
     } catch (error) {
       console.error('Logout failed:', error);
     }
+  };
+
+  const handleNavigateToSettings = () => {
+    setShowUserMenu(false);
+    router.push('/settings');
   };
 
   const links = [
@@ -82,6 +89,13 @@ export function Header() {
                     <p className="text-xs text-gray-500">{user?.email}</p>
                     <p className="text-xs text-gray-400 mt-1">{user?.role_display}</p>
                   </div>
+                  <button
+                    onClick={handleNavigateToSettings}
+                    className="w-full flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                  >
+                    <SettingsIcon />
+                    <span>Settings</span>
+                  </button>
                   <button
                     onClick={handleLogout}
                     className="w-full flex items-center gap-3 px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors"

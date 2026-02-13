@@ -40,21 +40,21 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-    --card: #171717;
-    --card-foreground: #ededed;
-    --primary: #fafafa;
-    --primary-foreground: #0a0a0a;
-    --secondary: #262626;
-    --secondary-foreground: #fafafa;
-    --muted: #262626;
-    --muted-foreground: #a3a3a3;
-    --accent: #262626;
-    --accent-foreground: #fafafa;
-    --border: #262626;
-    --input: #262626;
-    --ring: #d4d4d4;
+    --background: #071421;
+    --foreground: #e6f0f6;
+    --card: #0b2740;
+    --card-foreground: #e6f0f6;
+    --primary: #e6f6ff;
+    --primary-foreground: #01243a;
+    --secondary: #031425;
+    --secondary-foreground: #e6f0f6;
+    --muted: #031425;
+    --muted-foreground: #9aa6b2;
+    --accent: #052f2b;
+    --accent-foreground: #e6fff8;
+    --border: #062738;
+    --input: #082d3f;
+    --ring: #ffffff;
   }
 }
 
@@ -117,7 +117,9 @@ body {
 
 /* Enhanced focus styles for accessibility */
 .focus-ring {
-  @apply focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2;
+  @apply focus:outline-none focus:ring-2 focus:ring-offset-2;
+  /* use CSS variable for ring color to keep themeable */
+  box-shadow: 0 0 0 2px var(--color-ring, var(--ring));
 }
 
 /* Responsive text scaling */

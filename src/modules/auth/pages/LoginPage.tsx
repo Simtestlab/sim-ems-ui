@@ -19,7 +19,13 @@ export default function LoginPage() {
 
     try {
       // Use AuthContext login to set user in context (and handle credentials)
-      await login(email, password);
+      const result = await login(email, password);
+      
+      if (!result.success) {
+        setError(result.error || "An error occurred");
+        return;
+      }
+      
       // Refresh user state if needed, then navigate to dashboard
       await refreshUser();
       router.push("/live");
