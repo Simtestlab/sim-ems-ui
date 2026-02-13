@@ -4,6 +4,7 @@ import "./globals.css";
 import { AuthProvider } from "@/modules/auth/context/AuthContext";
 import { AuthWrapper } from "@/components/AuthWrapper";
 import { AppWrapper } from "@/components/AppWrapper";
+import Snackbar from "@/components/Snackbar";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -29,6 +30,7 @@ export default function RootLayout({
               <div className="flex-1 overflow-auto py-0 no-scrollbar">{children}</div>
             </AppWrapper>
           </AuthWrapper>
+          <Snackbar />
         </AuthProvider>
       </body>
     </html>

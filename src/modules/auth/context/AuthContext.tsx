@@ -31,6 +31,7 @@ interface AuthContextType {
   user: User | null;
   isLoading: boolean;
   isAuthenticated: boolean;
+  isVerifying: boolean;
   login: (email: string, password: string) => Promise<LoginResult>;
   logout: () => Promise<void>;
   refreshUser: () => Promise<void>;
@@ -40,7 +41,8 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isVerifying, setIsVerifying] = useState(true);
   const router = useRouter();
 
   // Fetch current user on mount
@@ -50,9 +52,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const refreshUser = async () => {
     try {
+      setIsVerifying(true);
       const token = localStorage.getItem('access_token');
       if (!token) {
         setUser(null);
+        setIsVerifying(false);
         return;
       }
 
@@ -67,6 +71,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (response.ok) {
         const userData = await response.json();
         setUser(userData.user || userData);
+        setIsLoading(true);
+        setTimeout(() => setIsLoading(false), 800);
       } else {
         setUser(null);
         localStorage.removeItem('access_token');
@@ -76,7 +82,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setUser(null);
       localStorage.removeItem('access_token');
     } finally {
-      setIsLoading(false);
+      setIsVerifying(false);
     }
   };
 
@@ -158,6 +164,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const value = {
     user,
     isLoading,
+    isVerifying,
     isAuthenticated: !!user,
     login,
     logout,

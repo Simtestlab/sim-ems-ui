@@ -3,13 +3,15 @@
 import { useAuth } from '@/modules/auth/context/AuthContext';
 import { usePathname, useRouter } from 'next/navigation';
 import { useEffect } from 'react';
+import { useSnackbarStore } from '@/store/snackbarStore';
 
 interface AuthWrapperProps {
   children: React.ReactNode;
 }
 
 export function AuthWrapper({ children }: AuthWrapperProps) {
-  const { user, isLoading } = useAuth();
+  const { user, isLoading, isVerifying } = useAuth();
+  const { showSnackbar } = useSnackbarStore();
   const pathname = usePathname();
   const router = useRouter();
 
@@ -17,7 +19,7 @@ export function AuthWrapper({ children }: AuthWrapperProps) {
   const isPublicRoute = publicRoutes.includes(pathname);
 
   useEffect(() => {
-    if (isLoading) return; // Wait for auth state to load
+    if (isVerifying || isLoading) return; // Wait for verification and loading to complete
 
     // If user is not authenticated and trying to access protected route
     if (!user && !isPublicRoute) {
@@ -30,10 +32,10 @@ export function AuthWrapper({ children }: AuthWrapperProps) {
       router.push('/live');
       return;
     }
-  }, [user, isLoading, isPublicRoute, router]);
+  }, [user, isLoading, isVerifying, isPublicRoute, router]);
 
-  // Show loading screen while authentication state is being determined
-  if (isLoading) {
+  // Show loading screen only after successful verification
+  if (isLoading && user) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="max-w-md w-full mx-4">
@@ -63,6 +65,11 @@ export function AuthWrapper({ children }: AuthWrapperProps) {
         </div>
       </div>
     );
+  }
+
+  // If still verifying, show nothing (blank screen)
+  if (isVerifying) {
+    return null;
   }
 
   // If user is not authenticated and on protected route, don't render children

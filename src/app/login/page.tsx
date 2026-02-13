@@ -3,18 +3,18 @@
 import { useState, FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/modules/auth/context/AuthContext";
+import { useSnackbarStore } from "@/store/snackbarStore";
 
 export default function LoginClient() {
   const router = useRouter();
   const { refreshUser, login } = useAuth();
+  const { showSnackbar } = useSnackbarStore();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setError("");
     setIsLoading(true);
 
     try {
@@ -22,17 +22,20 @@ export default function LoginClient() {
       const result = await login(email, password);
       
       if (!result.success) {
-        setError(result.error || "An error occurred");
+        showSnackbar(result.error || "An error occurred during login", "error");
+        setIsLoading(false);
         return;
       }
       
-      // Refresh user state if needed, then navigate to dashboard
-      await refreshUser();
-      router.push("/live");
+      showSnackbar("Login successful! Redirecting...", "success");
+      await refreshUser();      
+      setTimeout(() => {
+        router.push("/live");
+        setIsLoading(false);
+      }, 1000);
     } catch (err) {
       console.error("[Login] Error:", err);
-      setError(err instanceof Error ? err.message : "An error occurred");
-    } finally {
+      showSnackbar(err instanceof Error ? err.message : "An unexpected error occurred", "error");
       setIsLoading(false);
     }
   };
@@ -55,12 +58,6 @@ export default function LoginClient() {
       <div className="flex flex-1 items-center justify-center bg-white p-8">
         <div className="w-full max-w-md">
           <h2 className="text-2xl font-bold text-gray-900 mb-6">LOGIN</h2>
-
-          {error && (
-            <div className="mb-4 p-3 rounded bg-red-50 border border-red-200 text-red-700 text-sm">
-              {error}
-            </div>
-          )}
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
