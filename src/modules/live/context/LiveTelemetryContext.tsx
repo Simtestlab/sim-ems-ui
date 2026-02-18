@@ -32,15 +32,14 @@ export function LiveTelemetryProvider({
         connect,
         disconnect
     } = useSiteTelemetry(siteId);
-
-    const value: LiveTelemetryContextType = {
+    const value = React.useMemo<LiveTelemetryContextType>(() => ({
         latestTelemetry: telemetry,
         isConnected,
         status,
         lastUpdateTime,
         connect,
         disconnect
-    };
+    }), [telemetry, isConnected, status, lastUpdateTime, connect, disconnect]);
 
     return (
         <LiveTelemetryContext.Provider value={value}>

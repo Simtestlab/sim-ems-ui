@@ -8,29 +8,34 @@ import {
   getConnectionHealthFromState,
   getStatusTitle,
 } from './siteTabUtils';
+import { DATA_FRESHNESS_THRESHOLD } from './siteTabUtils';
+
+function useSiteStatus(siteId: string) {
+  const siteState = useTelemetryStore((s) => s.sites[siteId]);
+  return siteState ?? null;
+}
 
 export function SiteTabs() {
   const sites = getAllSites();
   const { selectedSite, setSite } = useNavStore();
   
-  const allSitesData = useTelemetryStore((state) => state.sites);
-
   const [currentTime, setCurrentTime] = useState(Date.now());
 
-  useEffect(() => {
-    const interval = setInterval(() => setCurrentTime(Date.now()), 500);
-    return () => clearInterval(interval);
-  }, []);
+  const allSitesData = useTelemetryStore((state) => state.sites);
 
-  // derive connection health from telemetry store + a moving clock
-  const getConnectionStatus = (siteId: string) => {
-    const health = getConnectionHealthFromState(allSitesData?.[siteId], currentTime);
-    return {
-      health,
-      isConnected: health === 'healthy',
-      title: getStatusTitle(health),
-    };
-  };
+  const anyUnstable = Object.values(allSitesData || {}).some((s) => {
+    if (!s) return false;
+    if (s.status === 'DISCONNECTED' || s.status === 'ERROR') return true;
+    if (!s.lastUpdateTime) return true;
+    const last = new Date(s.lastUpdateTime).getTime();
+    return Date.now() - last > DATA_FRESHNESS_THRESHOLD;
+  });
+
+  useEffect(() => {
+    const fastInterval = anyUnstable ? 250 : 500;
+    const interval = setInterval(() => setCurrentTime(Date.now()), fastInterval);
+    return () => clearInterval(interval);
+  }, [anyUnstable]);
 
   const handleSiteChange = (siteId: string) => {
     setSite(siteId);
@@ -43,7 +48,14 @@ export function SiteTabs() {
       <div className="flex gap-0 overflow-x-auto border-b border-gray-100">
         {sites.map((site) => {
           const isSelected = selectedSite === site.id;
-          const status = getConnectionStatus(site.id);
+          const siteState = useSiteStatus(site.id);
+
+          const health = getConnectionHealthFromState(siteState, currentTime);
+          const status = {
+            health,
+            isConnected: health === 'healthy',
+            title: getStatusTitle(health),
+          };
           const isConnected = status.isConnected;
           
           return (
