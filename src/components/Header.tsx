@@ -37,7 +37,7 @@ export function Header() {
           <Image src="/logo.png" alt="Simtestlab EMS Logo" width={20} height={20} />
           <div>
             <span className="text-sm font-bold text-gray-800 tracking-tight">Sim-EMS</span>
-            <div className="text-[10px] text-gray-500 font-medium">Energy Management</div>
+            <div className="text-[10px] text-gray-500 font-medium">Energy Management System</div>
           </div>
         </div>
 

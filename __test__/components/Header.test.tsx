@@ -72,9 +72,9 @@ describe('Header Component', () => {
     expect(screen.getByText('Sim-EMS')).toBeInTheDocument();
   });
 
-  it('should display Energy Management text', () => {
+  it('should display Energy Management System text', () => {
     render(<Header />);
-    expect(screen.getByText('Energy Management')).toBeInTheDocument();
+    expect(screen.getByText('Energy Management System')).toBeInTheDocument();
   });
 
   it('should display navigation links', () => {
