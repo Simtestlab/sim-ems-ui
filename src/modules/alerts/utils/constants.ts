@@ -14,6 +14,18 @@ export const DEFAULT_CRITICAL_ALERTS: ColItem[] = [
     desc: 'Load consumption at 848 kW. Monitor energy usage.', 
     time: '10:02:52 AM' 
   },
+  { 
+    id: 'a3', 
+    title: 'High Grid Demand', 
+    desc: 'Grid import at 863 kW, approaching peak demand.', 
+    time: '10:02:52 AM' 
+  },
+  { 
+    id: 'a4', 
+    title: 'High Load Demand', 
+    desc: 'Load consumption at 848 kW. Monitor energy usage.', 
+    time: '10:02:52 AM' 
+  },
 ];
 
 export const DEFAULT_WARNING_ALERTS: ColItem[] = [
@@ -86,8 +98,6 @@ export const BETA_SYSTEM_ALERTS: ColItem[] = [
   },
 ];
 
-
-export const ALERT_COLUMN_HEIGHT = 390;
 
 export const ALERT_COLORS = {
   critical: 'text-red-600',

@@ -1,14 +1,19 @@
 'use client';
 
 import { usePermissions } from '@/modules/auth/hooks/usePermissions';
-import PeakShavingCard from '@/modules/settings/components/PeakShavingCard';
-import PVSelfConsumptionCard from '@/modules/settings/components/PVSelfConsumptionCard';
-import TimeOfUseOptimizationCard from '@/modules/settings/components/TimeOfUseOptimizationCard';
-import MicrogridIslandingCard from '@/modules/settings/components/MicrogridIslandingCard';
-import GridServicesCard from '@/modules/settings/components/GridServicesCard';
+import { useNavStore } from '@/store/useNavStore';
+import { getSiteConfig } from '@/config/sites';
+import PeakShavingCard from '@/modules/controller/components/PeakShavingCard';
+import PVSelfConsumptionCard from '@/modules/controller/components/PVSelfConsumptionCard';
+import TimeOfUseOptimizationCard from '@/modules/controller/components/TimeOfUseOptimizationCard';
+import MicrogridIslandingCard from '@/modules/controller/components/MicrogridIslandingCard';
+import GridServicesCard from '@/modules/controller/components/GridServicesCard';
 
-export default function SettingsPage() {
+export default function ControllerPage() {
   const { canModifySettings } = usePermissions();
+  const { selectedSite } = useNavStore();
+  const siteConfig = getSiteConfig(selectedSite);
+  const siteName = siteConfig?.name ?? selectedSite;
 
   if (!canModifySettings) {
     return (
@@ -25,24 +30,13 @@ export default function SettingsPage() {
 
   return (
     <div className="h-screen bg-gray-50 overflow-hidden">
-      <div className="h-full max-w-[1400px] mx-auto px-6 py-6 flex flex-col">
-        <div className="mb-4 flex-shrink-0">
-          <h1 className="text-2xl font-bold text-gray-900">EMS Logic Controller</h1>
-          <p className="text-sm text-gray-500 mt-1">
-            Control & Setpoints (Monitoring handled in Analytics)
-          </p>
-        </div>
-
+      <div className="h-full max-w-[1400px] mx-auto px-6 pt-2 pb-6 flex flex-col">
         <div className="flex-1 overflow-y-auto overflow-x-hidden pr-2">
-          <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6 pb-6">
+          <div key={selectedSite} className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6 pb-6">
             <PeakShavingCard />
-
             <PVSelfConsumptionCard />
-
             <TimeOfUseOptimizationCard />
-
             <MicrogridIslandingCard />
-
             <GridServicesCard />
           </div>
         </div>

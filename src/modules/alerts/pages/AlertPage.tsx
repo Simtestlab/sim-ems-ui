@@ -13,7 +13,6 @@ import {
   BETA_WARNING_ALERTS,
   BETA_FINANCIAL_ALERTS,
   BETA_SYSTEM_ALERTS,
-  ALERT_COLUMN_HEIGHT,
   ALERT_COLORS,
 } from '../utils/constants';
 
@@ -55,47 +54,33 @@ export default function AlertsPage() {
   const handleRemoveSys = (id: string) => setSysItems((prev) => prev.filter((p) => p.id !== id));
 
   return (
-    <div className="h-full flex flex-col">
-      <div className="flex-1">
-        <div className="px-4 sm:px-6 lg:px-8">
-          <h2 className="text-xl font-semibold mt-4 mb-4 flex items-center gap-2">
-            <svg className="text-orange-600 h-[1em] w-[1em]" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden>
-              <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" />
-              <path d="M12 9v4" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
-              <path d="M12 17h.01" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
-            Alerts & Notifications
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 items-start">
-            <AlertsColumn 
-              title="Critical Actions" 
-              items={nowItems} 
-              colorClass={ALERT_COLORS.critical} 
-              onRemove={handleRemoveNow} 
-              minHeightPx={ALERT_COLUMN_HEIGHT} 
-            />
-            <AlertsColumn 
-              title="Warning" 
-              items={warnItems} 
-              colorClass={ALERT_COLORS.warning} 
-              onRemove={handleRemoveWarn} 
-              minHeightPx={ALERT_COLUMN_HEIGHT} 
-            />
-            <AlertsColumn 
-              title="Financial Alerts" 
-              items={finItems} 
-              colorClass={ALERT_COLORS.financial} 
-              onRemove={handleRemoveFin} 
-              minHeightPx={ALERT_COLUMN_HEIGHT} 
-            />
-            <AlertsColumn 
-              title="System Alerts" 
-              items={sysItems} 
-              colorClass={ALERT_COLORS.system} 
-              onRemove={handleRemoveSys} 
-              minHeightPx={ALERT_COLUMN_HEIGHT} 
-            />
-          </div>
+    <div className="flex-1 flex flex-col overflow-hidden">
+      <div className="flex-1 overflow-y-auto pt-6 px-2 sm:px-4 lg:px-4 pb-2">
+        <div className="h-full grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 lg:grid-rows-1 gap-2 items-stretch">
+          <AlertsColumn 
+            title="Critical Actions" 
+            items={nowItems} 
+            colorClass={ALERT_COLORS.critical} 
+            onRemove={handleRemoveNow} 
+          />
+          <AlertsColumn 
+            title="Warning" 
+            items={warnItems} 
+            colorClass={ALERT_COLORS.warning} 
+            onRemove={handleRemoveWarn} 
+          />
+          <AlertsColumn 
+            title="Financial Alerts" 
+            items={finItems} 
+            colorClass={ALERT_COLORS.financial} 
+            onRemove={handleRemoveFin} 
+          />
+          <AlertsColumn 
+            title="System Alerts" 
+            items={sysItems} 
+            colorClass={ALERT_COLORS.system} 
+            onRemove={handleRemoveSys} 
+          />
         </div>
       </div>
     </div>

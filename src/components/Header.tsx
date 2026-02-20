@@ -24,7 +24,7 @@ export function Header() {
   const links = [
     { label: 'Live', path: '/live' },
     { label: 'Site Map', path: '/sitemap' },
-    { label: 'Analytics', path: '/analytics' },
+    { label: 'Controller', path: '/controller' },
     { label: 'Alerts', path: '/alerts' },
   ];
 

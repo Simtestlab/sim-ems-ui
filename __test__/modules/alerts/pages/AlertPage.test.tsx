@@ -339,7 +339,7 @@ describe('AlertsPage Component', () => {
       const dismissButtons = screen.getAllByLabelText(/Dismiss/);
       expect(dismissButtons.length).toBeGreaterThan(0);
       
-      dismissButtons.forEach(button => {
+      dismissButtons.forEach((button: HTMLElement) => {
         expect(button).toHaveAttribute('aria-label');
       });
     });

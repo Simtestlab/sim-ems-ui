@@ -12,10 +12,6 @@ export function LivePage() {
   if (!energyData) {
     return (
       <div className="flex-1 flex items-center justify-center bg-gradient-to-br from-slate-50 to-slate-100 min-h-0">
-        <div className="flex flex-col items-center gap-4">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-slate-600"></div>
-          <div className="text-slate-600 font-medium">Loading energy data...</div>
-        </div>
       </div>
     );
   }
