@@ -56,7 +56,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         return;
       }
 
-      const baseURL = process.env.NEXT_PUBLIC_BACKEND_API_BASE_URL || 'http://localhost:8000';
+      const baseURL = process.env.NEXT_PUBLIC_BACKEND_API_BASE_URL;
+
+      if (!baseURL) {
+         throw new Error(
+           "NEXT_PUBLIC_BACKEND_API_BASE_URL is not defined. Check your environment configuration."
+         );
+       }
+
       const response = await fetch(`${baseURL}/api/auth/me`, {
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -84,7 +91,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       setIsLoading(true);
       
-      const baseURL = process.env.NEXT_PUBLIC_BACKEND_API_BASE_URL || 'http://localhost:8000';
+       const baseURL = process.env.NEXT_PUBLIC_BACKEND_API_BASE_URL;
+
+       if (!baseURL) {
+         throw new Error(
+           "NEXT_PUBLIC_BACKEND_API_BASE_URL is not defined. Check your environment configuration."
+         );
+       }
       const response = await fetch(`${baseURL}/api/auth/login`, {
         method: 'POST',
         headers: {
