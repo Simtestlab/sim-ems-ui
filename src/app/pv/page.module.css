@@ -1,0 +1,19 @@
+.container { padding: 20px 28px }
+.topbar { display:flex; justify-content:space-between; align-items:flex-start; gap:20px }
+.leftControls { display:flex; flex-direction:column; gap:12px }
+.siteSelect { padding:8px 12px; border-radius:6px; border:1px solid #e6eef5 }
+.searchRow { display:flex; align-items:center; gap:8px }
+.searchInput { padding:10px 12px; border-radius:6px; border:1px solid #e6eef5; min-width:240px }
+.locationSelect { padding:10px 12px; border-radius:6px; border:1px solid #e6eef5 }
+.btnPrimary { background:#167fd6; color:white; border:none; padding:8px 12px; border-radius:6px }
+.btn { background:white; color:#333; border:1px solid #e6eef5; padding:8px 12px; border-radius:6px }
+.rightLegend { display:flex; align-items:center; gap:12px; color:#7b8a96 }
+.legendItems { display:flex; gap:8px; align-items:center }
+.legendDot { width:10px; height:10px; border-radius:50%; display:inline-block; margin-right:6px }
+
+.tabsRow { margin-top:12px; border-bottom:1px solid #eef6fb; padding-bottom:12px }
+.tabs { display:flex; gap:12px; align-items:center }
+.tab, .tabActive { background:none; border:none; padding:6px 8px; cursor:pointer; color:#7b8a96 }
+.tabActive { color:#111; border-bottom:2px solid #167fd6 }
+
+.cardsArea { display:flex; gap:18px; margin-top:20px; flex-wrap:wrap }
