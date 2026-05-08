@@ -125,7 +125,7 @@ export default function PVMonitoringUI() {
 
 
   return (
-    <div className="min-h-screen bg-[#f8fafc] font-sans text-gray-800 flex flex-col text-[14px] ui-compact">
+    <div className="h-screen bg-[#f8fafc] font-sans text-gray-800 flex flex-col text-[14px] ui-compact">
       {/* Top Header */}
       <header className="bg-white h-14 flex items-center justify-between text-[13px] z-30 sticky top-0 shadow-sm">
         <div className="flex items-center h-full">
@@ -178,7 +178,7 @@ export default function PVMonitoringUI() {
       <div className="flex flex-1 overflow-hidden">
         <Sidebar sidebarCollapsed={sidebarCollapsed} activeTab={activeTab} setActiveTab={setActiveTab} />
 
-        <div className="flex-1 overflow-y-auto flex flex-col bg-[#f8fafc]">
+        <div className="flex-1 min-w-0 overflow-x-hidden overflow-y-auto flex flex-col bg-[#f8fafc]">
 
 
           {/* Breadcrumb / Tags */}
@@ -193,8 +193,8 @@ export default function PVMonitoringUI() {
           </div>
 
           {/* Search & Filters */}
-          <div className="px-4 py-3 bg-white border-b border-gray-100 flex items-center justify-between gap-4 shadow-sm">
-            <div className="flex items-center gap-4">
+          <div className="px-4 py-3 bg-white border-b border-gray-100 flex items-center gap-4 shadow-sm">
+            <div className="flex items-center gap-4 flex-wrap">
               <div className="flex flex-col gap-1">
                 <div className="relative group">
                   <input
@@ -213,50 +213,50 @@ export default function PVMonitoringUI() {
                   <ChevronDown className="w-3.5 h-3.5 text-gray-400 group-hover:text-[#1890ff]" />
                 </div>
               </div>
-            </div>
 
-            <div className="flex items-center gap-3">
-              <button className="bg-[#1890ff] hover:bg-[#40a9ff] text-white h-10 px-5 rounded-lg text-[14px] font-medium transition-all shadow-sm active:scale-95">Search</button>
-              <button className="bg-white border border-gray-200 hover:border-gray-300 h-10 px-4 rounded-lg text-[14px] font-medium text-gray-500 transition-all active:scale-95">Reset</button>
+              <div className="flex items-center gap-3">
+                <button className="bg-[#1890ff] hover:bg-[#40a9ff] text-white h-10 px-5 rounded-lg text-[14px] font-medium transition-all shadow-sm active:scale-95">Search</button>
+                <button className="bg-white border border-gray-200 hover:border-gray-300 h-10 px-4 rounded-lg text-[14px] font-medium text-gray-500 transition-all active:scale-95">Reset</button>
+              </div>
             </div>
           </div>
 
           {/* Status Tabs & Legend */}
-          <div className="px-4 border-b border-gray-100 flex items-end justify-between bg-white sticky top-0 z-10 shadow-sm">
-            <div className="flex gap-4 text-[14px]">
+          <div className="px-4 border-b border-gray-100 bg-white sticky top-0 z-10 shadow-sm overflow-x-auto">
+            <div className="flex items-center gap-3 text-[14px] whitespace-nowrap min-w-max">
               {statusTabs.map(t => (
-                <button key={t.key} onClick={() => setSelectedStatus(t.key)} className={`py-2.5 px-2 relative transition-all group ${selectedStatus === t.key ? 'text-[#1890ff] font-semibold' : 'text-gray-500 hover:text-gray-800'}`}>
-                  <span className="flex items-center gap-2">
+                <button key={t.key} onClick={() => setSelectedStatus(t.key)} className={`py-2.5 px-2 relative transition-all group whitespace-nowrap ${selectedStatus === t.key ? 'text-[#1890ff] font-semibold' : 'text-gray-500 hover:text-gray-800'}`}>
+                  <span className="flex items-center gap-1.5 whitespace-nowrap">
                     {t.label}
                     <span className={`px-1 py-0.5 rounded-full text-[10px] ${selectedStatus === t.key ? 'bg-[#1890ff]/10' : 'bg-gray-100 group-hover:bg-gray-200'} transition-colors`}>{counts[t.key] ?? 0}</span>
                   </span>
                   {selectedStatus === t.key && <div className="absolute left-0 w-full bottom-0 h-[2px] bg-[#1890ff] shadow-[0_-2px_8px_rgba(24,144,255,0.4)]" />}
                 </button>
               ))}
-            </div>
 
-            <div className="flex items-center gap-4 pb-2 text-[12px]">
-              <span className="text-gray-400 font-bold uppercase tracking-widest text-[10px]">Branch Status:</span>
-              <div onClick={() => toggleBranch('normal')} className="flex items-center gap-2 cursor-pointer group">
+              <div className="flex items-center gap-4 ml-6 text-[13px] whitespace-nowrap">
+              <span className="text-gray-500 font-medium whitespace-nowrap">Branch Status:</span>
+              <div onClick={() => toggleBranch('normal')} className="flex items-center gap-2 cursor-pointer group whitespace-nowrap">
                 <BranchIcon className="text-[#52c41a] w-3 h-3" />
                 <span className="text-gray-600 text-[13px] font-medium group-hover:text-gray-900">Normal</span>
               </div>
-              <div onClick={() => toggleBranch('low')} className="flex items-center gap-2 cursor-pointer group">
+              <div onClick={() => toggleBranch('low')} className="flex items-center gap-2 cursor-pointer group whitespace-nowrap">
                 <BranchIcon className="text-yellow-500 w-3 h-3" />
                 <span className="text-gray-600 text-[13px] font-medium group-hover:text-gray-900">Low Output</span>
               </div>
-              <div onClick={() => toggleBranch('zero')} className="flex items-center gap-2 cursor-pointer group">
+              <div onClick={() => toggleBranch('zero')} className="flex items-center gap-2 cursor-pointer group whitespace-nowrap">
                 <BranchIcon className="text-red-500 w-3 h-3" />
                 <span className="text-gray-600 text-[13px] font-medium group-hover:text-gray-900">Zero Output</span>
               </div>
-              <div onClick={() => toggleBranch('disconnected')} className="flex items-center gap-2 cursor-pointer group">
+              <div onClick={() => toggleBranch('disconnected')} className="flex items-center gap-2 cursor-pointer group whitespace-nowrap">
                 <BranchIcon className="text-gray-400 w-3 h-3" />
                 <span className="text-gray-600 text-[13px] font-medium group-hover:text-gray-900">Disconnected</span>
+              </div>
               </div>
             </div>
           </div>
 
-          <main className="px-4 py-3 flex-1 min-w-0 overflow-y-auto">
+          <main className="flex-1 min-w-0 overflow-y-auto w-full pt-4 pb-4 px-4 max-w-none mx-0" style={{ maxWidth: 'none', marginInline: 0 }}>
             {filtered.length === 0 ? (
               <div className="flex-1 flex flex-col items-center justify-center min-h-[400px]">
                 <div className="flex flex-col items-center animate-in fade-in zoom-in duration-700">
@@ -274,9 +274,9 @@ export default function PVMonitoringUI() {
                 </div>
               </div>
             ) : (
-              <div className="flex flex-wrap gap-6">
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 428px))', gap: 16, justifyContent: 'start', alignContent: 'start' }}>
                 {filtered.map(inv => (
-                  <article key={inv.id} className="relative bg-white border border-gray-100 transition-all group" style={{ width: 420, padding: 18, borderRadius: 18, boxShadow: '0 6px 18px rgba(0,0,0,0.04)', background: 'linear-gradient(135deg, #f8fbff 0%, #ffffff 100%)' }}>
+                  <article key={inv.id} className="relative bg-white border border-gray-100 transition-all group" style={{ width: '100%', padding: 18, borderRadius: 18, boxShadow: '0 6px 18px rgba(0,0,0,0.04)', background: 'linear-gradient(135deg, #f8fbff 0%, #ffffff 100%)' }}>
                     <header className="flex justify-between items-start mb-6">
                       <div className="flex items-center gap-4">
                         <div className="w-12 h-12 bg-[#f0f9ff] rounded-xl border border-blue-50 flex items-center justify-center p-1 transition-transform group-hover:scale-105 duration-300">

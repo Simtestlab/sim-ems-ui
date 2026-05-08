@@ -23,12 +23,12 @@ export default function Sidebar({ sidebarCollapsed, activeTab, setActiveTab }: {
     { key: 'Admin', icon: JapaneseYen, label: 'Admin', hasChildren: true },
   ];
 
-  const subs = ['Overview', 'PV', 'Genset', 'PCS', 'BMS', 'FPS', 'Cooling', 'Meter', 'EV', 'Data'];
+  const subs = ['Overview', 'PV', 'DG', 'PCS', 'BMS', 'FPS', 'Refrigeration', 'Meter', 'EV', 'Data'];
 
   return (
-    <aside className={`bg-[#001529] transition-all duration-300 flex flex-col overflow-y-auto shrink-0 z-20 ${sidebarCollapsed ? 'w-12' : 'w-60'}`}>
+    <aside className={`bg-[#001529] transition-all duration-300 flex flex-col overflow-hidden shrink-0 z-20 self-stretch ${sidebarCollapsed ? 'w-12' : 'w-60'}`}>
 
-      <nav className="flex-1 py-3">
+      <nav className="flex-1 py-3 overflow-y-auto scrollbar-thin">
         <ul className="space-y-0.5">
           {items.map(item => (
             <li key={item.key} className="px-2">
