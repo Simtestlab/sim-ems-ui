@@ -1,5 +1,5 @@
 "use client";
- 
+
 import { useMemo, useState, useEffect } from 'react';
 import {
   Menu, ChevronDown, Monitor, Globe, Search, Zap, Lightbulb, BarChart2, Clock, CheckCircle2, X
@@ -235,23 +235,23 @@ export default function PVMonitoringUI() {
               ))}
 
               <div className="flex items-center gap-4 ml-6 text-[13px] whitespace-nowrap">
-              <span className="text-gray-500 font-medium whitespace-nowrap">Branch Status:</span>
-              <div onClick={() => toggleBranch('normal')} className="flex items-center gap-2 cursor-pointer group whitespace-nowrap">
-                <BranchIcon className="text-[#52c41a] w-3 h-3" />
-                <span className="text-gray-600 text-[13px] font-medium group-hover:text-gray-900">Normal</span>
-              </div>
-              <div onClick={() => toggleBranch('low')} className="flex items-center gap-2 cursor-pointer group whitespace-nowrap">
-                <BranchIcon className="text-yellow-500 w-3 h-3" />
-                <span className="text-gray-600 text-[13px] font-medium group-hover:text-gray-900">Low Output</span>
-              </div>
-              <div onClick={() => toggleBranch('zero')} className="flex items-center gap-2 cursor-pointer group whitespace-nowrap">
-                <BranchIcon className="text-red-500 w-3 h-3" />
-                <span className="text-gray-600 text-[13px] font-medium group-hover:text-gray-900">Zero Output</span>
-              </div>
-              <div onClick={() => toggleBranch('disconnected')} className="flex items-center gap-2 cursor-pointer group whitespace-nowrap">
-                <BranchIcon className="text-gray-400 w-3 h-3" />
-                <span className="text-gray-600 text-[13px] font-medium group-hover:text-gray-900">Disconnected</span>
-              </div>
+                <span className="text-gray-500 font-medium whitespace-nowrap">Branch Status:</span>
+                <div onClick={() => toggleBranch('normal')} className="flex items-center gap-2 cursor-pointer group whitespace-nowrap">
+                  <BranchIcon className="text-[#52c41a] w-3 h-3" />
+                  <span className="text-gray-600 text-[13px] font-medium group-hover:text-gray-900">Normal</span>
+                </div>
+                <div onClick={() => toggleBranch('low')} className="flex items-center gap-2 cursor-pointer group whitespace-nowrap">
+                  <BranchIcon className="text-yellow-500 w-3 h-3" />
+                  <span className="text-gray-600 text-[13px] font-medium group-hover:text-gray-900">Low Output</span>
+                </div>
+                <div onClick={() => toggleBranch('zero')} className="flex items-center gap-2 cursor-pointer group whitespace-nowrap">
+                  <BranchIcon className="text-red-500 w-3 h-3" />
+                  <span className="text-gray-600 text-[13px] font-medium group-hover:text-gray-900">Zero Output</span>
+                </div>
+                <div onClick={() => toggleBranch('disconnected')} className="flex items-center gap-2 cursor-pointer group whitespace-nowrap">
+                  <BranchIcon className="text-gray-400 w-3 h-3" />
+                  <span className="text-gray-600 text-[13px] font-medium group-hover:text-gray-900">Disconnected</span>
+                </div>
               </div>
             </div>
           </div>
