@@ -3,15 +3,7 @@
 import { useState } from 'react';
 import { Network, Settings, BarChart2, LayoutGrid, LineChart, JapaneseYen, ChevronDown } from 'lucide-react';
 
-const LogoIcon = ({ className = "" }: { className?: string }) => (
-  <svg className={`w-6 h-6 ${className}`} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2" />
-    <circle cx="12" cy="12" r="2.5" fill="currentColor" />
-    <path d="M12 12L16 8" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-  </svg>
-);
-
-export default function Sidebar({ sidebarCollapsed, activeTab, setActiveTab }: { sidebarCollapsed: boolean; activeTab: string; setActiveTab: (s: string) => void }) {
+export default function MonitoringSidebar({ sidebarCollapsed, activeTab, setActiveTab }: { sidebarCollapsed: boolean; activeTab: string; setActiveTab: (s: string) => void }) {
   const [openMenu, setOpenMenu] = useState<string | null>('Monitoring');
 
   const items = [
@@ -26,8 +18,7 @@ export default function Sidebar({ sidebarCollapsed, activeTab, setActiveTab }: {
   const subs = ['Overview', 'PV', 'DG', 'PCS', 'BMS', 'FPS', 'Refrigeration', 'Meter', 'EV', 'Data'];
 
   return (
-    <aside className={`bg-[#001529] transition-all duration-300 flex flex-col overflow-hidden shrink-0 z-20 self-stretch ${sidebarCollapsed ? 'w-12' : 'w-60'}`}>
-
+    <aside className={`bg-[#001529] transition-all duration-300 flex flex-col overflow-hidden shrink-0 z-20 self-stretch ${sidebarCollapsed ? 'w-11' : 'w-56'}`}>
       <nav className="flex-1 py-3 overflow-y-auto scrollbar-thin">
         <ul className="space-y-0.5">
           {items.map(item => (
