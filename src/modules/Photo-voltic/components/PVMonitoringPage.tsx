@@ -131,7 +131,10 @@ export default function PVMonitoringPage() {
             ) : (
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(360px, 360px))', gap: 16, justifyContent: 'start', alignContent: 'start' }}>
                 {filtered.map(inverter => (
-                  <InverterCard key={inverter.id} inverter={inverter} />
+                  <InverterCard
+                    key={inverter.id}
+                    inverter={inverter}
+                  />
                 ))}
               </div>
             )}
