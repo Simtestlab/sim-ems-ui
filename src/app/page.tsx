@@ -1,6 +1,5 @@
-import React from 'react'
-import { PVMonitoringPage } from '@/modules/pv-monitoring'
+import LoginPage from '@/modules/auth'
 
 export default function Page() {
-  return <PVMonitoringPage />
+  return <LoginPage />
 }

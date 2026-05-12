@@ -5,6 +5,7 @@ import Tooltip from './Tooltip'
 import type { InverterData } from '../types'
 import { usePVMonitoringStore } from '@/store/pvMonitoringStore'
 import { inverterTitleToPV } from '../utils/format'
+import { useRouter } from 'next/navigation'
 
 const METRIC_ICONS: Array<{ label: string; valueKey: keyof Pick<InverterData, 'activePower' | 'dailyEnergy' | 'loadRatio' | 'dailyEffective'>; unit: string; icon: LucideIcon }> = [
   { label: 'Active Power', valueKey: 'activePower', unit: 'kW', icon: Zap },
@@ -18,6 +19,7 @@ type InverterCardProps = {
 }
 
 export default function InverterCard({ inverter }: InverterCardProps) {
+  const router = useRouter()
   const statusLabel = inverter.status.replace(/([A-Z])/g, ' $1').trim().toUpperCase()
   const ratedPowerLabel = 'Rated Power: 125kW'
   const tooltipTitle = inverterTitleToPV(inverter.title)
@@ -30,16 +32,31 @@ export default function InverterCard({ inverter }: InverterCardProps) {
   const hoveredMetric = usePVMonitoringStore(state => state.hoveredMetric)
   const setHoveredId = usePVMonitoringStore(state => state.setHoveredId)
   const setHoveredMetric = usePVMonitoringStore(state => state.setHoveredMetric)
+  const addVisitedTab = usePVMonitoringStore((s) => s.addVisitedTab)
+  const setActiveRoute = usePVMonitoringStore((s) => s.setActiveRoute)
 
   const isDimmed = hoveredId !== null && hoveredId !== inverter.id
   const dimClass = isDimmed ? 'opacity-50 scale-98' : 'opacity-100'
   const highlightClass = !isDimmed ? 'transition-transform duration-150' : ''
 
+  function goToDetails() {
+    const pvId = inverterTitleToPV(inverter.title)
+    const route = `/pv/pvdetails?id=${encodeURIComponent(pvId)}`
+    // ensure the PV Details tab exists and remembers last-opened inverter
+    addVisitedTab(route)
+    setActiveRoute(route)
+    router.push(route)
+  }
+
   return (
     <article
       onMouseEnter={() => setHoveredId(inverter.id)}
       onMouseLeave={() => setHoveredId(null)}
-      className={`relative border transition-all w-full max-w-[380px] ${dimClass} ${highlightClass}`}
+      onClick={goToDetails}
+      onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); goToDetails() } }}
+      role="button"
+      tabIndex={0}
+      className={`relative border transition-all w-full max-w-[380px] ${dimClass} ${highlightClass} cursor-pointer`}
       style={{ padding: 16, borderRadius: 20, borderColor: '#dfeaf8', boxShadow: isDimmed ? 'none' : '0 8px 22px rgba(15,23,42,0.05)', background: 'linear-gradient(180deg, #fbfdff 0%, #ffffff 100%)' }}>
       <header className="flex justify-between items-start mb-4">
         <div className="flex items-center gap-4">

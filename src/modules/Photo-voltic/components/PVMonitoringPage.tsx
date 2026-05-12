@@ -9,6 +9,7 @@ import PVMonitoringFilters from './PVMonitoringFilters';
 import PVMonitoringHeader from './PVMonitoringHeader';
 import PVMonitoringStatusTabs from './PVMonitoringStatusTabs';
 import type { InverterData } from '../types';
+import { usePVMonitoringStore } from '@/store/pvMonitoringStore'
 
 const STATUS_TABS = [
   { key: 'all', label: 'All' },
@@ -37,6 +38,12 @@ export default function PVMonitoringPage() {
     }, 1000)
     return () => clearInterval(timer)
   }, [])
+
+  // Add PV overview to navigation history when this page mounts
+  const addVisitedTab = usePVMonitoringStore((s) => s.addVisitedTab)
+  useEffect(() => {
+    addVisitedTab('/pv')
+  }, [addVisitedTab])
 
   const formatDateTime = (date: Date) => {
     const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
@@ -108,7 +115,7 @@ export default function PVMonitoringPage() {
         <MonitoringSidebar sidebarCollapsed={sidebarCollapsed} activeTab={activeTab} setActiveTab={setActiveTab} />
 
         <div className="flex-1 min-w-0 overflow-hidden flex flex-col bg-[#f5f7fa]">
-          <PVMonitoringBreadcrumb tags={tags} onRemoveTag={removeTag} />
+          <PVMonitoringBreadcrumb />
           <PVMonitoringFilters
             query={queryInput}
             location={locationInput}
