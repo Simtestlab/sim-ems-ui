@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Image from 'next/image'
-import LogoIcon from '@/modules/Photo-voltic/components/LogoIcon'
+import LogoIcon from '@/shared/components/icons/LogoIcon'
 
 export default function LoginPage() {
   const router = useRouter()
