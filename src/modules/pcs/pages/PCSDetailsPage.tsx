@@ -723,7 +723,7 @@ export default function PCSDetailsPage({ params }: { params?: { id?: string } })
             <div className="mb-5 flex items-center gap-0 border-b border-[#e6edf5]">
               <button
                 type="button"
-                onClick={() => router.push('/pcs')}
+                onClick={() => router.push('/monitor/pcs')}
                 className="mr-3 flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full text-[#1b2532] transition-colors hover:bg-[#edf2f8]"
               >
                 <ChevronLeft className="h-6 w-6" />

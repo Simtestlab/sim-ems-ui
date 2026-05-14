@@ -508,7 +508,7 @@ export default function EVDetailsPage({ params }: { params?: { id?: string } }) 
     <DashboardLayout visitedRoute={`/monitor/ev/details?id=${encodeURIComponent(rawId)}`} initialActiveTab="EV">
       <main className="flex-1 overflow-auto py-6" style={{ paddingInline: 24, maxWidth: 'none', marginInline: 0 }}>
         <div className="mb-6 flex items-center gap-0 border-b border-[#e6edf5]">
-          <button type="button" onClick={() => router.push('/ev')} className="mr-3 flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-md text-[#1b2532] transition-colors hover:bg-[#f1f6fb]">
+          <button type="button" onClick={() => router.push('/monitor/ev')} className="mr-3 flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-md text-[#1b2532] transition-colors hover:bg-[#f1f6fb]">
             <ChevronLeft className="h-6 w-6" />
           </button>
 

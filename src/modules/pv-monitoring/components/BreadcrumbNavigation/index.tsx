@@ -54,7 +54,7 @@ export default function BreadcrumbNavigation() {
     // if the closed tab was active, navigate to the last remaining tab or back to /pv
     if (tabRoute === currentRoute) {
       const remaining = visitedTabs.filter((t) => t.route !== tabRoute)
-      const next = remaining.length ? remaining[remaining.length - 1].route : '/pv'
+      const next = remaining.length ? remaining[remaining.length - 1].route : '/monitor/pv'
       router.push(next)
     }
   }

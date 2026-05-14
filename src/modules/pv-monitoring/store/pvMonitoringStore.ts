@@ -27,16 +27,45 @@ export const usePVMonitoringStore = create<State>((set, get) => {
       // iterate from the end so the last-seen detail route is preserved
       for (let i = list.length - 1; i >= 0; i--) {
         const t = list[i]
-        // Normalize legacy/alternate paths (remove /monitor prefix and normalize pv details path)
-        let route = (t.route || '').replace('/pv/pvdetails', '/pv/details').replace('/monitor', '')
+        // Migrate legacy short-form routes (pre-/monitor) to canonical /monitor/* paths
+        let route = (t.route || '')
+          .replace('/pv/pvdetails', '/monitor/pv/details')
+          .replace(/^\/pv\/details/, '/monitor/pv/details')
+          .replace(/^\/pcs\/details/, '/monitor/pcs/details')
+          .replace(/^\/ev\/details/, '/monitor/ev/details')
+          .replace(/^\/dashboard$/, '/monitor/overview')
+          .replace(/^\/pv$/, '/monitor/pv')
+          .replace(/^\/dg$/, '/monitor/dg')
+          .replace(/^\/pcs$/, '/monitor/pcs')
+          .replace(/^\/ev$/, '/monitor/ev')
+          .replace(/^\/tms$/, '/monitor/tms')
+          .replace(/^\/fps$/, '/monitor/fps')
+          .replace(/^\/meter$/, '/monitor/meter')
+          .replace(/^\/data$/, '/monitor/data')
+          .replace(/^\/alerts$/, '/monitor/alerts')
         let label = t.label || 'Unknown'
 
-        if (route === '/dashboard') label = 'Overview'
-        else if (route === '/pv') label = 'PV'
-        else if (route === '/dg') label = 'DG'
-        else if (route.includes('/pv/details')) label = 'PV Details'
-        else if (route === '/pcs') label = 'PCS'
-        else if (route === '/ev') label = 'EV'
+        if (route === '/monitor/overview') label = 'Overview'
+        else if (route === '/monitor/pv') label = 'PV'
+        else if (route === '/monitor/dg') label = 'DG'
+        else if (route.includes('/monitor/pv/details')) label = 'PV Details'
+        else if (route === '/monitor/pcs') label = 'PCS'
+        else if (route === '/monitor/ev') label = 'EV'
+        else if (route === '/monitor/bms') label = 'BMS'
+        else if (route === '/monitor/tms') label = 'TMS'
+        else if (route === '/monitor/meter') label = 'Meter'
+        else if (route === '/monitor/fps') label = 'FPS'
+        else if (route === '/monitor/data') label = 'Data'
+        else if (route === '/monitor/alerts') label = 'Alerts'
+        else if (route === '/system') label = 'System'
+        else if (route === '/settings') label = 'Settings'
+        else if (route.startsWith('/economics/price')) label = 'Price'
+        else if (route.startsWith('/economics/revenue')) label = 'Revenue'
+        else if (route.startsWith('/reports/daily')) label = 'Daily'
+        else if (route.startsWith('/reports/monthly')) label = 'Monthly'
+        else if (route.startsWith('/reports/yearly')) label = 'Yearly'
+        else if (route.startsWith('/reports/history')) label = 'History'
+        else if (route.startsWith('/reports/plot')) label = 'Plot'
         else if (route.includes('/ev/details')) {
           try {
             const evId = new URL(route, 'http://x').searchParams.get('id')
@@ -69,7 +98,7 @@ export const usePVMonitoringStore = create<State>((set, get) => {
 
         // PV and PCS detail tabs collapse to a single slot (keep last-visited route).
         // Other routes keep their full route so they can appear individually.
-        const key = route.includes('/pv/details') ? '/pv/details' : route.includes('/pcs/details') ? '/pcs/details' : route
+        const key = route.includes('/monitor/pv/details') ? '/monitor/pv/details' : route.includes('/monitor/pcs/details') ? '/monitor/pcs/details' : route
         if (!seen.has(key)) {
           seen.add(key)
           out.push({ label, route })
@@ -96,9 +125,9 @@ export const usePVMonitoringStore = create<State>((set, get) => {
     addVisitedTab: (route) => {
       const current = get().visitedTabs
 
-      if (route.includes('/pv/details')) {
+      if (route.includes('/monitor/pv/details')) {
         // If a PV Details tab already exists, update its route to the new one (keep a single details tab)
-        const idx = current.findIndex((t) => t.route.includes('/pv/details') || t.label === 'PV Details')
+        const idx = current.findIndex((t) => t.route.includes('/monitor/pv/details') || t.label === 'PV Details')
         if (idx >= 0) {
           const updated = current.slice()
           updated[idx] = { label: 'PV Details', route }
@@ -115,7 +144,7 @@ export const usePVMonitoringStore = create<State>((set, get) => {
       }
 
       // EV detail pages — each device gets its own tab (one per route)
-      if (route.includes('/ev/details')) {
+      if (route.includes('/monitor/ev/details')) {
         const exists = current.find((t) => t.route === route)
         if (exists) return
         let evLabel = 'EV Details'
@@ -135,8 +164,8 @@ export const usePVMonitoringStore = create<State>((set, get) => {
       }
 
       // PCS detail pages — collapse to a single PCS Details slot (keep last visited route)
-      if (route.includes('/pcs/details')) {
-        const idx = current.findIndex((t) => t.route.includes('/pcs/details') || t.label === 'PCS Details')
+      if (route.includes('/monitor/pcs/details')) {
+        const idx = current.findIndex((t) => t.route.includes('/monitor/pcs/details') || t.label === 'PCS Details')
         if (idx >= 0) {
           const updated = current.slice()
           updated[idx] = { label: 'PCS Details', route }
@@ -152,11 +181,26 @@ export const usePVMonitoringStore = create<State>((set, get) => {
       }
 
       let label = 'Unknown'
-      if (route === '/dashboard') label = 'Overview'
-      else if (route === '/pv') label = 'PV'
-      else if (route === '/dg') label = 'DG'
-      else if (route === '/pcs') label = 'PCS'
-      else if (route === '/ev') label = 'EV'
+      if (route === '/monitor/overview' || route === '/dashboard') label = 'Overview'
+      else if (route === '/monitor/pv') label = 'PV'
+      else if (route === '/monitor/dg') label = 'DG'
+      else if (route === '/monitor/pcs') label = 'PCS'
+      else if (route === '/monitor/ev') label = 'EV'
+      else if (route === '/monitor/bms') label = 'BMS'
+      else if (route === '/monitor/tms') label = 'TMS'
+      else if (route === '/monitor/meter') label = 'Meter'
+      else if (route === '/monitor/fps') label = 'FPS'
+      else if (route === '/monitor/data') label = 'Data'
+      else if (route === '/monitor/alerts') label = 'Alerts'
+      else if (route === '/system') label = 'System'
+      else if (route === '/settings') label = 'Settings'
+      else if (route.startsWith('/economics/price')) label = 'Price'
+      else if (route.startsWith('/economics/revenue')) label = 'Revenue'
+      else if (route.startsWith('/reports/daily')) label = 'Daily'
+      else if (route.startsWith('/reports/monthly')) label = 'Monthly'
+      else if (route.startsWith('/reports/yearly')) label = 'Yearly'
+      else if (route.startsWith('/reports/history')) label = 'History'
+      else if (route.startsWith('/reports/plot')) label = 'Plot'
 
       const existingIndex = current.findIndex((t) => t.route === route)
       if (existingIndex >= 0) {

@@ -30,7 +30,7 @@ export type DashboardLayoutProps = {
  *
  * Usage:
  * ```tsx
- * <DashboardLayout title="PV Monitoring" initialActiveTab="PV" visitedRoute="/pv">
+ * <DashboardLayout title="PV Monitoring" initialActiveTab="PV" visitedRoute="/monitor/pv">
  *   <PVMonitoringContent />
  * </DashboardLayout>
  * ```
