@@ -1,4 +1,4 @@
-import PVDetailsPage from '@/modules/pv-details/pages/PVDetailsPage'
+import { redirect } from 'next/navigation'
 
 export default async function Page({
   searchParams,
@@ -6,6 +6,6 @@ export default async function Page({
   searchParams: Promise<{ id?: string }>
 }) {
   const { id } = await searchParams
-
-  return <PVDetailsPage params={{ id }} />
+  const query = id ? `?id=${id}` : ''
+  redirect(`/monitor/pv/details${query}`)
 }

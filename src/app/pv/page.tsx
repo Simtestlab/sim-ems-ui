@@ -1,5 +1,5 @@
-import PVMonitoringPage from '@/modules/pv-monitoring/pages/PVMonitoringPage'
+import { redirect } from 'next/navigation'
 
 export default function Page() {
-  return <PVMonitoringPage />
+  redirect('/monitor/pv')
 }

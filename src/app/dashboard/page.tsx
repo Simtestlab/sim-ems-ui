@@ -1,5 +1,5 @@
-import { DashboardPage } from '@/modules/dashboard'
+import { redirect } from 'next/navigation'
 
 export default function Page() {
-  return <DashboardPage />
+  redirect('/monitor/overview')
 }

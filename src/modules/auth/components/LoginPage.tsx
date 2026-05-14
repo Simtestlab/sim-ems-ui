@@ -38,7 +38,7 @@ export default function LoginPage() {
     try {
       await new Promise(r => setTimeout(r, 700))
       if (remember) sessionStorage.setItem('rememberedEmail', email)
-      router.push('/pv')
+      router.push('/system')
     } catch {
       setError('Login failed')
     } finally {

@@ -1,5 +1,5 @@
-import { AlertsPage } from '@/modules/alerts'
+import { redirect } from 'next/navigation'
 
 export default function Page() {
-  return <AlertsPage />
+  redirect('/monitor/alerts')
 }

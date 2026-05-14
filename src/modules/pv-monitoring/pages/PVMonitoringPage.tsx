@@ -1,17 +1,14 @@
 "use client";
 
 import { useEffect, useMemo, useState } from 'react';
-import MonitoringSidebar from '@/modules/pv-monitoring/components/MonitoringSidebar';
-import MonitoringHeader from '@/modules/pv-monitoring/components/MonitoringHeader';
+import DashboardLayout from '@/shared/components/layout/DashboardLayout';
 import MonitoringFilters from '@/modules/pv-monitoring/components/MonitoringFilters';
 import StatusTabs from '@/modules/pv-monitoring/components/StatusTabs';
-import BreadcrumbNavigation from '@/modules/pv-monitoring/components/BreadcrumbNavigation';
-import PlantOverview from '@/modules/pv-monitoring/components/PlantOverview';
 import InverterCard from '@/shared/components/pv/InverterCard';
+import EmptyState from '@/shared/components/feedback/EmptyState';
 import Tooltip from '@/shared/components/ui/Tooltip';
 import type { InverterData } from '@/modules/pv-monitoring/types';
 import { usePVMonitoringStore } from '@/modules/pv-monitoring/store/pvMonitoringStore';
-import { formatDateTime } from '@/modules/pv-monitoring/utils/format';
 
 const STATUS_TABS = [
   { key: 'all', label: 'All' },
@@ -24,21 +21,12 @@ const STATUS_TABS = [
 ]
 
 export default function PVMonitoringPage() {
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
   const [activeTab, setActiveTab] = useState('PV');
   const [selectedStatus, setSelectedStatus] = useState<string>('all')
   const [queryInput, setQueryInput] = useState('')
   const [locationInput, setLocationInput] = useState('')
   const [query, setQuery] = useState('')
   const [location, setLocation] = useState('')
-  const [currentTime, setCurrentTime] = useState(new Date())
-
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setCurrentTime(new Date())
-    }, 1000)
-    return () => clearInterval(timer)
-  }, [])
 
   const addVisitedTab = usePVMonitoringStore((s) => s.addVisitedTab)
   const hoveredId = usePVMonitoringStore((s) => s.hoveredId)
@@ -95,67 +83,52 @@ export default function PVMonitoringPage() {
   }
 
   return (
-    <div className="h-screen bg-[#f5f7fa] font-sans text-gray-800 flex flex-col text-[14px] ui-compact">
-      <MonitoringHeader
-        sidebarCollapsed={sidebarCollapsed}
-        currentTimeLabel={formatDateTime(currentTime)}
-        onToggleSidebar={() => setSidebarCollapsed(prev => !prev)}
+    <DashboardLayout initialActiveTab={activeTab} visitedRoute="/monitor/pv">
+      <MonitoringFilters
+        query={queryInput}
+        location={locationInput}
+        locations={locations}
+        onQueryChange={setQueryInput}
+        onLocationChange={setLocationInput}
+        onSearch={applyFilters}
+        onReset={resetFilters}
+      />
+      <StatusTabs
+        statusTabs={STATUS_TABS}
+        selectedStatus={selectedStatus}
+        counts={counts}
+        onSelectStatus={setSelectedStatus}
       />
 
-      <div className="flex flex-1 overflow-hidden">
-        <MonitoringSidebar 
-          sidebarCollapsed={sidebarCollapsed} 
-          activeTab={activeTab} 
-          setActiveTab={setActiveTab} 
-        />
-
-        <div className="flex-1 min-w-0 overflow-hidden flex flex-col bg-[#f5f7fa]">
-          <BreadcrumbNavigation />
-
-          <MonitoringFilters
-            query={queryInput}
-            location={locationInput}
-            locations={locations}
-            onQueryChange={setQueryInput}
-            onLocationChange={setLocationInput}
-            onSearch={applyFilters}
-            onReset={resetFilters}
+      <main className="flex-1 min-w-0 overflow-auto w-full p-5" style={{ maxWidth: 'none', marginInline: 0 }}>
+        {filtered.length === 0 ? (
+          <EmptyState
+            title="No devices found"
+            description={`There are no devices matching the current filter${selectedStatus !== 'all' ? ` (${STATUS_TABS.find(t => t.key === selectedStatus)?.label ?? selectedStatus})` : ''}.`}
           />
-          <StatusTabs
-            statusTabs={STATUS_TABS}
-            selectedStatus={selectedStatus}
-            counts={counts}
-            onSelectStatus={setSelectedStatus}
-          />
-
-          <main className="flex-1 min-w-0 overflow-hidden w-full pt-8 pb-6 px-4 max-w-none mx-0" style={{ maxWidth: 'none', marginInline: 0 }}>
-            {filtered.length === 0 ? (
-              <PlantOverview />
-            ) : (
-              <div style={{ 
-                display: 'grid', 
-                gridTemplateColumns: 'repeat(auto-fit, minmax(360px, 360px))', 
-                gap: 16, 
-                justifyContent: 'start', 
-                alignContent: 'start' 
-              }}>
-                {filtered.map(inverter => (
-                  <InverterCard
-                    key={inverter.id}
-                    inverter={inverter}
-                    hoveredId={hoveredId}
-                    hoveredMetric={hoveredMetric}
-                    onHoverCard={setHoveredId}
-                    onHoverMetric={setHoveredMetric}
-                    onNavigate={(route) => addVisitedTab(route)}
-                    Tooltip={Tooltip}
-                  />
-                ))}
-              </div>
-            )}
-          </main>
-        </div>
-      </div>
-    </div>
+        ) : (
+          <div style={{ 
+            display: 'grid', 
+            gridTemplateColumns: 'repeat(auto-fit, minmax(360px, 360px))', 
+            gap: 16, 
+            justifyContent: 'start', 
+            alignContent: 'start' 
+          }}>
+            {filtered.map(inverter => (
+              <InverterCard
+                key={inverter.id}
+                inverter={inverter}
+                hoveredId={hoveredId}
+                hoveredMetric={hoveredMetric}
+                onHoverCard={setHoveredId}
+                onHoverMetric={setHoveredMetric}
+                onNavigate={(route) => addVisitedTab(route)}
+                Tooltip={Tooltip}
+              />
+            ))}
+          </div>
+        )}
+      </main>
+    </DashboardLayout>
   );
 }

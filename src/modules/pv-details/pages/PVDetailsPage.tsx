@@ -4,9 +4,7 @@ import { CalendarDays, ChevronLeft, ChevronRight } from 'lucide-react'
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { usePVMonitoringStore } from '@/modules/pv-monitoring/store/pvMonitoringStore'
-import MonitoringSidebar from '@/modules/pv-monitoring/components/MonitoringSidebar'
-import BreadcrumbNavigation from '@/modules/pv-monitoring/components/BreadcrumbNavigation'
-import MonitoringHeader from '@/modules/pv-monitoring/components/MonitoringHeader'
+import DashboardLayout from '@/shared/components/layout/DashboardLayout'
 
 type Point = {
   x: number
@@ -698,8 +696,6 @@ export default function PVDetailsPage({ params }: { params?: { id?: string } }) 
   const router = useRouter()
   const id = params?.id ? decodeURIComponent(params.id) : '1#PV'
   const addVisitedTab = usePVMonitoringStore((s) => s.addVisitedTab)
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
-  const [activeTab, setActiveTab] = useState('PV')
   const [now, setNow] = useState(() => new Date())
   const [selectedDate, setSelectedDate] = useState(() => formatDateLabel(new Date()))
   const [hoveredPowerHour, setHoveredPowerHour] = useState<number | null>(null)
@@ -765,7 +761,6 @@ export default function PVDetailsPage({ params }: { params?: { id?: string } }) 
     setVisibleSeries((prev) => ({ ...prev, [label]: !(prev[label] !== false) }))
   }
 
-  const currentTimeLabel = formatHeaderDateTime(now)
   const telemetry = useMemo(() => {
     if (!mounted) {
       return {
@@ -829,22 +824,13 @@ export default function PVDetailsPage({ params }: { params?: { id?: string } }) 
   }, [allBranchLegend, hoveredBranchHour, visibleSeries])
 
   return (
-    <div className="ui-compact flex h-screen flex-col bg-[#f5f7fa] font-sans text-[14px] text-gray-800">
-      <MonitoringHeader
-        sidebarCollapsed={sidebarCollapsed}
-        currentTimeLabel={currentTimeLabel}
-        onToggleSidebar={() => setSidebarCollapsed((value) => !value)}
-      />
-
-      <div className="flex flex-1 overflow-hidden">
-        <MonitoringSidebar sidebarCollapsed={sidebarCollapsed} activeTab={activeTab} setActiveTab={setActiveTab} />
-
-        <div className="flex min-w-0 flex-1 flex-col overflow-hidden bg-[#f5f7fa]">
-          <BreadcrumbNavigation />
-
+    <DashboardLayout
+      initialActiveTab="PV"
+      visitedRoute={`/monitor/pv/details?id=${encodeURIComponent(id)}`}
+    >
           <main className="flex-1 overflow-auto px-5 py-5" style={{ maxWidth: 'none', marginInline: 0 }}>
             <div className="mb-5 flex items-center gap-4 text-[#1b2532]">
-              <button type="button" onClick={() => router.push('/pv')} className="rounded-full p-1 text-[#1b2532] transition-colors hover:bg-[#edf2f8]">
+              <button type="button" onClick={() => router.push('/monitor/pv')} className="rounded-full p-1 text-[#1b2532] transition-colors hover:bg-[#edf2f8]">
                 <ChevronLeft className="h-6 w-6" />
               </button>
               <div>
@@ -942,8 +928,6 @@ export default function PVDetailsPage({ params }: { params?: { id?: string } }) 
               </div>
             </div>
           </main>
-        </div>
-      </div>
-    </div>
+    </DashboardLayout>
   )
 }

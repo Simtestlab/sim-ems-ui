@@ -16,11 +16,13 @@ export default function BreadcrumbNavigation() {
   const tabRefs = useRef<Array<HTMLDivElement | null>>([])
 
   // Get current route for active state
-  const searchParams = typeof window !== 'undefined' ? new URLSearchParams(window.location.search) : null
-  const [currentRoute, setCurrentRoute] = useState(() => pathname + (searchParams ? `?${searchParams.toString()}` : ''))
+  const [currentRoute, setCurrentRoute] = useState(() => pathname)
+  const [isMounted, setIsMounted] = useState(false)
 
   useEffect(() => {
-    setCurrentRoute(pathname + (typeof window !== 'undefined' ? window.location.search : ''))
+    setIsMounted(true)
+    const search = typeof window !== 'undefined' ? window.location.search : ''
+    setCurrentRoute(pathname + (search || ''))
   }, [pathname])
 
   useEffect(() => {
@@ -57,10 +59,14 @@ export default function BreadcrumbNavigation() {
     }
   }
 
-  if (visitedTabs.length === 0) return null
+  if (!isMounted) {
+    return (
+      <div className="bg-white border-b border-[#e8edf4] h-11" />
+    )
+  }
 
   return (
-    <div ref={containerRef} className="bg-white border-b border-[#e8edf4] overflow-x-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
+    <div ref={containerRef} className="bg-white border-b border-[#e8edf4] overflow-x-auto overflow-y-hidden scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
       <div className="flex items-center h-11 px-4 gap-1 min-w-max">
         {visitedTabs.map((tab, idx) => {
           const isActive = tab.route === currentRoute

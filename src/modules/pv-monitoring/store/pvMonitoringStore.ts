@@ -27,13 +27,49 @@ export const usePVMonitoringStore = create<State>((set, get) => {
       // iterate from the end so the last-seen detail route is preserved
       for (let i = list.length - 1; i >= 0; i--) {
         const t = list[i]
-        let route = (t.route || '').replace('/pv/pvdetails', '/pv/details')
+        // Normalize legacy/alternate paths (remove /monitor prefix and normalize pv details path)
+        let route = (t.route || '').replace('/pv/pvdetails', '/pv/details').replace('/monitor', '')
         let label = t.label || 'Unknown'
 
-        if (route === '/pv') label = 'PV Monitoring'
+        if (route === '/dashboard') label = 'Overview'
+        else if (route === '/pv') label = 'PV'
+        else if (route === '/dg') label = 'DG'
         else if (route.includes('/pv/details')) label = 'PV Details'
+        else if (route === '/pcs') label = 'PCS'
+        else if (route === '/ev') label = 'EV'
+        else if (route.includes('/ev/details')) {
+          try {
+            const evId = new URL(route, 'http://x').searchParams.get('id')
+            if (evId) {
+              const low = evId.toLowerCase()
+              if (low.includes('#ev')) label = 'EV Details'
+              else if (low.includes('#pc')) label = 'PCS Details'
+              else label = decodeURIComponent(evId)
+            } else {
+              label = 'EV Details'
+            }
+          } catch {
+            label = 'EV Details'
+          }
+        } else if (route.includes('/pcs/details')) {
+          try {
+            const pcsId = new URL(route, 'http://x').searchParams.get('id')
+            if (pcsId) {
+              const low = pcsId.toLowerCase()
+              if (low.includes('#pc')) label = 'PCS Details'
+              else if (low.includes('#ev')) label = 'EV Details'
+              else label = decodeURIComponent(pcsId)
+            } else {
+              label = 'PCS Details'
+            }
+          } catch {
+            label = 'PCS Details'
+          }
+        }
 
-        const key = route.includes('/pv/details') ? '/pv/details' : route
+        // PV and PCS detail tabs collapse to a single slot (keep last-visited route).
+        // Other routes keep their full route so they can appear individually.
+        const key = route.includes('/pv/details') ? '/pv/details' : route.includes('/pcs/details') ? '/pcs/details' : route
         if (!seen.has(key)) {
           seen.add(key)
           out.push({ label, route })
@@ -78,11 +114,60 @@ export const usePVMonitoringStore = create<State>((set, get) => {
         return
       }
 
-      const exists = current.find((t) => t.route === route)
-      if (exists) return
+      // EV detail pages — each device gets its own tab (one per route)
+      if (route.includes('/ev/details')) {
+        const exists = current.find((t) => t.route === route)
+        if (exists) return
+        let evLabel = 'EV Details'
+        try {
+          const evId = new URL(route, 'http://x').searchParams.get('id')
+          if (evId) {
+            const low = evId.toLowerCase()
+            if (low.includes('#ev')) evLabel = 'EV Details'
+            else if (low.includes('#pc')) evLabel = 'PCS Details'
+            else evLabel = decodeURIComponent(evId)
+          }
+        } catch { /* empty */ }
+        const updated = [...current, { label: evLabel, route }]
+        set({ visitedTabs: updated })
+        if (typeof window !== 'undefined') sessionStorage.setItem('visitedTabs', JSON.stringify(updated))
+        return
+      }
+
+      // PCS detail pages — collapse to a single PCS Details slot (keep last visited route)
+      if (route.includes('/pcs/details')) {
+        const idx = current.findIndex((t) => t.route.includes('/pcs/details') || t.label === 'PCS Details')
+        if (idx >= 0) {
+          const updated = current.slice()
+          updated[idx] = { label: 'PCS Details', route }
+          set({ visitedTabs: updated })
+          if (typeof window !== 'undefined') sessionStorage.setItem('visitedTabs', JSON.stringify(updated))
+          return
+        }
+
+        const updated = [...current, { label: 'PCS Details', route }]
+        set({ visitedTabs: updated })
+        if (typeof window !== 'undefined') sessionStorage.setItem('visitedTabs', JSON.stringify(updated))
+        return
+      }
 
       let label = 'Unknown'
-      if (route === '/pv') label = 'PV Monitoring'
+      if (route === '/dashboard') label = 'Overview'
+      else if (route === '/pv') label = 'PV'
+      else if (route === '/dg') label = 'DG'
+      else if (route === '/pcs') label = 'PCS'
+      else if (route === '/ev') label = 'EV'
+
+      const existingIndex = current.findIndex((t) => t.route === route)
+      if (existingIndex >= 0) {
+        if (current[existingIndex].label !== label && label !== 'Unknown') {
+          const updated = current.slice()
+          updated[existingIndex] = { label, route }
+          set({ visitedTabs: updated })
+          if (typeof window !== 'undefined') sessionStorage.setItem('visitedTabs', JSON.stringify(updated))
+        }
+        return
+      }
 
       const updated = [...current, { label, route }]
       set({ visitedTabs: updated })
