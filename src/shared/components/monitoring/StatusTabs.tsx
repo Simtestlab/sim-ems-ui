@@ -29,7 +29,7 @@ export default function MonitoringStatusTabs({
 }: MonitoringStatusTabsProps) {
 	return (
 		<div className={cn('border-b border-[#e9eef5] bg-white shadow-sm', className)}>
-			<div className="flex items-center gap-4 px-4 pt-3 pb-4">
+			<div className="flex items-center gap-4 px-4 pt-2 pb-2">
 				<div className={cn('flex items-center gap-x-5', size === 'large' ? 'text-[15px]' : 'text-[14px]')}>
 					{statusTabs.map((tab) => {
 						const isActive = selectedStatus === tab.key

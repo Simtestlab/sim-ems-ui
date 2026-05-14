@@ -19,6 +19,10 @@ export type DashboardLayoutProps = {
    * When provided, this route is registered in the breadcrumb tab bar on mount.
    */
   visitedRoute?: string
+  /** Optional page-level status bar (secondary tabs) provided by the page. */
+  statusBar?: React.ReactNode
+  /** Optional search / controls row (search column) provided by the page. */
+  searchColumn?: React.ReactNode
 }
 
 /**
@@ -39,6 +43,8 @@ export default function DashboardLayout({
   children,
   initialActiveTab = 'PV',
   visitedRoute,
+  statusBar,
+  searchColumn,
 }: DashboardLayoutProps) {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
   const [activeTab, setActiveTab] = useState(initialActiveTab)
@@ -73,6 +79,10 @@ export default function DashboardLayout({
 
         <div className="flex-1 min-w-0 overflow-hidden flex flex-col bg-[#f5f7fa]">
           <BreadcrumbNavigation />
+
+          {statusBar ? statusBar : null}
+          {searchColumn ? searchColumn : null}
+
           {children}
         </div>
       </div>

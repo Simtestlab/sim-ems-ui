@@ -8,10 +8,10 @@ import RealtimeMetrics from './RealtimeMetrics'
 
 export default function StackCard() {
   return (
-    <DashboardCard className="rounded-lg" title={null} settings={false}>
-      <div className="flex gap-6 min-h-[480px]">
+    <DashboardCard className="rounded-lg p-4 w-full" title={null} settings={false}>
+      <div className="flex gap-4 min-h-[380px]">
         {/* LEFT STACK PANEL */}
-        <div className="w-[360px] flex-shrink-0 flex flex-col bg-white rounded-[10px] border border-[#eef3f7] p-6">
+        <div className="w-[320px] flex-shrink-0 flex flex-col rounded-[12px] border border-[#e6edf5] bg-white p-4">
           <div className="flex items-start justify-between">
             <div className="flex items-center gap-3">
               <h4 className="text-[20px] font-semibold text-[#111827]">1#Stack</h4>
@@ -25,15 +25,15 @@ export default function StackCard() {
             </div>
           </div>
 
-          <div className="flex-1 flex items-center justify-center py-6">
+          <div className="flex-1 flex items-center justify-center py-4">
             {/* BESS illustration (simple rack SVG) */}
-            <svg width="280" height="160" viewBox="0 0 280 160" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <svg width="200" height="120" viewBox="0 0 280 160" fill="none" xmlns="http://www.w3.org/2000/svg">
               <rect x="0" y="10" width="280" height="120" rx="12" fill="#fbfdff" stroke="#e6edf5" />
-              <g transform="translate(20,24)">
-                <rect x="0" y="0" width="52" height="96" rx="6" fill="#f7f9fc" stroke="#e6edf5" />
-                <rect x="62" y="0" width="52" height="96" rx="6" fill="#f7f9fc" stroke="#e6edf5" />
-                <rect x="124" y="0" width="52" height="96" rx="6" fill="#f7f9fc" stroke="#e6edf5" />
-                <rect x="186" y="0" width="52" height="96" rx="6" fill="#f7f9fc" stroke="#e6edf5" />
+              <g transform="translate(28,30)">
+                <rect x="0" y="0" width="48" height="88" rx="6" fill="#f7f9fc" stroke="#e6edf5" />
+                <rect x="58" y="0" width="48" height="88" rx="6" fill="#f7f9fc" stroke="#e6edf5" />
+                <rect x="116" y="0" width="48" height="88" rx="6" fill="#f7f9fc" stroke="#e6edf5" />
+                <rect x="174" y="0" width="48" height="88" rx="6" fill="#f7f9fc" stroke="#e6edf5" />
               </g>
             </svg>
           </div>
@@ -45,9 +45,9 @@ export default function StackCard() {
         </div>
 
         {/* RIGHT REALTIME PANEL */}
-        <div className="flex-1 bg-white rounded-[10px] border border-[#eef3f7] p-6">
-          <header className="mb-4">
-            <h3 className="text-[28px] font-semibold text-[#0f1724]">Real-time Data</h3>
+        <div className="flex-1 rounded-[12px] border border-[#e6edf5] bg-white p-4">
+          <header className="mb-3">
+            <h3 className="text-[20px] font-semibold text-[#0f1724]">Real-time Data</h3>
           </header>
 
           <RealtimeMetrics />
