@@ -66,23 +66,28 @@ export default function BreadcrumbNavigation() {
   }
 
   return (
-    <div ref={containerRef} className="bg-white border-b border-[#e8edf4] overflow-x-auto overflow-y-hidden scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
-      <div className="flex items-center h-11 px-4 gap-1 min-w-max">
+    <div
+      ref={containerRef}
+      tabIndex={0}
+      onMouseDown={() => containerRef.current?.focus()}
+      className="bg-white border-b border-[#e8edf4] overflow-x-auto overflow-y-hidden breadcrumb-scrollbar"
+    >
+      <div className="flex items-center h-12 px-4 gap-2 min-w-max">
         {visitedTabs.map((tab, idx) => {
           const isActive = tab.route === currentRoute
           return (
             <div
               key={tab.route}
               ref={(el) => { tabRefs.current[idx] = el }}
-              className={`group flex items-center gap-2 px-3 py-1.5 rounded-md transition-colors duration-150 cursor-pointer ${
+              className={`group flex items-center gap-3 px-4 py-2 rounded-md transition-colors duration-150 cursor-pointer ${
                 isActive ? 'bg-[#e6f4ff] text-[#1677ff]' : 'text-gray-600 hover:bg-gray-50'
               }`}
               onClick={() => handleActivate(tab)}
             >
-              <span className="text-[12px] font-medium whitespace-nowrap">{tab.label}</span>
+              <span className="text-[13px] font-medium whitespace-nowrap">{tab.label}</span>
               <button
                 onClick={(e) => handleClose(tab.route, e)}
-                className={`p-0.5 rounded hover:bg-gray-200 transition-colors ${isActive ? 'text-[#1677ff]' : 'text-gray-400'}`}
+                className={`p-1 rounded hover:bg-gray-200 transition-colors ${isActive ? 'text-[#1677ff]' : 'text-gray-400'}`}
               >
                 <X className="w-3 h-3" />
               </button>

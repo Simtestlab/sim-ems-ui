@@ -37,6 +37,46 @@ html, body {
   background: rgba(255,255,255,0.25);
 }
 
+/* Breadcrumb scrollbar: hidden by default, thin when container is focused (clicked) */
+/* Breadcrumb scrollbar: hide visuals but keep scrolling enabled */
+.breadcrumb-scrollbar {
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
+}
+.breadcrumb-scrollbar::-webkit-scrollbar {
+  height: 0px; /* Hide horizontal scrollbar (WebKit) */
+}
+.breadcrumb-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+.breadcrumb-scrollbar::-webkit-scrollbar-thumb {
+  background: transparent;
+  border-radius: 6px;
+}
+.breadcrumb-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: transparent;
+}
+
+/* Utility to hide horizontal scrollbar visuals while keeping scrolling functional */
+.hide-x-scrollbar {
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
+  overflow-x: auto;
+}
+.hide-x-scrollbar::-webkit-scrollbar {
+  height: 0px; /* Hide horizontal scrollbar (WebKit) */
+}
+.hide-x-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+.hide-x-scrollbar::-webkit-scrollbar-thumb {
+  background: transparent;
+  border-radius: 6px;
+}
+.hide-x-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: transparent;
+}
+
 a { color: inherit; text-decoration: none }
 
 main { max-width: 1200px; margin: 0 auto }
