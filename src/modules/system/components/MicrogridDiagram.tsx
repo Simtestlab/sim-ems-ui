@@ -114,7 +114,7 @@ const P = {
   ev_in:     { x: 750, y: 470 },   // top-left of EV        (branch slope +0.5)
   j2:        { x: 870, y: 230 },   // junction 2            (on main diagonal)
   dg_in:     { x: 690, y: 140 },   // bottom-right of DG    (branch slope +0.5)
-  pv_in:     { x: 1050, y: 320 },  // top-left of PV        (branch slope +0.5)
+  pv_in:     { x: 1130, y: 360 },  // top-left apex of PV panel (branch slope +0.5)
   bess_turn: { x: 1000, y: 165 },  // collinear intermediate (on main diagonal)
   bess_in:   { x: 1130, y: 100 },  // left-mid of BESS      (on main diagonal)
 }
@@ -179,45 +179,57 @@ export default function MicrogridDiagram() {
   useEffect(() => {
     setMounted(true)
 
-    // Simulate real-time data updates every 2 seconds
+    // Realistic EMS simulation tied to wall-clock hour-of-day.
     const tick = setInterval(() => {
       setData(prev => {
-        // PV with mean reversion toward 200 kW (prevents drift)
-        const pvTarget = 200
-        const pvDrift = (Math.random() - 0.5) * 10
-        const pvReversion = (pvTarget - prev.pv.p) * 0.15
-        const pvP = +Math.min(220, Math.max(160, prev.pv.p + pvDrift + pvReversion)).toFixed(2)
-        
-        // BESS with mean reversion toward 70 kW discharge
-        const bessTarget = 70
-        const bessDrift = (Math.random() - 0.5) * 6
-        const bessReversion = (bessTarget - prev.bess.p) * 0.12
-        const bessP = +Math.min(100, Math.max(40, prev.bess.p + bessDrift + bessReversion)).toFixed(2)
-        
-        // Load with mean reversion toward 100 kW
-        const loadTarget = 100
-        const loadDrift = (Math.random() - 0.5) * 5
-        const loadReversion = (loadTarget - prev.load.p) * 0.15
-        const loadP = +Math.min(120, Math.max(85, prev.load.p + loadDrift + loadReversion)).toFixed(2)
-        
-        // EV constant charging
-        const evP = prev.ev.p
-        
-        // Grid absorbs / provides the residual (positive = grid importing, negative = grid exporting)
+        // Calculate current fractional hour (0.0 to 23.99)
+        const now = new Date()
+        const hour = now.getHours() + now.getMinutes() / 60 + now.getSeconds() / 3600
+
+        // 1. PV (Solar): Bell curve 6 AM to 6 PM, peaking at 200kW at noon. Cloud noise.
+        let pvBase = 0
+        if (hour > 6 && hour < 18) {
+          pvBase = 200 * Math.sin(((hour - 6) / 12) * Math.PI)
+        }
+        const pvP = +(Math.max(0, pvBase + (Math.random() * 10 - 5))).toFixed(2)
+
+        // 2. Load: Factory base 60kW, ramps to 150kW during working hours (8 AM - 6 PM).
+        const loadBase = (hour >= 8 && hour <= 18) ? 150 : 60
+        const loadP = +(loadBase + (Math.random() * 8 - 4)).toFixed(2)
+
+        // 3. EV: Cars plugged in and charging between 9 AM and 2 PM.
+        const evBase = (hour >= 9 && hour <= 14) ? 50 : 0
+        const evP = +(evBase + (evBase > 0 ? (Math.random() * 4 - 2) : 0)).toFixed(2)
+
+        // 4. BESS Logic: Smart EMS.
+        //    Excess solar → charge (negative P). Deficit → discharge (positive P).
+        const netDemand = loadP + evP - pvP
+        let bessP = 0
+        let newSoc = prev.bess.soc
+
+        if (netDemand < 0 && prev.bess.soc < 100) {
+          bessP = Math.max(netDemand, -100)        // cap charge rate at 100kW
+          newSoc = Math.min(100, prev.bess.soc + 0.05)
+        } else if (netDemand > 0 && prev.bess.soc > 10) {
+          bessP = Math.min(netDemand, 100)         // cap discharge rate at 100kW
+          newSoc = Math.max(10, prev.bess.soc - 0.05)
+        }
+        bessP = +bessP.toFixed(2)
+        newSoc = +newSoc.toFixed(1)
+
+        // 5. Grid: slack variable. + = importing, − = exporting.
         const gridP = +(loadP + evP - pvP - bessP).toFixed(2)
-        
-        // SOC decreases slowly while discharging (0.08% per 2s tick)
-        const newSoc = +Math.min(100, Math.max(10,
-          prev.bess.soc + (bessP > 0 ? -0.08 : 0.05)
-        )).toFixed(1)
+
+        // DG stays offline in this scenario (would be standby for outages).
+        const dgP = 0
 
         return {
-          grid:  { p: gridP,  q: +(gridP  * 0.062).toFixed(2) },
-          load:  { p: loadP,  q: +(loadP  * 0.125).toFixed(2) },
-          dg:    { p: 0,      q: 0 },
-          ev:    { p: evP,    q: +(evP    * 0.095).toFixed(2) },
-          pv:    { p: pvP,    q: +(pvP    * 0.104).toFixed(2) },
-          bess:  { p: bessP,  q: +(bessP  * 0.076).toFixed(2), soc: newSoc, status: 'Normal' },
+          grid: { p: gridP, q: +(gridP * 0.062).toFixed(2) },
+          load: { p: loadP, q: +(loadP * 0.125).toFixed(2) },
+          dg:   { p: dgP,   q: +(dgP   * 0.080).toFixed(2) },
+          ev:   { p: evP,   q: +(evP   * 0.095).toFixed(2) },
+          pv:   { p: pvP,   q: +(pvP   * 0.104).toFixed(2) },
+          bess: { p: bessP, q: +(bessP * 0.076).toFixed(2), soc: newSoc, status: 'Normal' },
         }
       })
     }, 2000)
@@ -225,15 +237,28 @@ export default function MicrogridDiagram() {
     return () => clearInterval(tick)
   }, [])
 
-  // Explicit isometric flow paths matching the UI reference
+  // Calculate net power on the right side of the bus (Junction 2)
+  // Positive = right side is sending power to the left (j2 -> j1)
+  // Negative = right side is pulling power from the left (j1 -> j2)
+  const rightBusNet = data.pv.p + data.dg.p + data.bess.p;
+
   const paths = [
-    { id: 'grid-sw',   points: [P.grid_out, P.sw_in], active: true, rev: data.grid.p < 0 },
-    { id: 'sw-jct1',   points: [P.sw_out, P.j1], active: true, rev: false },
-    { id: 'jct1-load', points: [P.j1, P.load_in], active: true, rev: false },
+    // Grid to Switch. Reverses if grid is exporting (p < 0)
+    { id: 'grid-sw',   points: [P.grid_out, P.sw_in], active: data.grid.p !== 0, rev: data.grid.p < 0 },
+    // Switch to Junction 1. Must follow the exact same direction as grid-sw
+    { id: 'sw-jct1',   points: [P.sw_out, P.j1], active: data.grid.p !== 0, rev: data.grid.p < 0 },
+    // Junction 1 to Load. Always consumes (flow j1 -> load)
+    { id: 'jct1-load', points: [P.j1, P.load_in], active: data.load.p > 0, rev: false },
+    // Junction 1 to EV. Always consumes (flow j1 -> ev)
     { id: 'jct1-ev',   points: [P.j1, P.ev_in], active: data.ev.p > 0, rev: false },
-    { id: 'jct1-jct2', points: [P.j1, P.j2], active: true, rev: false },
-    { id: 'jct2-dg',   points: [P.dg_in, P.j2], active: data.dg.p !== 0, rev: false },
+    // Main Bus (Junction 1 to Junction 2).
+    // Path is drawn j1 -> j2. If rightBusNet > 0, power goes j2 -> j1 (rev: true).
+    { id: 'jct1-jct2', points: [P.j1, P.j2], active: Math.abs(rightBusNet) > 0.1, rev: rightBusNet > 0 },
+    // DG to Junction 2. Always generates (flow dg -> j2)
+    { id: 'jct2-dg',   points: [P.dg_in, P.j2], active: data.dg.p > 0, rev: false },
+    // PV to Junction 2. Always generates (flow pv -> j2)
     { id: 'pv-jct2',   points: [P.pv_in, P.j2], active: data.pv.p > 0, rev: false },
+    // BESS to Junction 2. Discharging (p > 0) flows to j2. Charging (p < 0) flows from j2 to bess.
     { id: 'jct2-bess', points: [P.bess_in, P.bess_turn, P.j2], active: data.bess.p !== 0, rev: data.bess.p < 0 },
   ]
 
@@ -285,7 +310,7 @@ export default function MicrogridDiagram() {
                   <animateMotion
                     dur={`${dur}s`}
                     repeatCount="indefinite"
-                    rotate="auto"
+                    rotate={path.rev ? 'auto-reverse' : 'auto'}
                     keyPoints={path.rev ? '1;0' : '0;1'}
                     keyTimes="0;1"
                     calcMode="linear"
@@ -357,9 +382,12 @@ export default function MicrogridDiagram() {
       </div>
 
       {/* ── Node: PV ─────────────────────────────────────────── */}
-      {/* Icon 175×140. Top-left (1050, 320) = P.pv_in. */}
+      {/* Icon 175×140; visible panel apex sits at ~(54, 19) inside the box
+          (PNG is 600×600 with the apex at ~(155, 80), rendered via object-contain
+          to a 140×140 letterboxed area inside the 175-wide container).
+          So div at (1075, 340) places the panel apex on P.pv_in (1130, 360). */}
       <div className="absolute flex items-center gap-2 cursor-pointer group"
-        style={{ left: toLeft(1050), top: toTop(320) }}
+        style={{ left: toLeft(1075), top: toTop(340) }}
         onClick={() => setModal('pv')}
         title="PV Details">
         <div className="transition-transform group-hover:scale-105"><PvIcon/></div>
