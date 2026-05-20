@@ -1,6 +1,7 @@
 "use client"
 
 import React, { useEffect, useState } from 'react'
+import { useRouter } from 'next/navigation'
 
 /* ─── Isometric SVG Icons ───────────────────────────────────────────────── */
 
@@ -280,6 +281,8 @@ const roundedPath = (points: {x: number, y: number}[], radius = 12) => {
 
 export default function MicrogridDiagram() {
   const [mounted, setMounted] = useState(false)
+  const [modal, setModal] = useState<'ev' | 'bess' | 'pv' | 'dg' | null>(null)
+  const router = useRouter()
 
   // ── Live telemetry state (initial values from reference) ────────────────
   const [data, setData] = useState({
@@ -449,10 +452,12 @@ export default function MicrogridDiagram() {
       </div>
 
       {/* ── Node: Load ────────────────────────────────────────── */}
-      <div className="absolute flex items-center gap-2"
-        style={{ right: `calc(100% - ${toLeft(510)})`, top: toTop(215) }}>
+      <div className="absolute flex items-center gap-2 cursor-pointer group"
+        style={{ right: `calc(100% - ${toLeft(510)})`, top: toTop(215) }}
+        onClick={() => router.push('/monitor/meter')}
+        title="Go to Meter">
         <Label title="Load" p={data.load.p} q={data.load.q} align="left"/>
-        <FactoryIcon/>
+        <div className="transition-transform group-hover:scale-105"><FactoryIcon/></div>
       </div>
 
       {/* ── Node: Switch ──────────────────────────────────────── */}
@@ -469,32 +474,187 @@ export default function MicrogridDiagram() {
       </div>
 
       {/* ── Node: DG ─────────────────────────────────────────── */}
-      <div className="absolute flex items-center gap-2"
-        style={{ right: `calc(100% - ${toLeft(740)})`, top: toTop(140) }}>
+      <div className="absolute flex items-center gap-2 cursor-pointer group"
+        style={{ right: `calc(100% - ${toLeft(740)})`, top: toTop(140) }}
+        onClick={() => setModal('dg')}
+        title="Genset Details">
         <Label title="DG (1)" p={data.dg.p} q={data.dg.q} align="left"/>
-        <DgIcon/>
+        <div className="transition-transform group-hover:scale-105"><DgIcon/></div>
       </div>
 
       {/* ── Node: EV ─────────────────────────────────────────── */}
-      <div className="absolute flex items-end gap-2"
-        style={{ left: toLeft(725), top: toTop(355) }}>
-        <EvIcon/>
+      <div className="absolute flex items-end gap-2 cursor-pointer group"
+        style={{ left: toLeft(725), top: toTop(355) }}
+        onClick={() => setModal('ev')}
+        title="EV Charger Details">
+        <div className="transition-transform group-hover:scale-105"><EvIcon/></div>
         <Label title="EV (1)" p={data.ev.p} q={data.ev.q}/>
       </div>
 
       {/* ── Node: PV ─────────────────────────────────────────── */}
-      <div className="absolute flex items-center gap-2"
-        style={{ left: toLeft(945), top: toTop(270) }}>
-        <PvIcon/>
+      <div className="absolute flex items-center gap-2 cursor-pointer group"
+        style={{ left: toLeft(945), top: toTop(270) }}
+        onClick={() => setModal('pv')}
+        title="PV Details">
+        <div className="transition-transform group-hover:scale-105"><PvIcon/></div>
         <Label title="PV (2)" p={data.pv.p} q={data.pv.q}/>
       </div>
 
       {/* ── Node: BESS ───────────────────────────────────────── */}
-      <div className="absolute flex items-center gap-2"
-        style={{ left: toLeft(1090), top: toTop(175) }}>
-        <BessIcon/>
+      <div className="absolute flex items-center gap-2 cursor-pointer group"
+        style={{ left: toLeft(1090), top: toTop(175) }}
+        onClick={() => setModal('bess')}
+        title="BESS Details">
+        <div className="transition-transform group-hover:scale-105"><BessIcon/></div>
         <Label title="BESS (2)" p={data.bess.p} q={data.bess.q} soc={data.bess.soc} status={data.bess.status}/>
       </div>
+
+      {/* ── Device detail modals ────────────────────────────── */}
+      {modal && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/45"
+          onClick={() => setModal(null)}
+        >
+          <div
+            className="relative bg-white rounded-2xl shadow-2xl w-[500px] max-w-[92vw] overflow-hidden"
+            onClick={e => e.stopPropagation()}
+          >
+            {/* Header */}
+            <div className="flex items-center justify-between px-6 py-4 border-b border-[#f1f5f9]">
+              <h2 className="text-[17px] font-bold text-[#0f1724]">
+                {modal === 'ev' ? 'EV Charger Details'
+                  : modal === 'bess' ? 'BESS Details'
+                  : modal === 'pv' ? 'PV Details'
+                  : 'Genset Details'}
+              </h2>
+              <button
+                className="w-7 h-7 flex items-center justify-center rounded-full text-[#94a3b8] hover:bg-[#f1f5f9] hover:text-[#475569] transition-colors text-[18px]"
+                onClick={() => setModal(null)}
+              >✕</button>
+            </div>
+
+            {/* Body */}
+            <div className="px-6 pt-6 pb-8">
+              {/* Devices + bus bar visualization */}
+              {modal === 'ev' && (
+                <div className="flex flex-col items-center">
+                  <div className="flex justify-center gap-16 w-full mb-0">
+                    <div className="flex flex-col items-center gap-1">
+                      <EvIcon/>
+                      <div className="text-[13px] font-bold text-[#0f1724]">1#EV</div>
+                      <div className="flex items-center gap-1.5">
+                        <span className="w-2 h-2 rounded-full" style={{ background: data.ev.p > 0 ? '#22c55e' : '#94a3b8' }}/>
+                        <span className="text-[12px] font-semibold" style={{ color: data.ev.p > 0 ? '#22c55e' : '#64748b' }}>
+                          {data.ev.p > 0 ? 'Charging' : 'Idle'}
+                        </span>
+                      </div>
+                      <div className="text-[12px] text-[#64748b]">P(kw) <b className="text-[#0f1724]">{data.ev.p}</b></div>
+                      <div className="text-[12px] text-[#64748b]">Q(kvar) <b className="text-[#0f1724]">{data.ev.q}</b></div>
+                    </div>
+                  </div>
+                  <div className="flex justify-center w-full mt-1 mb-1">
+                    <div className="w-1 h-6" style={{ background: data.ev.p > 0 ? '#22c55e' : '#cbd5e1' }}/>
+                  </div>
+                  <div className="w-full h-3 rounded-full" style={{ background: data.ev.p > 0 ? '#22c55e' : '#cbd5e1' }}/>
+                </div>
+              )}
+
+              {modal === 'bess' && (
+                <div className="flex flex-col items-center">
+                  <div className="flex justify-around w-full mb-0">
+                    {[1, 2].map(i => (
+                      <div key={i} className="flex flex-col items-center gap-1">
+                        <svg width="68" height="62" viewBox="0 0 80 72">
+                          <polygon points="40,5 64,15 40,26 16,16" fill="#64748b"/>
+                          <polygon points="16,16 40,26 40,60 16,50" fill="#334155"/>
+                          <polygon points="40,26 64,15 64,49 40,60" fill="#475569"/>
+                          <rect x="20" y="30" width="14" height="20" rx="1" fill="#475569"/>
+                          <rect x="21" y="31" width="10" height="10" rx="1" fill="#94a3b8"/>
+                          <circle cx="25" cy="49" r="3" fill="#22c55e"/>
+                          <polygon points="16,16 40,5 64,15 40,26" fill="#60a5fa" opacity="0.28"/>
+                          <ellipse cx="40" cy="62" rx="30" ry="4" fill="#e2e8f0" opacity="0.6"/>
+                        </svg>
+                        <div className="text-[13px] font-bold text-[#0f1724]">{i}#PCS</div>
+                        <div className="flex items-center gap-1.5">
+                          <span className="w-2 h-2 rounded-full bg-[#22c55e]"/>
+                          <span className="text-[12px] font-semibold text-[#22c55e]">Running</span>
+                        </div>
+                        <div className="text-[12px] text-[#64748b]">P(kw) <b className="text-[#0f1724]">{+(data.bess.p / 2).toFixed(2)}</b></div>
+                        <div className="text-[12px] text-[#64748b]">Q(kvar) <b className="text-[#0f1724]">{+(data.bess.q / 2).toFixed(2)}</b></div>
+                        <div className="text-[12px] text-[#64748b]">SOC(%) <b className="text-[#22c55e]">{data.bess.soc}</b></div>
+                      </div>
+                    ))}
+                  </div>
+                  <div className="flex justify-around w-full mt-1 mb-1 px-[25%]">
+                    <div className="w-1 h-6 bg-[#22c55e]"/>
+                    <div className="w-1 h-6 bg-[#22c55e]"/>
+                  </div>
+                  <div className="w-full h-3 rounded-full bg-[#22c55e]"/>
+                </div>
+              )}
+
+              {modal === 'pv' && (
+                <div className="flex flex-col items-center">
+                  <div className="flex justify-around w-full mb-0">
+                    {[1, 2].map(i => (
+                      <div key={i} className="flex flex-col items-center gap-1">
+                        <PvIcon/>
+                        <div className="text-[13px] font-bold text-[#0f1724]">{i}#PV</div>
+                        <div className="flex items-center gap-1.5">
+                          <span className="w-2 h-2 rounded-full" style={{ background: data.pv.p > 0 ? '#22c55e' : '#94a3b8' }}/>
+                          <span className="text-[12px] font-semibold" style={{ color: data.pv.p > 0 ? '#22c55e' : '#64748b' }}>
+                            {data.pv.p > 0 ? 'Running' : 'Stopped'}
+                          </span>
+                        </div>
+                        <div className="text-[12px] text-[#64748b]">P(kw) <b className="text-[#0f1724]">{+(data.pv.p / 2).toFixed(2)}</b></div>
+                        <div className="text-[12px] text-[#64748b]">Q(kvar) <b className="text-[#0f1724]">{+(data.pv.q / 2).toFixed(2)}</b></div>
+                      </div>
+                    ))}
+                  </div>
+                  <div className="flex justify-around w-full mt-1 mb-1 px-[25%]">
+                    <div className="w-1 h-6" style={{ background: data.pv.p > 0 ? '#22c55e' : '#cbd5e1' }}/>
+                    <div className="w-1 h-6" style={{ background: data.pv.p > 0 ? '#22c55e' : '#cbd5e1' }}/>
+                  </div>
+                  <div className="w-full h-3 rounded-full" style={{ background: data.pv.p > 0 ? '#22c55e' : '#cbd5e1' }}/>
+                </div>
+              )}
+
+              {modal === 'dg' && (
+                <div className="flex flex-col items-center">
+                  <div className="flex justify-center gap-16 w-full mb-0">
+                    <div className="flex flex-col items-center gap-1">
+                      <DgIcon/>
+                      <div className="text-[13px] font-bold text-[#0f1724]">GEN-1</div>
+                      <div className="flex items-center gap-1.5">
+                        <span className="w-2 h-2 rounded-full" style={{ background: data.dg.p > 0 ? '#22c55e' : '#94a3b8' }}/>
+                        <span className="text-[12px] font-semibold" style={{ color: data.dg.p > 0 ? '#22c55e' : '#64748b' }}>
+                          {data.dg.p > 0 ? 'Running' : 'Stopped'}
+                        </span>
+                      </div>
+                      <div className="text-[12px] text-[#64748b]">P(kw) <b className="text-[#0f1724]">{data.dg.p}</b></div>
+                      <div className="text-[12px] text-[#64748b]">Q(kvar) <b className="text-[#0f1724]">{data.dg.q}</b></div>
+                    </div>
+                  </div>
+                  <div className="flex justify-center w-full mt-1 mb-1">
+                    <div className="w-1 h-6" style={{ background: data.dg.p > 0 ? '#22c55e' : '#cbd5e1' }}/>
+                  </div>
+                  <div className="w-full h-3 rounded-full" style={{ background: data.dg.p > 0 ? '#22c55e' : '#cbd5e1' }}/>
+                </div>
+              )}
+
+              {/* Navigation arrows */}
+              <div className="flex justify-between mt-5">
+                <button className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-[13px] text-[#64748b] hover:bg-[#f1f5f9] transition-colors">
+                  ◁ Prev
+                </button>
+                <button className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-[13px] text-[#64748b] hover:bg-[#f1f5f9] transition-colors">
+                  Next ▷
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
     </div>
   )

@@ -94,7 +94,20 @@ export default function PCSCard({ pcs, id = 1 }: PCSCardProps) {
           </span>
         </Tooltip>
       }
-      leading={<div className="h-9 w-9 rounded-md bg-[#eef9f3]" />}
+      leading={
+        <div className="h-9 w-9 rounded-md bg-[#f0f4f8] flex items-center justify-center overflow-hidden shrink-0">
+          <svg width="34" height="34" viewBox="0 0 60 68">
+            <polygon points="30,4 50,13 30,24 10,15" fill="#64748b"/>
+            <polygon points="10,15 30,24 30,58 10,49" fill="#334155"/>
+            <polygon points="30,24 50,13 50,47 30,58" fill="#475569"/>
+            <rect x="14" y="28" width="10" height="16" rx="1" fill="#475569"/>
+            <rect x="15" y="29" width="7" height="8" rx="1" fill="#94a3b8"/>
+            <circle cx="17" cy="44" r="2.5" fill="#22c55e"/>
+            <polygon points="10,15 30,4 50,13 30,24" fill="#60a5fa" opacity="0.25"/>
+            <ellipse cx="30" cy="60" rx="24" ry="3" fill="#e2e8f0" opacity="0.6"/>
+          </svg>
+        </div>
+      }
       statusLabel={statusLabel}
       metrics={metrics}
       footer={<div className="h-7 border-t border-[#eef6f2]" />}

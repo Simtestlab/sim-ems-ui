@@ -1,3 +1,4 @@
+import React from 'react'
 import { Settings } from 'lucide-react'
 
 /* ─── Components ─────────────────────────────────────────────────────────── */
@@ -56,13 +57,46 @@ function MetricRow({ label, value, unit, isDark }: { label: string; value: strin
   )
 }
 
-function StatisticColumn({ title, subTitle, value, max, unit, color, metrics }: { 
+const BessIllustration = () => (
+  <svg width="180" height="90" viewBox="0 0 180 100">
+    <g transform="translate(2,4)">
+      {/* Cabinet 1 */}
+      <polygon points="32,14 54,23 32,34 10,25"  fill="#64748b"/>
+      <polygon points="10,25 32,34 32,74 10,65"  fill="#334155"/>
+      <polygon points="32,34 54,23 54,63 32,74"  fill="#475569"/>
+      <rect x="14" y="38" width="12" height="20" rx="1" fill="#475569"/>
+      <rect x="15" y="39" width="8"  height="9"  rx="1" fill="#94a3b8"/>
+      <circle cx="18" cy="57" r="2.5" fill="#22c55e"/>
+      <polygon points="10,25 32,14 54,23 32,34" fill="#60a5fa" opacity="0.28"/>
+      {/* Cabinet 2 */}
+      <polygon points="76,8 98,17 76,28 54,19"  fill="#64748b"/>
+      <polygon points="54,19 76,28 76,68 54,59"  fill="#334155"/>
+      <polygon points="76,28 98,17 98,57 76,68"  fill="#475569"/>
+      <rect x="58" y="32" width="12" height="20" rx="1" fill="#475569"/>
+      <rect x="59" y="33" width="8"  height="9"  rx="1" fill="#94a3b8"/>
+      <circle cx="62" cy="51" r="2.5" fill="#22c55e"/>
+      <polygon points="54,19 76,8 98,17 76,28" fill="#60a5fa" opacity="0.28"/>
+      {/* Cabinet 3 */}
+      <polygon points="120,4 142,13 120,24 98,15"  fill="#64748b"/>
+      <polygon points="98,15 120,24 120,64 98,55"  fill="#334155"/>
+      <polygon points="120,24 142,13 142,53 120,64" fill="#475569"/>
+      <rect x="102" y="28" width="12" height="20" rx="1" fill="#475569"/>
+      <rect x="103" y="29" width="8"  height="9"  rx="1" fill="#94a3b8"/>
+      <circle cx="106" cy="47" r="2.5" fill="#22c55e"/>
+      <polygon points="98,15 120,4 142,13 120,24" fill="#60a5fa" opacity="0.28"/>
+      <ellipse cx="76" cy="78" rx="70" ry="6" fill="#e2e8f0" opacity="0.6"/>
+    </g>
+  </svg>
+)
+
+function StatisticColumn({ title, subTitle, value, max, unit, color, metrics, illustration }: { 
   title: string; 
   subTitle: string; 
   value: number; 
   max: number; 
   unit: string; 
   color?: string;
+  illustration?: React.ReactNode;
   metrics: { label: string; value: string | number; unit?: string }[]
 }) {
   return (
@@ -71,6 +105,11 @@ function StatisticColumn({ title, subTitle, value, max, unit, color, metrics }: 
         <h3 className="text-[15px] font-bold text-[#0f172a] leading-tight">{title}</h3>
         <Settings className="h-4 w-4 text-slate-400 cursor-pointer hover:text-slate-600 transition-colors" />
       </div>
+      {illustration && (
+        <div className="flex justify-center items-center pt-3 pb-1 px-4 bg-[#f8fafc]">
+          {illustration}
+        </div>
+      )}
       <div className="flex flex-col items-center pt-4 px-4">
         <span className="text-[12px] font-medium text-slate-400">{subTitle}</span>
         <GaugeChart value={value} max={max} label={unit} color={color} />
@@ -142,6 +181,7 @@ export default function PlantOverview() {
       <StatisticColumn
         title="BESS Operation Statistics"
         subTitle="BESS Real-time Power"
+        illustration={<BessIllustration />}
         value={0}
         max={250}
         unit="kW"

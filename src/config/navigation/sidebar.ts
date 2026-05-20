@@ -15,9 +15,9 @@ export const SIDEBAR_ITEMS: SidebarItem[] = [
   { key: 'System', icon: Network, label: 'System' },
   { key: 'Settings', icon: ServerCog, label: 'Settings' },
   { key: 'Monitoring', icon: Monitor, label: 'Monitoring', hasChildren: true },
-  { key: 'Economics', icon: JapaneseYen, label: 'Economics', hasChildren: true },
-  { key: 'Reports', icon: BarChart2, label: 'Reports', hasChildren: true },
-  { key: 'Admin', icon: LayoutGrid, label: 'Admin', hasChildren: true },
+  // { key: 'Economics', icon: JapaneseYen, label: 'Economics', hasChildren: true },
+  // { key: 'Reports', icon: BarChart2, label: 'Reports', hasChildren: true },
+  // { key: 'Admin', icon: LayoutGrid, label: 'Admin', hasChildren: true },
 ]
 
 /**

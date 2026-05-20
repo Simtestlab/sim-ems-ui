@@ -217,7 +217,33 @@ export default function SettingsPage({ activeMode: controlledMode, onModeChange 
                     onPowerOff={() => setBessPowered(false)}
                     illustrationContent={
                       <div className="w-full h-full flex items-center justify-center">
-                        <Battery className="w-20 h-20 text-[#1890ff]" />
+                        <svg width="160" height="120" viewBox="0 0 160 120">
+                          {/* Cabinet 1 */}
+                          <polygon points="35,18 60,28 35,42 10,32" fill="#64748b"/>
+                          <polygon points="10,32 35,42 35,90 10,80" fill="#334155"/>
+                          <polygon points="35,42 60,28 60,76 35,90" fill="#475569"/>
+                          <rect x="14" y="46" width="14" height="26" rx="1" fill="#475569"/>
+                          <rect x="15" y="47" width="10" height="12" rx="1" fill="#94a3b8"/>
+                          <circle cx="19" cy="70" r="3.5" fill="#22c55e"/>
+                          <polygon points="10,32 35,18 60,28 35,42" fill="#60a5fa" opacity="0.28"/>
+                          {/* Cabinet 2 */}
+                          <polygon points="80,12 105,22 80,36 55,26" fill="#64748b"/>
+                          <polygon points="55,26 80,36 80,84 55,74" fill="#334155"/>
+                          <polygon points="80,36 105,22 105,70 80,84" fill="#475569"/>
+                          <rect x="59" y="40" width="14" height="26" rx="1" fill="#475569"/>
+                          <rect x="60" y="41" width="10" height="12" rx="1" fill="#94a3b8"/>
+                          <circle cx="64" cy="64" r="3.5" fill="#22c55e"/>
+                          <polygon points="55,26 80,12 105,22 80,36" fill="#60a5fa" opacity="0.28"/>
+                          {/* Cabinet 3 */}
+                          <polygon points="125,8 150,18 125,30 100,20" fill="#64748b"/>
+                          <polygon points="100,20 125,30 125,78 100,68" fill="#334155"/>
+                          <polygon points="125,30 150,18 150,62 125,78" fill="#475569"/>
+                          <rect x="104" y="34" width="14" height="26" rx="1" fill="#475569"/>
+                          <rect x="105" y="35" width="10" height="12" rx="1" fill="#94a3b8"/>
+                          <circle cx="109" cy="58" r="3.5" fill="#22c55e"/>
+                          <polygon points="100,20 125,8 150,18 125,30" fill="#60a5fa" opacity="0.28"/>
+                          <ellipse cx="80" cy="96" rx="74" ry="7" fill="#e2e8f0" opacity="0.6"/>
+                        </svg>
                       </div>
                     }
                   />
@@ -260,7 +286,23 @@ export default function SettingsPage({ activeMode: controlledMode, onModeChange 
                     onPowerOff={() => setDgPowered(false)}
                     illustrationContent={
                       <div className="w-full h-full flex items-center justify-center">
-                        <Zap className="w-20 h-20 text-[#f59e0b]" />
+                        <svg width="150" height="120" viewBox="0 0 150 120">
+                          <polygon points="75,10 128,30 75,55 22,35"   fill="#fbbf24"/>
+                          <polygon points="22,35 75,55 75,100 22,80"   fill="#d97706"/>
+                          <polygon points="75,55 128,30 128,75 75,100" fill="#b45309"/>
+                          <polygon points="30,40 62,52 62,76 30,64"    fill="#1e293b"/>
+                          <line x1="34" y1="46" x2="58" y2="56" stroke="#475569" strokeWidth="2"/>
+                          <line x1="34" y1="52" x2="58" y2="62" stroke="#475569" strokeWidth="2"/>
+                          <line x1="34" y1="58" x2="58" y2="68" stroke="#475569" strokeWidth="2"/>
+                          <rect x="118" y="10" width="7" height="24" rx="2" fill="#475569"/>
+                          <ellipse cx="121" cy="10" rx="5" ry="2.5" fill="#64748b"/>
+                          <circle cx="28" cy="94" r="11" fill="#1e293b"/>
+                          <circle cx="28" cy="94" r="5" fill="#475569"/>
+                          <circle cx="100" cy="88" r="10" fill="#1e293b"/>
+                          <circle cx="100" cy="88" r="4.5" fill="#475569"/>
+                          <line x1="8" y1="46" x2="8" y2="80" stroke="#64748b" strokeWidth="4"/>
+                          <ellipse cx="75" cy="103" rx="56" ry="6" fill="#e2e8f0" opacity="0.6"/>
+                        </svg>
                       </div>
                     }
                   />
@@ -297,7 +339,22 @@ export default function SettingsPage({ activeMode: controlledMode, onModeChange 
                     onPowerOff={() => setPvPowered(false)}
                     illustrationContent={
                       <div className="w-full h-full flex items-center justify-center">
-                        <Sun className="w-20 h-20 text-[#f59e0b]" />
+                        <svg width="160" height="110" viewBox="0 0 160 110">
+                          <polygon points="80,6 142,28 80,55 18,33"  fill="#1d4ed8"/>
+                          <polygon points="18,33 80,55 80,68 18,46"  fill="#1e3a8a"/>
+                          <line x1="28" y1="12" x2="90" y2="34"  stroke="#3b82f6" strokeWidth="2" opacity="0.8"/>
+                          <line x1="48" y1="19" x2="110" y2="41" stroke="#3b82f6" strokeWidth="2" opacity="0.8"/>
+                          <line x1="68" y1="26" x2="130" y2="48" stroke="#3b82f6" strokeWidth="2" opacity="0.8"/>
+                          <line x1="142" y1="28" x2="80" y2="6"  stroke="#3b82f6" strokeWidth="1.5" opacity="0.45"/>
+                          <line x1="112" y1="38" x2="50" y2="16" stroke="#3b82f6" strokeWidth="1.5" opacity="0.45"/>
+                          <line x1="32" y1="60" x2="32" y2="82" stroke="#94a3b8" strokeWidth="3.5"/>
+                          <line x1="80" y1="65" x2="80" y2="87" stroke="#94a3b8" strokeWidth="3.5"/>
+                          <line x1="128" y1="57" x2="128" y2="79" stroke="#94a3b8" strokeWidth="3.5"/>
+                          <line x1="20" y1="82" x2="44" y2="82" stroke="#94a3b8" strokeWidth="4"/>
+                          <line x1="68" y1="87" x2="92" y2="87" stroke="#94a3b8" strokeWidth="4"/>
+                          <line x1="116" y1="79" x2="140" y2="79" stroke="#94a3b8" strokeWidth="4"/>
+                          <ellipse cx="80" cy="96" rx="72" ry="7" fill="#e2e8f0" opacity="0.6"/>
+                        </svg>
                       </div>
                     }
                   />
@@ -327,7 +384,30 @@ export default function SettingsPage({ activeMode: controlledMode, onModeChange 
                     onPowerOff={() => setEvPowered(false)}
                     illustrationContent={
                       <div className="w-full h-full flex items-center justify-center">
-                        <Car className="w-20 h-20 text-[#10b981]" />
+                        <svg width="150" height="120" viewBox="0 0 150 120">
+                          {/* Charging column */}
+                          <polygon points="28,6 44,13 28,22 12,15"  fill="#e2e8f0"/>
+                          <polygon points="12,15 28,22 28,78 12,71"  fill="#cbd5e1"/>
+                          <polygon points="28,22 44,13 44,71 28,78" fill="#94a3b8"/>
+                          <polygon points="15,24 28,29 28,50 15,45" fill="#0ea5e9"/>
+                          <polygon points="24,29 20,38 23,38 19,47 30,36 27,36" fill="#fbbf24"/>
+                          <circle cx="36" cy="64" r="5" fill="#475569"/>
+                          <circle cx="36" cy="64" r="2.5" fill="#64748b"/>
+                          <path d="M36,69 Q54,76 76,78" stroke="#475569" strokeWidth="3" fill="none" strokeLinecap="round"/>
+                          {/* Car */}
+                          <g transform="translate(46,64)">
+                            <polygon points="37,6 74,20 37,37 0,23"  fill="#f8fafc"/>
+                            <polygon points="0,23 37,37 37,54 0,40"  fill="#e2e8f0"/>
+                            <polygon points="37,37 74,20 74,34 37,54" fill="#cbd5e1"/>
+                            <polygon points="10,22 27,28 27,36 10,30"  fill="#93c5fd"/>
+                            <polygon points="43,28 58,22 58,30 43,36" fill="#93c5fd"/>
+                            <circle cx="10" cy="49" r="7.5" fill="#1e293b"/>
+                            <circle cx="10" cy="49" r="3" fill="#475569"/>
+                            <circle cx="58" cy="43" r="7.5" fill="#1e293b"/>
+                            <circle cx="58" cy="43" r="3" fill="#475569"/>
+                          </g>
+                          <ellipse cx="80" cy="114" rx="70" ry="6" fill="#e2e8f0" opacity="0.5"/>
+                        </svg>
                       </div>
                     }
                   />
