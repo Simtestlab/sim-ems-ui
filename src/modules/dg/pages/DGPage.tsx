@@ -1,6 +1,7 @@
 "use client"
 
 import { useMemo, useState } from 'react'
+import { useRouter } from 'next/navigation'
 import DashboardLayout from '@/shared/components/layout/DashboardLayout'
 import MonitoringStatusTabs from '@/shared/components/monitoring/StatusTabs'
 import MonitoringCard from '@/shared/components/monitoring/Card'
@@ -22,6 +23,7 @@ const STATUS_TABS = [
 ]
 
 export default function DGPage() {
+  const router = useRouter()
   const [selectedStatus, setSelectedStatus] = useState('all')
   const [queryInput, setQueryInput] = useState('')
   const [query, setQuery] = useState('')
@@ -112,6 +114,7 @@ export default function DGPage() {
               theme="dg"
               title={dg.title}
               subtitle={`Rated Power: ${dg.rated}`}
+              onClick={() => router.push(`/monitor/dg/details?id=${dg.id}`)}
               leading={
                 <div className="text-[#0b1220]">
                   <Zap className="h-5 w-5 text-[#0b1220]" />

@@ -823,25 +823,201 @@ export default function PVDetailsPage({ params }: { params?: { id?: string } }) 
     return values.reduce((s, v) => s + v, 0) / Math.max(1, values.length)
   }, [allBranchLegend, hoveredBranchHour, visibleSeries])
 
+  const pvSeed = hashString(id)
+  const lastPowerSample = telemetry.powerSamples[telemetry.powerSamples.length - 1]
+  const latestActivePower = lastPowerSample?.activePower ?? 0
+  const latestIntensity = lastPowerSample?.intensity ?? 0
+  const dailyEnergy = telemetry.powerSamples.reduce((sum, s) => sum + s.activePower * 0.25, 0)
+  const monthlyEnergy = (11000 + (pvSeed % 200)).toFixed(1)
+  const yearlyEnergy = (160000 + (pvSeed % 5000)).toFixed(1)
+  const cumulativeGeneration = (162000 + (pvSeed % 5000)).toFixed(1)
+  const loadFactor = (latestActivePower / 125 * 100).toFixed(1)
+  const combinedEfficiency = (92.5 + (pvSeed % 5) * 0.1).toFixed(1)
+  const dailyEffectiveDuration = (dailyEnergy / 125).toFixed(2)
+  const co2Reduction = (dailyEnergy * 0.785 / 1000).toFixed(1)
+
   return (
     <DashboardLayout
       initialActiveTab="PV"
       visitedRoute={`/monitor/pv/details?id=${encodeURIComponent(id)}`}
     >
           <main className="flex-1 overflow-auto px-5 py-5" style={{ maxWidth: 'none', marginInline: 0 }}>
-            <div className="mb-5 flex items-center gap-4 text-[#1b2532]">
-              <button type="button" onClick={() => router.push('/monitor/pv')} className="rounded-full p-1 text-[#1b2532] transition-colors hover:bg-[#edf2f8]">
+            <div className="mb-5 flex items-center gap-3 text-[#1b2532]">
+              <button type="button" onClick={() => router.push('/monitor/pv')} className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full text-[#1b2532] transition-colors hover:bg-[#edf2f8]">
                 <ChevronLeft className="h-6 w-6" />
               </button>
-              <div>
-                <div className="flex items-center gap-3">
-                  <span className="h-3.5 w-3.5 rounded-full bg-[#52d08e]" />
-                  <h1 className="text-[23px] font-semibold tracking-tight">{id}</h1>
+              <span className="h-3 w-3 flex-shrink-0 rounded-full bg-[#52d08e]" />
+              <h1 className="text-[20px] font-bold tracking-tight">{id}</h1>
+              <div className="ml-2 flex items-center gap-3 text-[14px] text-[#8da0ba]">
+                <span>Rated Power: <strong className="font-semibold text-[#374151]">125kW</strong></span>
+                <span className="h-4 w-px bg-[#dde4ee]" />
+                <span>Model: <strong className="font-semibold text-[#374151]">SG125CX</strong></span>
+              </div>
+            </div>
+
+            {/* Row 1: 6 metric cards */}
+            <div className="mb-4 grid grid-cols-6 gap-4">
+              <div className="flex items-center gap-3 rounded-xl border border-[#e8edf5] bg-white px-4 py-3 shadow-[0_4px_12px_rgba(15,23,42,0.05)]">
+                <div className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-xl" style={{ background: '#f0fdf4' }}>
+                  <svg viewBox="0 0 24 24" className="h-6 w-6" fill="none">
+                    <circle cx="12" cy="12" r="10" fill="#86efac" />
+                    <path d="M8 12l3 3 5-5" stroke="#16a34a" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
                 </div>
-                <div className="mt-2 flex flex-wrap items-center gap-5 text-[14px] text-[#9aa2ad]">
-                  <span>Rated Power: <strong className="font-semibold text-[#41454b]">125kW</strong></span>
-                  <span className="h-5 w-px bg-[#dde4ee]" />
-                  <span>Model: <strong className="font-semibold text-[#41454b]">SG125CX</strong></span>
+                <div className="min-w-0">
+                  <div className="text-[11px] text-[#94a3b8] leading-tight">Operating Status</div>
+                  <div className="text-[17px] font-bold text-[#16a34a] leading-tight">Normal</div>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-3 rounded-xl border border-[#e8edf5] bg-white px-4 py-3 shadow-[0_4px_12px_rgba(15,23,42,0.05)]">
+                <div className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-xl" style={{ background: '#eff6ff' }}>
+                  <svg viewBox="0 0 24 24" className="h-6 w-6" fill="none">
+                    <rect x="2" y="3" width="20" height="14" rx="2" stroke="#2563eb" strokeWidth="1.8" />
+                    <path d="M8 21h8M12 17v4" stroke="#2563eb" strokeWidth="1.8" strokeLinecap="round" />
+                    <path d="M7 8h2l1 3 2-6 2 6 1-3h2" stroke="#2563eb" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
+                </div>
+                <div className="min-w-0">
+                  <div className="text-[11px] text-[#94a3b8] leading-tight">Real-time Power</div>
+                  <div className="text-[17px] font-bold text-[#0f1724] leading-tight">
+                    {latestActivePower.toFixed(2)}<span className="ml-1 text-[12px] font-medium text-[#64748b]">kW</span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-3 rounded-xl border border-[#e8edf5] bg-white px-4 py-3 shadow-[0_4px_12px_rgba(15,23,42,0.05)]">
+                <div className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-xl" style={{ background: '#fffbeb' }}>
+                  <svg viewBox="0 0 24 24" className="h-6 w-6" fill="none">
+                    <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" stroke="#f59e0b" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
+                </div>
+                <div className="min-w-0">
+                  <div className="text-[11px] text-[#94a3b8] leading-tight">Daily Charge Energy</div>
+                  <div className="text-[17px] font-bold text-[#0f1724] leading-tight">
+                    {dailyEnergy.toFixed(1)}<span className="ml-1 text-[12px] font-medium text-[#64748b]">kWh</span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-3 rounded-xl border border-[#e8edf5] bg-white px-4 py-3 shadow-[0_4px_12px_rgba(15,23,42,0.05)]">
+                <div className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-xl" style={{ background: '#f0fdfa' }}>
+                  <svg viewBox="0 0 24 24" className="h-6 w-6" fill="none">
+                    <path d="M18 8h1a4 4 0 010 8h-1M2 8h16v9a4 4 0 01-4 4H6a4 4 0 01-4-4V8z" stroke="#0d9488" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+                    <path d="M6 1v3M10 1v3M14 1v3" stroke="#0d9488" strokeWidth="1.8" strokeLinecap="round" />
+                  </svg>
+                </div>
+                <div className="min-w-0">
+                  <div className="text-[11px] text-[#94a3b8] leading-tight">Monthly Charge Energy</div>
+                  <div className="text-[17px] font-bold text-[#0f1724] leading-tight">
+                    {monthlyEnergy}<span className="ml-1 text-[12px] font-medium text-[#64748b]">kWh</span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-3 rounded-xl border border-[#e8edf5] bg-white px-4 py-3 shadow-[0_4px_12px_rgba(15,23,42,0.05)]">
+                <div className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-xl" style={{ background: '#eef2ff' }}>
+                  <svg viewBox="0 0 24 24" className="h-6 w-6" fill="none">
+                    <path d="M17 1l4 4-4 4M3 11V9a4 4 0 014-4h14M7 23l-4-4 4-4M21 13v2a4 4 0 01-4 4H3" stroke="#4f46e5" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
+                </div>
+                <div className="min-w-0">
+                  <div className="text-[11px] text-[#94a3b8] leading-tight">Yearly Charge Energy</div>
+                  <div className="text-[17px] font-bold text-[#0f1724] leading-tight">
+                    {yearlyEnergy}<span className="ml-1 text-[12px] font-medium text-[#64748b]">kWh</span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-3 rounded-xl border border-[#e8edf5] bg-white px-4 py-3 shadow-[0_4px_12px_rgba(15,23,42,0.05)]">
+                <div className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-xl" style={{ background: '#faf5ff' }}>
+                  <svg viewBox="0 0 24 24" className="h-6 w-6" fill="none">
+                    <rect x="3" y="3" width="18" height="18" rx="2" stroke="#9333ea" strokeWidth="1.8" />
+                    <path d="M9 9h.01M15 9h.01M9 15h.01M15 15h.01M12 9v6" stroke="#9333ea" strokeWidth="1.8" strokeLinecap="round" />
+                  </svg>
+                </div>
+                <div className="min-w-0">
+                  <div className="text-[11px] text-[#94a3b8] leading-tight">Cumulative Generation</div>
+                  <div className="text-[17px] font-bold text-[#0f1724] leading-tight">
+                    {cumulativeGeneration}<span className="ml-1 text-[12px] font-medium text-[#64748b]">kWh</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Row 2: 5 metric cards */}
+            <div className="mb-5 grid grid-cols-6 gap-4">
+              <div className="flex items-center gap-3 rounded-xl border border-[#e8edf5] bg-white px-4 py-3 shadow-[0_4px_12px_rgba(15,23,42,0.05)]">
+                <div className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-xl" style={{ background: '#fdf2f8' }}>
+                  <svg viewBox="0 0 24 24" className="h-6 w-6" fill="none">
+                    <path d="M9 18V5l12-2v13" stroke="#db2777" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+                    <circle cx="6" cy="18" r="3" stroke="#db2777" strokeWidth="1.8" />
+                    <circle cx="18" cy="16" r="3" stroke="#db2777" strokeWidth="1.8" />
+                  </svg>
+                </div>
+                <div className="min-w-0">
+                  <div className="text-[11px] text-[#94a3b8] leading-tight">Load Factor</div>
+                  <div className="text-[17px] font-bold text-[#0f1724] leading-tight">
+                    {loadFactor}<span className="ml-1 text-[12px] font-medium text-[#64748b]">%</span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-3 rounded-xl border border-[#e8edf5] bg-white px-4 py-3 shadow-[0_4px_12px_rgba(15,23,42,0.05)]">
+                <div className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-xl" style={{ background: '#f0fdf4' }}>
+                  <svg viewBox="0 0 24 24" className="h-6 w-6" fill="none">
+                    <circle cx="12" cy="12" r="5" stroke="#16a34a" strokeWidth="1.8" />
+                    <path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42" stroke="#16a34a" strokeWidth="1.8" strokeLinecap="round" />
+                  </svg>
+                </div>
+                <div className="min-w-0">
+                  <div className="text-[11px] text-[#94a3b8] leading-tight">Real-time Solar Irradiance</div>
+                  <div className="text-[17px] font-bold text-[#0f1724] leading-tight">
+                    {latestIntensity.toFixed(0)}<span className="ml-1 text-[12px] font-medium text-[#64748b]">W/m²</span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-3 rounded-xl border border-[#e8edf5] bg-white px-4 py-3 shadow-[0_4px_12px_rgba(15,23,42,0.05)]">
+                <div className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-xl" style={{ background: '#f0fdfa' }}>
+                  <svg viewBox="0 0 24 24" className="h-6 w-6" fill="none">
+                    <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" stroke="#0d9488" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
+                </div>
+                <div className="min-w-0">
+                  <div className="text-[11px] text-[#94a3b8] leading-tight">Combined Efficiency</div>
+                  <div className="text-[17px] font-bold text-[#0f1724] leading-tight">
+                    {combinedEfficiency}<span className="ml-1 text-[12px] font-medium text-[#64748b]">%</span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-3 rounded-xl border border-[#e8edf5] bg-white px-4 py-3 shadow-[0_4px_12px_rgba(15,23,42,0.05)]">
+                <div className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-xl" style={{ background: '#fff1f2' }}>
+                  <svg viewBox="0 0 24 24" className="h-6 w-6" fill="none">
+                    <circle cx="12" cy="12" r="10" stroke="#e11d48" strokeWidth="1.8" />
+                    <path d="M12 6v6l4 2" stroke="#e11d48" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
+                </div>
+                <div className="min-w-0">
+                  <div className="text-[11px] text-[#94a3b8] leading-tight">Daily Effective Duration</div>
+                  <div className="text-[17px] font-bold text-[#0f1724] leading-tight">
+                    {dailyEffectiveDuration}<span className="ml-1 text-[12px] font-medium text-[#64748b]">h</span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-3 rounded-xl border border-[#e8edf5] bg-white px-4 py-3 shadow-[0_4px_12px_rgba(15,23,42,0.05)]">
+                <div className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-xl" style={{ background: '#eff6ff' }}>
+                  <svg viewBox="0 0 24 24" className="h-6 w-6" fill="none">
+                    <path d="M18 10h-1.26A8 8 0 109 20h9a5 5 0 000-10z" stroke="#2563eb" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
+                </div>
+                <div className="min-w-0">
+                  <div className="text-[11px] text-[#94a3b8] leading-tight">CO2 Reduction</div>
+                  <div className="text-[17px] font-bold text-[#0f1724] leading-tight">
+                    {co2Reduction}<span className="ml-1 text-[12px] font-medium text-[#64748b]">t</span>
+                  </div>
                 </div>
               </div>
             </div>

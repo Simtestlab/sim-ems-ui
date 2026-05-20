@@ -483,124 +483,247 @@ export default function EVDetailsPage({ params }: { params?: { id?: string } }) 
 
   const { stats, realtime } = telemetry
 
-  const statusCards = [
-    { label: 'Operating Status', isStatus: true, value: 'Charging', color: '#0a7855' },
-    { label: 'Rated Power', value: '100', unit: 'kW' },
-    { label: 'Cumulative Charge', value: stats.cumulativeCharge.toFixed(1), unit: 'kWh' },
-    { label: 'Daily Charge', value: telemetry.samples[telemetry.samples.length-1]?.chargeEnergy?.toFixed(1) ?? '0', unit: 'kWh' },
-    { label: 'Today Peak Power', value: String(Math.max(...telemetry.samples.map(s => s.chargerPower), 0).toFixed(0)), unit: 'kW' },
-  ]
-
-  const realtimeMetrics = [
-    { label: 'Charging Power', value: Number(realtime.chargerPower ?? telemetry.samples[telemetry.samples.length-1]?.chargerPower ?? 0).toFixed(2), unit: 'kW' },
-    { label: 'Output Voltage', value: Number(realtime.voltage || 0).toFixed(1), unit: 'V' },
-    { label: 'Output Current', value: Number(realtime.current || 0).toFixed(1), unit: 'A' },
-    { label: 'Session Energy', value: Number(realtime.sessionEnergy ?? telemetry.samples[telemetry.samples.length-1]?.chargeEnergy ?? 0).toFixed(1), unit: 'kWh' },
-    { label: 'Cable Temperature', value: Number(realtime.cableTemperature || 0).toFixed(1), unit: '°C' },
-  ]
-
-  const currentTimeLabel = formatHeaderDateTime(now)
+  const evSeed = hashString(rawId)
+  const monthlyCharge = (1400 + (evSeed % 200)).toFixed(0)
+  const yearlyCharge = (8500 + (evSeed % 800)).toFixed(0)
+  const dailyCharge = (telemetry.samples[telemetry.samples.length - 1]?.chargeEnergy ?? 0).toFixed(1)
+  const todayPeak = Math.max(...telemetry.samples.map(s => s.chargerPower), 0).toFixed(0)
+  const isCharging = (realtime.chargerPower ?? realtime.activePower ?? 0) > 0.5
 
   const router = useRouter()
-  const ALL_DEVICES = useMemo(() => ['1#EV', '2#EV', '3#EV'], [])
+
+  const baseV = 380 + (evSeed % 8) * 0.5
+  const vcSeries = useMemo((): LineSeries[] => [
+    {
+      label: 'Voltage',
+      color: '#22c55e',
+      points: telemetry.samples.map(s => ({
+        x: s.hour,
+        y: clamp((baseV + (s.chargerPower > 0 ? Math.sin(s.hour * 0.4) * 3 : 0) - 340) / 90 * 100, 0, 100),
+      })),
+      fillId: 'ev-fill-voltage',
+    },
+    {
+      label: 'Current',
+      color: '#06b6d4',
+      points: telemetry.samples.map(s => ({
+        x: s.hour,
+        y: s.chargerPower > 0 ? clamp((s.chargerPower * 1000 / (baseV * 1.732)) / 2, 0, 100) : 0,
+      })),
+      fillId: 'ev-fill-current',
+    },
+  ], [telemetry.samples, baseV])
+
+  const powerSeries = useMemo(
+    () => telemetry.series.filter(s => s.label === 'Charger Power'),
+    [telemetry.series],
+  )
 
   return (
     <DashboardLayout visitedRoute={`/monitor/ev/details?id=${encodeURIComponent(rawId)}`} initialActiveTab="EV">
-      <main className="flex-1 overflow-auto py-6" style={{ paddingInline: 24, maxWidth: 'none', marginInline: 0 }}>
-        <div className="mb-6 flex items-center gap-0 border-b border-[#e6edf5]">
-          <button type="button" onClick={() => router.push('/monitor/ev')} className="mr-3 flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-md text-[#1b2532] transition-colors hover:bg-[#f1f6fb]">
+      <main className="flex-1 overflow-auto py-5" style={{ paddingInline: 24, maxWidth: 'none', marginInline: 0 }}>
+        {/* Header */}
+        <div className="mb-5 flex items-center gap-3">
+          <button type="button" onClick={() => router.push('/monitor/ev')} className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full text-[#1b2532] transition-colors hover:bg-[#edf2f8]">
             <ChevronLeft className="h-6 w-6" />
           </button>
-
-          {ALL_DEVICES.map((device) => {
-            const isActive = device === rawId
-            return (
-              <button
-                key={device}
-                type="button"
-                onClick={() => router.push(`/monitor/ev/details?id=${encodeURIComponent(device)}`)}
-                className={`relative flex items-center gap-2 px-5 pb-3 pt-1 text-[15px] font-medium transition-colors ${isActive ? 'text-[#0f1724]' : 'text-[#6b7280] hover:text-[#374151]'}`}
-              >
-                <span className="h-2.5 w-2.5 flex-shrink-0 rounded-full" style={{ backgroundColor: isActive ? '#16a34a' : '#9ca3af' }} />
-                {device}
-                {isActive && <span className="absolute inset-x-0 bottom-0 h-[2.5px] rounded-t-full bg-[#16a34a]" />}
-              </button>
-            )
-          })}
-
-          <div className="ml-auto flex items-center gap-4">
-            <div className="text-[13px] text-[#6b7280]">{currentTimeLabel}</div>
+          <span className="h-3 w-3 flex-shrink-0 rounded-full bg-[#22c55e]" />
+          <h1 className="text-[20px] font-bold text-[#0f1724]">{rawId}</h1>
+          <div className="ml-2 flex items-center gap-3 text-[14px] text-[#8da0ba]">
+            <span>Rated Power: <strong className="font-semibold text-[#374151]">100kW</strong></span>
+            <span className="h-4 w-px bg-[#dde4ee]" />
+            <span>Model: <strong className="font-semibold text-[#374151]">DC Fast 100</strong></span>
+          </div>
+          <div className="ml-auto">
             <DateControl value={selectedDate} onChange={setSelectedDate} />
           </div>
         </div>
 
-        {/* status cards */}
-        <div className="mb-6 grid grid-cols-5 gap-4">
-          {statusCards.map((card) => (
-            <div key={card.label} className="flex h-[140px] flex-col justify-center rounded-[12px] border border-[#e6edf5] bg-white px-6 shadow-[0_6px_20px_rgba(15,23,42,0.04)]">
-              <div className="mb-2 text-[13px] font-medium text-[#8da0ba]">{card.label}</div>
-              {card.isStatus ? (
-                <div className="flex items-center gap-3">
-                  <span className="h-3.5 w-3.5 rounded-full" style={{ backgroundColor: card.color ?? '#16a34a' }} />
-                  <div className="text-[26px] font-bold" style={{ color: card.color ?? '#16a34a' }}>{card.value}</div>
-                </div>
-              ) : (
-                <div className="flex items-baseline gap-2">
-                  <span className="text-[24px] font-bold text-[#0b1220]">{card.value}</span>
-                  {card.unit ? <span className="text-[14px] font-semibold text-[#8da0ba]">{card.unit}</span> : null}
-                </div>
-              )}
+        {/* Row 1: 6 metric cards */}
+        <div className="mb-4 grid grid-cols-6 gap-4">
+          <div className="flex items-center gap-3 rounded-xl border border-[#e8edf5] bg-white px-4 py-3 shadow-[0_4px_12px_rgba(15,23,42,0.05)]">
+            <div className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-xl" style={{ background: '#f0fdf4' }}>
+              <svg viewBox="0 0 24 24" className="h-6 w-6" fill="none">
+                <circle cx="12" cy="12" r="10" fill="#86efac" />
+                <path d="M8 12l3 3 5-5" stroke="#16a34a" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
             </div>
-          ))}
-        </div>
-
-        {/* Chart area */}
-        <div className="mb-6 rounded-[12px] border border-[#e6edf5] bg-white px-6 py-5 shadow-[0_8px_28px_rgba(15,23,42,0.05)]">
-          <div className="mb-4 flex items-center justify-between">
-            <h2 className="text-[22px] font-semibold text-[#0f1724]">Charger Power & Energy</h2>
-            <ChartLegend series={telemetry.series} visibleMap={visibleSeries} onToggle={toggleSeries} onHover={setHoveredSeries} />
+            <div className="min-w-0">
+              <div className="text-[11px] text-[#94a3b8] leading-tight">Operating Status</div>
+              <div className="text-[17px] font-bold leading-tight" style={{ color: isCharging ? '#16a34a' : '#64748b' }}>
+                {isCharging ? 'Charging' : 'Idle'}
+              </div>
+            </div>
           </div>
 
-          <div style={{ height: 520 }}>
-            <EVChartPlot
-              series={filteredSeries}
-              hoverX={hoveredSample?.hour}
-              hoverY={hoveredSample?.chargerPower}
-              hoverBottomLabel={hoveredSample ? formatTimeLabel(hoveredSample.hour) : undefined}
-              hoverLeftLabel={hoveredSample ? hoveredSample.chargerPower.toFixed(1) : undefined}
-              tooltipTitle={hoveredSample ? formatTimeLabel(hoveredSample.hour) : undefined}
-              tooltipItems={hoveredSample ? tooltipItems : undefined}
-              onHoverHourChange={setHoveredHour}
-              hoveredSeriesLabel={hoveredSeries}
-              onHoverSeriesChange={setHoveredSeries}
-            />
+          <div className="flex items-center gap-3 rounded-xl border border-[#e8edf5] bg-white px-4 py-3 shadow-[0_4px_12px_rgba(15,23,42,0.05)]">
+            <div className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-xl" style={{ background: '#eff6ff' }}>
+              <svg viewBox="0 0 24 24" className="h-6 w-6" fill="none">
+                <path d="M5 12.55a11 11 0 0114.08 0M1.42 9a16 16 0 0121.16 0M8.53 16.11a6 6 0 016.95 0M12 20h.01" stroke="#2563eb" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            </div>
+            <div className="min-w-0">
+              <div className="text-[11px] text-[#94a3b8] leading-tight">Real-time Power</div>
+              <div className="text-[17px] font-bold text-[#0f1724] leading-tight">
+                {Number(realtime.chargerPower ?? realtime.activePower ?? 0).toFixed(1)}<span className="ml-1 text-[12px] font-medium text-[#64748b]">kW</span>
+              </div>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-3 rounded-xl border border-[#e8edf5] bg-white px-4 py-3 shadow-[0_4px_12px_rgba(15,23,42,0.05)]">
+            <div className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-xl" style={{ background: '#fffbeb' }}>
+              <svg viewBox="0 0 24 24" className="h-6 w-6" fill="none">
+                <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" stroke="#f59e0b" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            </div>
+            <div className="min-w-0">
+              <div className="text-[11px] text-[#94a3b8] leading-tight">Daily Charge</div>
+              <div className="text-[17px] font-bold text-[#0f1724] leading-tight">
+                {dailyCharge}<span className="ml-1 text-[12px] font-medium text-[#64748b]">kWh</span>
+              </div>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-3 rounded-xl border border-[#e8edf5] bg-white px-4 py-3 shadow-[0_4px_12px_rgba(15,23,42,0.05)]">
+            <div className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-xl" style={{ background: '#f0fdfa' }}>
+              <svg viewBox="0 0 24 24" className="h-6 w-6" fill="none">
+                <rect x="2" y="7" width="20" height="14" rx="2" stroke="#0d9488" strokeWidth="1.8" />
+                <path d="M16 7V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v2M12 12v4M10 14h4" stroke="#0d9488" strokeWidth="1.8" strokeLinecap="round" />
+              </svg>
+            </div>
+            <div className="min-w-0">
+              <div className="text-[11px] text-[#94a3b8] leading-tight">Monthly Charge Energy</div>
+              <div className="text-[17px] font-bold text-[#0f1724] leading-tight">
+                {monthlyCharge}<span className="ml-1 text-[12px] font-medium text-[#64748b]">kWh</span>
+              </div>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-3 rounded-xl border border-[#e8edf5] bg-white px-4 py-3 shadow-[0_4px_12px_rgba(15,23,42,0.05)]">
+            <div className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-xl" style={{ background: '#eef2ff' }}>
+              <svg viewBox="0 0 24 24" className="h-6 w-6" fill="none">
+                <path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z" stroke="#4f46e5" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+                <path d="M12 22V12M3.27 6.96L12 12.01l8.73-5.05" stroke="#4f46e5" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            </div>
+            <div className="min-w-0">
+              <div className="text-[11px] text-[#94a3b8] leading-tight">Yearly Charge Energy</div>
+              <div className="text-[17px] font-bold text-[#0f1724] leading-tight">
+                {yearlyCharge}<span className="ml-1 text-[12px] font-medium text-[#64748b]">kWh</span>
+              </div>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-3 rounded-xl border border-[#e8edf5] bg-white px-4 py-3 shadow-[0_4px_12px_rgba(15,23,42,0.05)]">
+            <div className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-xl" style={{ background: '#faf5ff' }}>
+              <svg viewBox="0 0 24 24" className="h-6 w-6" fill="none">
+                <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" stroke="#9333ea" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            </div>
+            <div className="min-w-0">
+              <div className="text-[11px] text-[#94a3b8] leading-tight">Cumulative Charge</div>
+              <div className="text-[17px] font-bold text-[#0f1724] leading-tight">
+                {stats.cumulativeCharge.toFixed(1)}<span className="ml-1 text-[12px] font-medium text-[#64748b]">kWh</span>
+              </div>
+            </div>
           </div>
         </div>
 
-        {/* Real-time data */}
-          <div className="mb-6 rounded-[12px] border border-[#e6edf5] bg-white px-6 py-6 shadow-[0_8px_28px_rgba(15,23,42,0.05)]">
-          <h2 className="mb-4 text-[20px] font-semibold text-[#0f1724]">Real-time Data</h2>
-          <div className="grid grid-cols-5 gap-x-12 gap-y-4">
-            {realtimeMetrics.map((m) => (
-              <div key={m.label} className="flex items-baseline gap-3">
-                <span className="text-[14px] text-[#6b7280]">{m.label}:</span>
-                <div className="flex items-baseline gap-2">
-                  <span className="text-[18px] font-semibold text-[#1b2532]">{m.value}</span>
-                  {m.unit ? <span className="text-[14px] text-[#6b7280]">{m.unit}</span> : null}
-                </div>
+        {/* Row 2: Today Peak Power */}
+        <div className="mb-5 grid grid-cols-6 gap-4">
+          <div className="flex items-center gap-3 rounded-xl border border-[#e8edf5] bg-white px-4 py-3 shadow-[0_4px_12px_rgba(15,23,42,0.05)]">
+            <div className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-xl" style={{ background: '#fdf2f8' }}>
+              <svg viewBox="0 0 24 24" className="h-6 w-6" fill="none">
+                <circle cx="12" cy="12" r="10" stroke="#db2777" strokeWidth="1.8" />
+                <path d="M8 12l4-4 4 4M12 8v8" stroke="#db2777" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            </div>
+            <div className="min-w-0">
+              <div className="text-[11px] text-[#94a3b8] leading-tight">Today Peak Power</div>
+              <div className="text-[17px] font-bold text-[#0f1724] leading-tight">
+                {todayPeak}<span className="ml-1 text-[12px] font-medium text-[#64748b]">kW</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Charts: side by side */}
+        <div className="grid grid-cols-2 gap-5">
+          <div className="flex flex-col rounded-[14px] border border-[#e6edf5] bg-white px-5 py-4 shadow-[0_4px_16px_rgba(15,23,42,0.05)]" style={{ height: 380 }}>
+            <div className="mb-3 flex items-center justify-between">
+              <h2 className="text-[17px] font-semibold text-[#0f1724]">EV Power Curve</h2>
+              <ChartLegend series={powerSeries} visibleMap={visibleSeries} onToggle={toggleSeries} onHover={setHoveredSeries} />
+            </div>
+            <div className="flex-1">
+              <EVChartPlot
+                series={powerSeries}
+                hoverX={hoveredSample?.hour}
+                hoverY={hoveredSample?.chargerPower}
+                hoverBottomLabel={hoveredSample ? formatTimeLabel(hoveredSample.hour) : undefined}
+                hoverLeftLabel={hoveredSample ? hoveredSample.chargerPower.toFixed(1) : undefined}
+                tooltipTitle={hoveredSample ? formatTimeLabel(hoveredSample.hour) : undefined}
+                tooltipItems={hoveredSample ? [{ label: 'Charging Power', value: `${hoveredSample.chargerPower.toFixed(2)} kW`, color: '#2563eb' }] : undefined}
+                onHoverHourChange={setHoveredHour}
+                hoveredSeriesLabel={hoveredSeries}
+                onHoverSeriesChange={setHoveredSeries}
+              />
+            </div>
+          </div>
+
+          <div className="flex flex-col rounded-[14px] border border-[#e6edf5] bg-white px-5 py-4 shadow-[0_4px_16px_rgba(15,23,42,0.05)]" style={{ height: 380 }}>
+            <div className="mb-3 flex items-center justify-between">
+              <h2 className="text-[17px] font-semibold text-[#0f1724]">EV Voltage / Current Curve</h2>
+              <ChartLegend series={vcSeries} />
+            </div>
+            <div className="flex-1">
+              <EVChartPlot
+                series={vcSeries}
+                hoverX={hoveredSample?.hour}
+                hoverBottomLabel={hoveredSample ? formatTimeLabel(hoveredSample.hour) : undefined}
+                onHoverHourChange={setHoveredHour}
+                hoveredSeriesLabel={hoveredSeries}
+                onHoverSeriesChange={setHoveredSeries}
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* Real-time Data */}
+        <div className="mt-5 rounded-[14px] border border-[#e6edf5] bg-white px-6 py-5 shadow-[0_4px_16px_rgba(15,23,42,0.05)]">
+          <h2 className="mb-4 text-[17px] font-semibold text-[#0f1724]">Real-time Data</h2>
+          <div className="grid grid-cols-4 gap-x-10 gap-y-3">
+            {([
+              { label: 'Voltage', value: `${realtime.voltage}V` },
+              { label: 'Current', value: `${realtime.current.toFixed(1)}A` },
+              { label: 'Active Power', value: `${realtime.activePower.toFixed(2)}kW` },
+              { label: 'Charger Power', value: `${(realtime.chargerPower ?? 0).toFixed(2)}kW` },
+              { label: 'Session Energy', value: `${(realtime.sessionEnergy ?? 0).toFixed(2)}kWh` },
+              { label: 'Cable Temperature', value: `${realtime.cableTemperature ?? '--'}\u00b0C` },
+              { label: 'SOC', value: `${realtime.soc.toFixed(1)}%` },
+              { label: 'Daily Charge', value: `${dailyCharge}kWh` },
+            ] as { label: string; value: string }[]).map((field) => (
+              <div key={field.label} className="text-[13px]">
+                <span className="text-[#64748b]">{field.label}: </span>
+                <span className="font-bold text-[#0f1724]">{field.value}</span>
               </div>
             ))}
           </div>
         </div>
 
-        {/* Status indicators */}
-        <div className="rounded-[12px] border border-[#e6edf5] bg-white px-6 py-6 shadow-[0_8px_28px_rgba(15,23,42,0.05)]">
-          <h2 className="mb-4 text-[20px] font-semibold text-[#0f1724]">Status</h2>
-          <div className="grid grid-cols-5 gap-x-8 gap-y-4">
-            {['Available','Charging','Gun Connected','Fault','Offline'].map((s) => (
-              <div key={s} className="flex items-center gap-3">
-                <span className={`h-3.5 w-3.5 rounded-full ${s === 'Charging' ? 'bg-[#16a34a]' : s === 'Fault' ? 'bg-[#ef4444]' : 'bg-[#d1d5db]'}`}></span>
-                <div className="text-[16px] font-medium text-[#2b3441]">{s}</div>
+        {/* Device Status */}
+        <div className="mt-4 rounded-[14px] border border-[#e6edf5] bg-white px-6 py-5 shadow-[0_4px_16px_rgba(15,23,42,0.05)]">
+          <h2 className="mb-4 text-[17px] font-semibold text-[#0f1724]">Device Status</h2>
+          <div className="flex flex-wrap items-center gap-12">
+            {([
+              { label: isCharging ? 'Charging' : 'Running', active: isCharging },
+              { label: 'Communication Normal', active: true },
+              { label: 'Alarm', active: false },
+              { label: 'Fault', active: false },
+              { label: 'Cable Connected', active: isCharging },
+            ] as { label: string; active: boolean }[]).map((s) => (
+              <div key={s.label} className="flex items-center gap-2">
+                <span className={`h-3 w-3 flex-shrink-0 rounded-full ${s.active ? 'bg-[#22c55e]' : 'bg-[#cbd5e1]'}`} />
+                <span className="text-[13px] text-[#374151]">{s.label}</span>
               </div>
             ))}
           </div>

@@ -66,11 +66,10 @@ type PCSTelemetry = {
 const TIME_TICKS = [0, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22]
 
 const PCS_STATUSES = [
-  { label: 'Running', active: true },
-  { label: 'Communication Normal', active: true },
-  { label: 'Alarm', active: false },
-  { label: 'Fault', active: false },
-  { label: 'Contactor Closed', active: true },
+  { label: 'Running Status', active: false },
+  { label: 'Breaker Status', active: false },
+  { label: 'Alarm Status', active: false },
+  { label: 'Remote Mode', active: true },
 ]
 
 /* ─── Helpers ────────────────────────────────────────────────────────── */
@@ -686,159 +685,278 @@ export default function PCSDetailsPage({ params }: { params?: { id?: string } })
   // Only include actual devices present in the system (two PCS units in this demo)
   const ALL_DEVICES = useMemo(() => ['1#PCS', '2#PCS'], [])
 
-  const statusCards = [
-    { label: 'Operating Status', isStatus: true, value: 'Running', color: '#16a34a' },
-    { label: 'Rated Power', value: '125', unit: 'kW' },
-    { label: 'Cumulative Charge', value: stats.cumulativeCharge.toFixed(1), unit: 'kWh' },
-    { label: 'Charge Cycles', value: String(stats.chargeCycles) },
-    { label: 'Cumulative Discharge', value: stats.cumulativeDischarge.toFixed(2), unit: 'kWh' },
-    { label: 'Discharge Cycles', value: String(stats.dischargeCycles) },
-  ]
-
-  const realtimeMetrics = [
-    { label: 'Total Voltage', value: `${realtime.totalVoltage} V` },
-    { label: 'Total Current', value: `${realtime.totalCurrent} A` },
-    { label: 'Total Active Power', value: `${realtime.totalActivePower} kW` },
-    { label: 'Total Reactive Power', value: `${realtime.totalReactivePower} kVar` },
-    { label: 'Total Apparent Power', value: `${realtime.totalApparentPower} kVA` },
-    { label: 'Total Power Factor', value: `${realtime.totalPowerFactor}` },
-    { label: 'SOC (state Of Charge)', value: `${realtime.soc} %` },
-    { label: 'Phase A Voltage', value: `${realtime.phaseAVoltage} V` },
-    { label: 'Phase B Voltage', value: `${realtime.phaseBVoltage} V` },
-    { label: 'Phase C Voltage', value: `${realtime.phaseCVoltage} V` },
-    { label: 'Phase A Current', value: `${realtime.phaseACurrent} A` },
-    { label: 'Phase B Current', value: `${realtime.phaseBCurrent} A` },
-    { label: 'Phase C Current', value: `${realtime.phaseCCurrent} A` },
-    { label: 'Module Temperature', value: `${realtime.moduleTemperature} °C` },
-    { label: 'DC Bus Voltage', value: `${realtime.dcBusVoltage} V` },
-  ]
+  const pcsSeed = hashString(rawId)
+  const lastSample = telemetry.samples[telemetry.samples.length - 1]
+  const dailyCharge = (lastSample?.chargeEnergy ?? 0).toFixed(2)
+  const dailyDischarge = (lastSample?.dischargeEnergy ?? 0).toFixed(2)
+  const soh = (72.5 + (pcsSeed % 5) * 0.3).toFixed(1)
+  const rtEfficiency = (85.0 + (pcsSeed % 8) * 0.1).toFixed(1)
+  const remainingEnergy = Math.round(realtime.soc / 100 * 3600)
+  const avgPower = realtime.totalActivePower > 0.5 ? realtime.totalActivePower : 18.5
+  const remainingDuration = Math.round(remainingEnergy / avgPower)
+  const frequency = (50 + ((pcsSeed % 5) - 2) * 0.01).toFixed(2)
 
   return (
     <DashboardLayout initialActiveTab="PCS" visitedRoute={`/monitor/pcs/details?id=${encodeURIComponent(rawId)}`}>
-      <main
-        className="flex-1 overflow-auto py-5"
-        style={{ paddingInline: 24, maxWidth: 'none', marginInline: 0 }}
-      >
-            {/* Page header – back button + device tab switcher */}
-            <div className="mb-5 flex items-center gap-0 border-b border-[#e6edf5]">
-              <button
-                type="button"
-                onClick={() => router.push('/monitor/pcs')}
-                className="mr-3 flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full text-[#1b2532] transition-colors hover:bg-[#edf2f8]"
-              >
-                <ChevronLeft className="h-6 w-6" />
-              </button>
-              {ALL_DEVICES.map((device) => {
-                const isActive = device === rawId
-                return (
-                  <button
-                    key={device}
-                    type="button"
-                    onClick={() => router.push(`/monitor/pcs/details?id=${encodeURIComponent(device)}`)}
-                    className={`relative flex items-center gap-2 px-5 pb-3 pt-1 text-[15px] font-medium transition-colors ${isActive
-                        ? 'text-[#0f1724]'
-                        : 'text-[#6b7280] hover:text-[#374151]'
-                      }`}
-                  >
-                    <span
-                      className="h-2.5 w-2.5 flex-shrink-0 rounded-full"
-                      style={{ backgroundColor: isActive ? '#22c55e' : '#9ca3af' }}
-                    />
-                    {device}
-                    {isActive && (
-                      <span className="absolute inset-x-0 bottom-0 h-[2.5px] rounded-t-full bg-[#22c55e]" />
-                    )}
-                  </button>
-                )
-              })}
+      <main className="flex-1 overflow-auto py-5" style={{ paddingInline: 24, maxWidth: 'none', marginInline: 0 }}>
+        {/* Header */}
+        <div className="mb-5 flex items-center gap-3">
+          <button type="button" onClick={() => router.push('/monitor/pcs')} className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full text-[#1b2532] transition-colors hover:bg-[#edf2f8]">
+            <ChevronLeft className="h-6 w-6" />
+          </button>
+          <span className="h-3 w-3 flex-shrink-0 rounded-full bg-[#22c55e]" />
+          <h1 className="text-[20px] font-bold text-[#0f1724]">{rawId}</h1>
+          <div className="ml-2 flex items-center gap-3 text-[14px] text-[#8da0ba]">
+            <span>Rated Power: <strong className="font-semibold text-[#374151]">125kW</strong></span>
+            <span className="h-4 w-px bg-[#dde4ee]" />
+            <span>Model: <strong className="font-semibold text-[#374151]">PCS001</strong></span>
+          </div>
+        </div>
+
+        {/* Row 1: 6 metric cards */}
+        <div className="mb-4 grid grid-cols-6 gap-4">
+          <div className="flex items-center gap-3 rounded-xl border border-[#e8edf5] bg-white px-4 py-3 shadow-[0_4px_12px_rgba(15,23,42,0.05)]">
+            <div className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-xl" style={{ background: '#f0fdf4' }}>
+              <svg viewBox="0 0 24 24" className="h-6 w-6" fill="none">
+                <circle cx="12" cy="12" r="10" fill="#86efac" />
+                <path d="M8 12l3 3 5-5" stroke="#16a34a" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
             </div>
-
-            {/* ── 6-column status cards ── */}
-            <div className="mb-5 grid grid-cols-6 gap-4">
-              {statusCards.map((card) => (
-                <div
-                  key={card.label}
-                  className="flex h-[120px] flex-col justify-center rounded-[14px] border border-[#e6edf5] bg-white px-5 shadow-[0_4px_14px_rgba(15,23,42,0.04)]"
-                >
-                  <div className="mb-1.5 text-[12.5px] font-medium text-[#8da0ba]">{card.label}</div>
-                  {card.isStatus ? (
-                    <div className="text-[24px] font-bold" style={{ color: card.color ?? '#16a34a' }}>
-                      {card.value}
-                    </div>
-                  ) : (
-                    <div className="flex items-baseline gap-1.5">
-                      <span className="text-[28px] font-bold leading-none text-[#0b1220]">{card.value}</span>
-                      {card.unit ? (
-                        <span className="text-[14px] font-semibold text-[#8da0ba]">{card.unit}</span>
-                      ) : null}
-                    </div>
-                  )}
-                </div>
-              ))}
+            <div className="min-w-0">
+              <div className="text-[11px] text-[#94a3b8] leading-tight">Operating Status</div>
+              <div className="text-[17px] font-bold text-[#16a34a] leading-tight">Normal</div>
             </div>
+          </div>
 
-            {/* ── Power And Energy Curves ── */}
-            <div className="mb-5 rounded-[16px] border border-[#e6edf5] bg-white px-6 py-5 shadow-[0_4px_16px_rgba(15,23,42,0.05)]">
-              <div className="mb-3 flex items-center justify-between gap-4">
-                <h2 className="text-[20px] font-semibold tracking-tight text-[#101828]">
-                  Power And Energy Curves
-                </h2>
-                <DateControl value={selectedDate} onChange={setSelectedDate} />
-              </div>
-
-              <div className="mb-4">
-                <ChartLegend
-                  series={telemetry.series}
-                  visibleMap={visibleSeries}
-                  onToggle={toggleSeries}
-                  onHover={setHoveredSeries}
-                />
-              </div>
-
-              <div style={{ height: 480 }}>
-                <BESSChartPlot
-                  series={filteredSeries}
-                  hoverX={hoveredSample?.hour}
-                  hoverY={hoveredSample?.bessPower}
-                  hoverBottomLabel={hoveredSample ? formatTimeLabel(hoveredSample.hour) : undefined}
-                  hoverLeftLabel={hoveredSample ? hoveredSample.bessPower.toFixed(1) : undefined}
-                  tooltipTitle={hoveredSample ? formatTimeLabel(hoveredSample.hour) : undefined}
-                  tooltipItems={hoveredSample ? tooltip : undefined}
-                  onHoverHourChange={setHoveredHour}
-                  hoveredSeriesLabel={hoveredSeries}
-                  onHoverSeriesChange={setHoveredSeries}
-                />
+          <div className="flex items-center gap-3 rounded-xl border border-[#e8edf5] bg-white px-4 py-3 shadow-[0_4px_12px_rgba(15,23,42,0.05)]">
+            <div className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-xl" style={{ background: '#eff6ff' }}>
+              <svg viewBox="0 0 24 24" className="h-6 w-6" fill="none">
+                <rect x="3" y="3" width="18" height="18" rx="2" stroke="#2563eb" strokeWidth="1.8" />
+                <path d="M7 8h10M7 12h7M7 16h5" stroke="#2563eb" strokeWidth="1.8" strokeLinecap="round" />
+              </svg>
+            </div>
+            <div className="min-w-0">
+              <div className="text-[11px] text-[#94a3b8] leading-tight">Real-time Power</div>
+              <div className="text-[17px] font-bold text-[#0f1724] leading-tight">
+                {realtime.totalActivePower.toFixed(1)}<span className="ml-1 text-[12px] font-medium text-[#64748b]">kW</span>
               </div>
             </div>
+          </div>
 
-            {/* ── Real-time Data ── */}
-            <div className="mb-5 rounded-[16px] border border-[#e6edf5] bg-white px-6 py-5 shadow-[0_4px_16px_rgba(15,23,42,0.05)]">
-              <h2 className="mb-5 text-[20px] font-semibold tracking-tight text-[#101828]">Real-time Data</h2>
-              <div className="grid grid-cols-3 gap-x-12 gap-y-3.5">
-                {realtimeMetrics.map((m) => (
-                  <div key={m.label} className="flex items-baseline gap-2">
-                    <span className="text-[14px] text-[#6b7280]">{m.label}:</span>
-                    <span className="text-[16px] font-semibold text-[#1b2532]">{m.value}</span>
-                  </div>
-                ))}
+          <div className="flex items-center gap-3 rounded-xl border border-[#e8edf5] bg-white px-4 py-3 shadow-[0_4px_12px_rgba(15,23,42,0.05)]">
+            <div className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-xl" style={{ background: '#fffbeb' }}>
+              <svg viewBox="0 0 24 24" className="h-6 w-6" fill="none">
+                <circle cx="12" cy="12" r="5" stroke="#f59e0b" strokeWidth="1.8" />
+                <path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42" stroke="#f59e0b" strokeWidth="1.8" strokeLinecap="round" />
+              </svg>
+            </div>
+            <div className="min-w-0">
+              <div className="text-[11px] text-[#94a3b8] leading-tight">Daily Charge</div>
+              <div className="text-[17px] font-bold text-[#0f1724] leading-tight">
+                {dailyCharge}<span className="ml-1 text-[12px] font-medium text-[#64748b]">kWh</span>
               </div>
             </div>
+          </div>
 
-            {/* ── Status ── */}
-            <div className="rounded-[16px] border border-[#e6edf5] bg-white px-6 py-5 shadow-[0_4px_16px_rgba(15,23,42,0.05)]">
-              <h2 className="mb-5 text-[20px] font-semibold tracking-tight text-[#101828]">Status</h2>
-              <div className="grid grid-cols-4 gap-x-16 gap-y-4">
-                {PCS_STATUSES.map((s) => (
-                  <div key={s.label} className="flex items-center gap-2.5">
-                    <span
-                      className={`h-3 w-3 flex-shrink-0 rounded-full ${s.active ? 'bg-[#22c55e]' : 'bg-[#d1d5db]'}`}
-                    />
-                    <span className="text-[15px] text-[#2b3441]">{s.label}</span>
-                  </div>
-                ))}
+          <div className="flex items-center gap-3 rounded-xl border border-[#e8edf5] bg-white px-4 py-3 shadow-[0_4px_12px_rgba(15,23,42,0.05)]">
+            <div className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-xl" style={{ background: '#f0fdfa' }}>
+              <svg viewBox="0 0 24 24" className="h-6 w-6" fill="none">
+                <path d="M18 8h1a4 4 0 010 8h-1M2 8h16v9a4 4 0 01-4 4H6a4 4 0 01-4-4V8z" stroke="#0d9488" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+                <path d="M6 1v3M10 1v3M14 1v3" stroke="#0d9488" strokeWidth="1.8" strokeLinecap="round" />
+              </svg>
+            </div>
+            <div className="min-w-0">
+              <div className="text-[11px] text-[#94a3b8] leading-tight">Daily Discharge</div>
+              <div className="text-[17px] font-bold text-[#0f1724] leading-tight">
+                {dailyDischarge}<span className="ml-1 text-[12px] font-medium text-[#64748b]">kWh</span>
               </div>
             </div>
+          </div>
+
+          <div className="flex items-center gap-3 rounded-xl border border-[#e8edf5] bg-white px-4 py-3 shadow-[0_4px_12px_rgba(15,23,42,0.05)]">
+            <div className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-xl" style={{ background: '#eef2ff' }}>
+              <svg viewBox="0 0 24 24" className="h-6 w-6" fill="none">
+                <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" stroke="#4f46e5" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            </div>
+            <div className="min-w-0">
+              <div className="text-[11px] text-[#94a3b8] leading-tight">Cumulative Charge</div>
+              <div className="text-[17px] font-bold text-[#0f1724] leading-tight">
+                {stats.cumulativeCharge.toFixed(1)}<span className="ml-1 text-[12px] font-medium text-[#64748b]">kWh</span>
+              </div>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-3 rounded-xl border border-[#e8edf5] bg-white px-4 py-3 shadow-[0_4px_12px_rgba(15,23,42,0.05)]">
+            <div className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-xl" style={{ background: '#faf5ff' }}>
+              <svg viewBox="0 0 24 24" className="h-6 w-6" fill="none">
+                <path d="M7 16V5a2 2 0 012-2h6a2 2 0 012 2v11M5 16h14M12 7v4M10 9h4" stroke="#9333ea" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            </div>
+            <div className="min-w-0">
+              <div className="text-[11px] text-[#94a3b8] leading-tight">Cumulative Discharge</div>
+              <div className="text-[17px] font-bold text-[#0f1724] leading-tight">
+                {stats.cumulativeDischarge.toFixed(2)}<span className="ml-1 text-[12px] font-medium text-[#64748b]">kWh</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Row 2: 6 metric cards */}
+        <div className="mb-5 grid grid-cols-6 gap-4">
+          <div className="flex items-center gap-3 rounded-xl border border-[#e8edf5] bg-white px-4 py-3 shadow-[0_4px_12px_rgba(15,23,42,0.05)]">
+            <div className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-xl" style={{ background: '#fff1f2' }}>
+              <svg viewBox="0 0 24 24" className="h-6 w-6" fill="none">
+                <rect x="2" y="7" width="20" height="11" rx="2" stroke="#e11d48" strokeWidth="1.8" />
+                <path d="M22 11V9a2 2 0 00-2-2M2 11V9" stroke="#e11d48" strokeWidth="1.8" strokeLinecap="round" />
+                <rect x="4" y="9" width={`${(realtime.soc / 100) * 14}`} height="7" rx="1" fill="#e11d48" opacity="0.7" />
+              </svg>
+            </div>
+            <div className="min-w-0">
+              <div className="text-[11px] text-[#94a3b8] leading-tight">SOC</div>
+              <div className="text-[17px] font-bold text-[#0f1724] leading-tight">
+                {realtime.soc.toFixed(1)}<span className="ml-1 text-[12px] font-medium text-[#64748b]">%</span>
+              </div>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-3 rounded-xl border border-[#e8edf5] bg-white px-4 py-3 shadow-[0_4px_12px_rgba(15,23,42,0.05)]">
+            <div className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-xl" style={{ background: '#eff6ff' }}>
+              <svg viewBox="0 0 24 24" className="h-6 w-6" fill="none">
+                <path d="M22 12h-4l-3 9L9 3l-3 9H2" stroke="#2563eb" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            </div>
+            <div className="min-w-0">
+              <div className="text-[11px] text-[#94a3b8] leading-tight">SOH</div>
+              <div className="text-[17px] font-bold text-[#0f1724] leading-tight">
+                {soh}<span className="ml-1 text-[12px] font-medium text-[#64748b]">%</span>
+              </div>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-3 rounded-xl border border-[#e8edf5] bg-white px-4 py-3 shadow-[0_4px_12px_rgba(15,23,42,0.05)]">
+            <div className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-xl" style={{ background: '#fff7ed' }}>
+              <svg viewBox="0 0 24 24" className="h-6 w-6" fill="none">
+                <polyline points="23 6 13.5 15.5 8.5 10.5 1 18" stroke="#ea580c" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+                <polyline points="17 6 23 6 23 12" stroke="#ea580c" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            </div>
+            <div className="min-w-0">
+              <div className="text-[11px] text-[#94a3b8] leading-tight">Round-trip Efficiency</div>
+              <div className="text-[17px] font-bold text-[#0f1724] leading-tight">
+                {rtEfficiency}<span className="ml-1 text-[12px] font-medium text-[#64748b]">%</span>
+              </div>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-3 rounded-xl border border-[#e8edf5] bg-white px-4 py-3 shadow-[0_4px_12px_rgba(15,23,42,0.05)]">
+            <div className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-xl" style={{ background: '#f0fdfa' }}>
+              <svg viewBox="0 0 24 24" className="h-6 w-6" fill="none">
+                <path d="M17 1l4 4-4 4M3 11V9a4 4 0 014-4h14M7 23l-4-4 4-4M21 13v2a4 4 0 01-4 4H3" stroke="#0d9488" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            </div>
+            <div className="min-w-0">
+              <div className="text-[11px] text-[#94a3b8] leading-tight">Cumulative Cycles</div>
+              <div className="text-[17px] font-bold text-[#0f1724] leading-tight">{stats.chargeCycles}</div>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-3 rounded-xl border border-[#e8edf5] bg-white px-4 py-3 shadow-[0_4px_12px_rgba(15,23,42,0.05)]">
+            <div className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-xl" style={{ background: '#eef2ff' }}>
+              <svg viewBox="0 0 24 24" className="h-6 w-6" fill="none">
+                <rect x="2" y="7" width="20" height="11" rx="2" stroke="#4f46e5" strokeWidth="1.8" />
+                <path d="M22 11V9a2 2 0 00-2-2" stroke="#4f46e5" strokeWidth="1.8" strokeLinecap="round" />
+                <line x1="6" y1="12" x2="18" y2="12" stroke="#4f46e5" strokeWidth="1.8" strokeLinecap="round" />
+              </svg>
+            </div>
+            <div className="min-w-0">
+              <div className="text-[11px] text-[#94a3b8] leading-tight">Remaining Energy</div>
+              <div className="text-[17px] font-bold text-[#0f1724] leading-tight">
+                {remainingEnergy}<span className="ml-1 text-[12px] font-medium text-[#64748b]">kWh</span>
+              </div>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-3 rounded-xl border border-[#e8edf5] bg-white px-4 py-3 shadow-[0_4px_12px_rgba(15,23,42,0.05)]">
+            <div className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-xl" style={{ background: '#faf5ff' }}>
+              <svg viewBox="0 0 24 24" className="h-6 w-6" fill="none">
+                <path d="M12 2v10l4 2" stroke="#9333ea" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+                <circle cx="12" cy="12" r="10" stroke="#9333ea" strokeWidth="1.8" />
+              </svg>
+            </div>
+            <div className="min-w-0">
+              <div className="text-[11px] text-[#94a3b8] leading-tight">Remaining Discharge Duration</div>
+              <div className="text-[17px] font-bold text-[#0f1724] leading-tight">
+                {remainingDuration}<span className="ml-1 text-[12px] font-medium text-[#64748b]">h</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* ── Power And Energy Curves ── */}
+        <div className="rounded-[16px] border border-[#e6edf5] bg-white px-6 py-5 shadow-[0_4px_16px_rgba(15,23,42,0.05)]">
+          <div className="mb-3 flex items-center justify-between gap-4">
+            <h2 className="text-[20px] font-semibold tracking-tight text-[#101828]">Power And Energy Curves</h2>
+            <DateControl value={selectedDate} onChange={setSelectedDate} />
+          </div>
+          <div className="mb-4">
+            <ChartLegend series={telemetry.series} visibleMap={visibleSeries} onToggle={toggleSeries} onHover={setHoveredSeries} />
+          </div>
+          <div style={{ height: 480 }}>
+            <BESSChartPlot
+              series={filteredSeries}
+              hoverX={hoveredSample?.hour}
+              hoverY={hoveredSample?.bessPower}
+              hoverBottomLabel={hoveredSample ? formatTimeLabel(hoveredSample.hour) : undefined}
+              hoverLeftLabel={hoveredSample ? hoveredSample.bessPower.toFixed(1) : undefined}
+              tooltipTitle={hoveredSample ? formatTimeLabel(hoveredSample.hour) : undefined}
+              tooltipItems={hoveredSample ? tooltip : undefined}
+              onHoverHourChange={setHoveredHour}
+              hoveredSeriesLabel={hoveredSeries}
+              onHoverSeriesChange={setHoveredSeries}
+            />
+          </div>
+        </div>
+
+        {/* Real-time Data */}
+        <div className="mt-5 rounded-[14px] border border-[#e6edf5] bg-white px-6 py-5 shadow-[0_4px_16px_rgba(15,23,42,0.05)]">
+          <h2 className="mb-4 text-[17px] font-semibold text-[#0f1724]">Real-time Data</h2>
+          <div className="grid grid-cols-3 gap-x-10 gap-y-3">
+            {([
+              { label: 'Total Active Power', value: realtime.totalActivePower.toFixed(1), unit: 'kW' },
+              { label: 'Total Reactive Power', value: realtime.totalReactivePower.toFixed(1), unit: 'kVar' },
+              { label: 'Phase A Voltage', value: String(realtime.phaseAVoltage), unit: 'V' },
+              { label: 'Phase B Voltage', value: String(realtime.phaseBVoltage), unit: 'V' },
+              { label: 'Phase C Voltage', value: String(realtime.phaseCVoltage), unit: 'V' },
+              { label: 'Phase A Current', value: String(realtime.phaseACurrent), unit: 'A' },
+              { label: 'Phase B Current', value: String(realtime.phaseBCurrent), unit: 'A' },
+              { label: 'Phase C Current', value: String(realtime.phaseCCurrent), unit: 'A' },
+              { label: 'Frequency', value: frequency, unit: 'Hz' },
+              { label: 'Power Factor', value: realtime.totalPowerFactor.toFixed(3), unit: '' },
+            ] as { label: string; value: string; unit: string }[]).map((field) => (
+              <div key={field.label} className="text-[13px]">
+                <span className="text-[#64748b]">{field.label}: </span>
+                <span className="font-bold text-[#0f1724]">{field.value}</span>
+                {field.unit && <span className="ml-1 text-[#64748b]">{field.unit}</span>}
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Status */}
+        <div className="mt-4 rounded-[14px] border border-[#e6edf5] bg-white px-6 py-5 shadow-[0_4px_16px_rgba(15,23,42,0.05)]">
+          <h2 className="mb-4 text-[17px] font-semibold text-[#0f1724]">Status</h2>
+          <div className="flex flex-wrap items-center gap-12">
+            {PCS_STATUSES.map((s) => (
+              <div key={s.label} className="flex items-center gap-2">
+                <span className={`h-2.5 w-2.5 flex-shrink-0 rounded-full ${s.active ? 'bg-[#22c55e]' : 'bg-[#cbd5e1]'}`} />
+                <span className="text-[13px] text-[#374151]">{s.label}</span>
+              </div>
+            ))}
+          </div>
+        </div>
       </main>
     </DashboardLayout>
   )
 }
+

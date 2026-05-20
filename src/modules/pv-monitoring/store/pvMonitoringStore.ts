@@ -165,6 +165,23 @@ export const usePVMonitoringStore = create<State>((set, get) => {
         return
       }
 
+      // DG detail pages — collapse to a single DG Details slot (keep last visited route)
+      if (route.includes('/monitor/dg/details')) {
+        const idx = current.findIndex((t) => t.route.includes('/monitor/dg/details') || t.label === 'DG Details')
+        if (idx >= 0) {
+          const updated = current.slice()
+          updated[idx] = { label: 'DG Details', route }
+          set({ visitedTabs: updated })
+          if (typeof window !== 'undefined') sessionStorage.setItem('visitedTabs', JSON.stringify(updated))
+          return
+        }
+
+        const updated = [...current, { label: 'DG Details', route }]
+        set({ visitedTabs: updated })
+        if (typeof window !== 'undefined') sessionStorage.setItem('visitedTabs', JSON.stringify(updated))
+        return
+      }
+
       // PCS detail pages — collapse to a single PCS Details slot (keep last visited route)
       if (route.includes('/monitor/pcs/details')) {
         const idx = current.findIndex((t) => t.route.includes('/monitor/pcs/details') || t.label === 'PCS Details')
