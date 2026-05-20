@@ -1,7 +1,5 @@
-import { redirect } from "next/navigation";
+import { redirect } from 'next/navigation'
 
-export default function Home() {
-  // Since AuthWrapper handles authentication,
-  // just redirect to the main app route
-  redirect("/live");
+export default function Page() {
+  redirect('/login')
 }
