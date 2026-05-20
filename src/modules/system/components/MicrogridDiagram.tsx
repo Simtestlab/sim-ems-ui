@@ -2,175 +2,45 @@
 
 import React, { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
+import Image from 'next/image'
 
-/* ─── Isometric SVG Icons ───────────────────────────────────────────────── */
+/* ─── Node icons (PNG assets in /public) ────────────────────────────────── */
+
+const ICON_SHADOW = 'drop-shadow-[0_4px_6px_rgba(15,23,36,0.12)]'
 
 const GridIcon = () => (
-  <svg width="108" height="102" viewBox="0 0 120 112">
-    {/* Tower 1 – front */}
-    <line x1="32" y1="8"  x2="40" y2="92" stroke="#475569" strokeWidth="2.5"/>
-    <line x1="32" y1="8"  x2="24" y2="92" stroke="#475569" strokeWidth="2.5"/>
-    <line x1="29" y1="22" x2="35" y2="22" stroke="#475569" strokeWidth="2"/>
-    <line x1="27" y1="38" x2="37" y2="38" stroke="#475569" strokeWidth="2"/>
-    <line x1="24" y1="58" x2="40" y2="58" stroke="#475569" strokeWidth="2"/>
-    <line x1="21" y1="75" x2="43" y2="75" stroke="#475569" strokeWidth="2"/>
-    <line x1="5"  y1="22" x2="59" y2="22" stroke="#475569" strokeWidth="2.5"/>
-    <line x1="8"  y1="38" x2="56" y2="38" stroke="#475569" strokeWidth="2"/>
-    <path d="M5,22 Q15,30 25,22"  stroke="#94a3b8" strokeWidth="1" fill="none"/>
-    <path d="M45,22 Q55,30 59,22" stroke="#94a3b8" strokeWidth="1" fill="none"/>
-    <line x1="20" y1="92" x2="12" y2="100" stroke="#475569" strokeWidth="2"/>
-    <line x1="28" y1="92" x2="28" y2="100" stroke="#475569" strokeWidth="2"/>
-    <line x1="36" y1="92" x2="44" y2="100" stroke="#475569" strokeWidth="2"/>
-    {/* Tower 2 – back */}
-    <g opacity="0.55">
-      <line x1="80" y1="5"  x2="88" y2="88" stroke="#94a3b8" strokeWidth="2"/>
-      <line x1="80" y1="5"  x2="72" y2="88" stroke="#94a3b8" strokeWidth="2"/>
-      <line x1="77" y1="18" x2="83" y2="18" stroke="#94a3b8" strokeWidth="1.5"/>
-      <line x1="75" y1="33" x2="85" y2="33" stroke="#94a3b8" strokeWidth="1.5"/>
-      <line x1="72" y1="52" x2="88" y2="52" stroke="#94a3b8" strokeWidth="1.5"/>
-      <line x1="69" y1="70" x2="91" y2="70" stroke="#94a3b8" strokeWidth="1.5"/>
-      <line x1="58" y1="18" x2="102" y2="18" stroke="#94a3b8" strokeWidth="2"/>
-      <line x1="61" y1="33" x2="99"  y2="33" stroke="#94a3b8" strokeWidth="1.5"/>
-      <line x1="68" y1="88" x2="60" y2="96" stroke="#94a3b8" strokeWidth="1.5"/>
-      <line x1="76" y1="88" x2="76" y2="96" stroke="#94a3b8" strokeWidth="1.5"/>
-      <line x1="84" y1="88" x2="92" y2="96" stroke="#94a3b8" strokeWidth="1.5"/>
-    </g>
-    <ellipse cx="32" cy="103" rx="22" ry="3"  fill="#e2e8f0" opacity="0.9"/>
-    <ellipse cx="80" cy="98"  rx="18" ry="2.5" fill="#e2e8f0" opacity="0.5"/>
-  </svg>
+  <Image src="/grid-icon.png" alt="Grid" width={170} height={160}
+    className={`${ICON_SHADOW} object-contain`} priority />
 )
 
 const FactoryIcon = () => (
-  <svg width="100" height="86" viewBox="0 0 115 100">
-    <polygon points="50,8 95,26 50,48 5,30"    fill="#e2e8f0"/>
-    <polygon points="5,30 50,48 50,88 5,70"    fill="#cbd5e1"/>
-    <polygon points="50,48 95,26 95,66 50,88"  fill="#94a3b8"/>
-    <polygon points="12,26 42,37 56,31 26,20"  fill="#f1f5f9"/>
-    <polygon points="42,37 72,48 86,42 56,31"  fill="#f1f5f9"/>
-    <polygon points="12,42 26,48 26,60 12,54"  fill="#1e3a8a" opacity="0.7"/>
-    <polygon points="30,48 44,54 44,66 30,60"  fill="#1e3a8a" opacity="0.7"/>
-    <polygon points="56,56 70,50 70,62 56,68"  fill="#1e3a8a" opacity="0.7"/>
-    <polygon points="74,50 88,44 88,56 74,62"  fill="#1e3a8a" opacity="0.7"/>
-    <polygon points="81,10 88,13 88,26 81,23"  fill="#64748b"/>
-    <polygon points="75,13 81,10 81,23 75,20"  fill="#94a3b8"/>
-    <ellipse cx="50" cy="90" rx="46" ry="5" fill="#e2e8f0" opacity="0.7"/>
-  </svg>
+  <Image src="/load-icon.png" alt="Load" width={160} height={140}
+    className={`${ICON_SHADOW} object-contain`} priority />
 )
 
 const DgIcon = () => (
-  <svg width="94" height="78" viewBox="0 0 110 90">
-    <polygon points="45,8 82,22 45,40 8,26"   fill="#fbbf24"/>
-    <polygon points="8,26 45,40 45,72 8,58"   fill="#d97706"/>
-    <polygon points="45,40 82,22 82,54 45,72" fill="#b45309"/>
-    <polygon points="14,30 36,38 36,54 14,46" fill="#1e293b"/>
-    <line x1="17" y1="34" x2="33" y2="40" stroke="#475569" strokeWidth="1.5"/>
-    <line x1="17" y1="38" x2="33" y2="44" stroke="#475569" strokeWidth="1.5"/>
-    <line x1="17" y1="42" x2="33" y2="48" stroke="#475569" strokeWidth="1.5"/>
-    <rect x="74" y="8" width="5" height="18" rx="2" fill="#475569"/>
-    <ellipse cx="76" cy="8" rx="4" ry="2" fill="#64748b"/>
-    <circle cx="18" cy="69" r="8" fill="#1e293b"/>
-    <circle cx="18" cy="69" r="3.5" fill="#475569"/>
-    <circle cx="62" cy="62" r="7" fill="#1e293b"/>
-    <circle cx="62" cy="62" r="3"   fill="#475569"/>
-    <line x1="6" y1="36" x2="6" y2="56" stroke="#64748b" strokeWidth="3"/>
-    <ellipse cx="45" cy="74" rx="38" ry="4" fill="#e2e8f0" opacity="0.6"/>
-  </svg>
+  <Image src="/genset-icon.png" alt="Diesel Generator" width={150} height={125}
+    className={`${ICON_SHADOW} object-contain`} priority />
 )
 
 const SwitchIcon = () => (
-  <svg width="50" height="60" viewBox="0 0 60 70">
-    <polygon points="30,6 48,14 30,22 12,14"  fill="#e2e8f0"/>
-    <polygon points="12,14 30,22 30,56 12,48" fill="#cbd5e1"/>
-    <polygon points="30,22 48,14 48,48 30,56" fill="#94a3b8"/>
-    <polygon points="15,22 30,28 30,46 15,40" fill="#64748b"/>
-    <polygon points="30,28 44,22 44,40 30,46" fill="#475569"/>
-    <rect x="20" y="10" width="5" height="8" rx="1" fill="#475569"/>
-    <rect x="34" y="8"  width="5" height="8" rx="1" fill="#475569"/>
-    <circle cx="30" cy="18" r="5"   fill="#22c55e"/>
-    <circle cx="30" cy="18" r="2.5" fill="#16a34a"/>
-    <ellipse cx="30" cy="58" rx="22" ry="3" fill="#e2e8f0" opacity="0.5"/>
-  </svg>
+  <Image src="/switch-icon.png" alt="Switch" width={80} height={96}
+    className={`${ICON_SHADOW} object-contain`} priority />
 )
 
 const EvIcon = () => (
-  <svg width="90" height="98" viewBox="0 0 102 112">
-    {/* Charging column */}
-    <polygon points="22,5 35,10 22,18 9,13"  fill="#e2e8f0"/>
-    <polygon points="9,13 22,18 22,68 9,63"  fill="#cbd5e1"/>
-    <polygon points="22,18 35,10 35,60 22,68" fill="#94a3b8"/>
-    <polygon points="12,20 22,24 22,40 12,36" fill="#0ea5e9"/>
-    <polygon points="19,24 16,31 18,31 15,38 23,29 21,29" fill="#fbbf24"/>
-    <circle cx="28" cy="54" r="4" fill="#475569"/>
-    <circle cx="28" cy="54" r="2" fill="#64748b"/>
-    <path d="M28,58 Q40,64 55,66" stroke="#475569" strokeWidth="2.5" fill="none" strokeLinecap="round"/>
-    {/* Car */}
-    <g transform="translate(30,56)">
-      <polygon points="30,5 60,16 30,30 0,19"  fill="#f8fafc"/>
-      <polygon points="0,19 30,30 30,44 0,33"  fill="#e2e8f0"/>
-      <polygon points="30,30 60,16 60,28 30,44" fill="#cbd5e1"/>
-      <polygon points="8,18 22,23 22,30 8,25"  fill="#93c5fd"/>
-      <polygon points="35,23 48,18 48,25 35,29" fill="#93c5fd"/>
-      <circle cx="8"  cy="40" r="6"   fill="#1e293b"/>
-      <circle cx="8"  cy="40" r="2.5" fill="#475569"/>
-      <circle cx="48" cy="34" r="6"   fill="#1e293b"/>
-      <circle cx="48" cy="34" r="2.5" fill="#475569"/>
-    </g>
-    <ellipse cx="55" cy="104" rx="46" ry="5" fill="#e2e8f0" opacity="0.5"/>
-  </svg>
+  <Image src="/ev-icon.png" alt="EV Charger" width={140} height={155}
+    className={`${ICON_SHADOW} object-contain`} priority />
 )
 
 const PvIcon = () => (
-  <svg width="110" height="86" viewBox="0 0 126 100">
-    <polygon points="62,5 112,22 62,45 12,28"  fill="#1d4ed8"/>
-    <polygon points="12,28 62,45 62,58 12,41"  fill="#1e3a8a"/>
-    <line x1="22" y1="11"  x2="72" y2="28"  stroke="#3b82f6" strokeWidth="1.5" opacity="0.85"/>
-    <line x1="37" y1="17"  x2="87" y2="34"  stroke="#3b82f6" strokeWidth="1.5" opacity="0.85"/>
-    <line x1="52" y1="23"  x2="102" y2="40" stroke="#3b82f6" strokeWidth="1.5" opacity="0.85"/>
-    <line x1="112" y1="22" x2="62" y2="5"   stroke="#3b82f6" strokeWidth="1"   opacity="0.5"/>
-    <line x1="92"  y1="29" x2="42" y2="12"  stroke="#3b82f6" strokeWidth="1"   opacity="0.5"/>
-    <line x1="72"  y1="36" x2="22" y2="19"  stroke="#3b82f6" strokeWidth="1"   opacity="0.5"/>
-    <polygon points="12,28 37,37 37,28 12,19" fill="#60a5fa" opacity="0.2"/>
-    <line x1="24" y1="47" x2="24" y2="70" stroke="#94a3b8" strokeWidth="3"/>
-    <line x1="62" y1="55" x2="62" y2="78" stroke="#94a3b8" strokeWidth="3"/>
-    <line x1="100" y1="47" x2="100" y2="70" stroke="#94a3b8" strokeWidth="3"/>
-    <line x1="14" y1="70" x2="34"  y2="70" stroke="#94a3b8" strokeWidth="3.5"/>
-    <line x1="52" y1="78" x2="72"  y2="78" stroke="#94a3b8" strokeWidth="3.5"/>
-    <line x1="90" y1="70" x2="110" y2="70" stroke="#94a3b8" strokeWidth="3.5"/>
-    <ellipse cx="62" cy="84" rx="56" ry="6" fill="#e2e8f0" opacity="0.6"/>
-  </svg>
+  <Image src="/solar-icon.png" alt="Photovoltaic" width={175} height={140}
+    className={`${ICON_SHADOW} object-contain`} priority />
 )
 
 const BessIcon = () => (
-  <svg width="108" height="88" viewBox="0 0 122 100">
-    <g transform="translate(2,5)">
-      {/* Cabinet 1 */}
-      <polygon points="22,12 42,20 22,32 2,24"  fill="#64748b"/>
-      <polygon points="2,24 22,32 22,72 2,64"   fill="#334155"/>
-      <polygon points="22,32 42,20 42,60 22,72" fill="#475569"/>
-      <rect x="6"  y="34" width="10" height="20" rx="1" fill="#475569"/>
-      <rect x="8"  y="36" width="6"  height="8"  rx="1" fill="#94a3b8"/>
-      <circle cx="11" cy="52" r="2" fill="#22c55e"/>
-      {/* Cabinet 2 */}
-      <polygon points="42,8 62,16 42,28 22,20"  fill="#64748b"/>
-      <polygon points="22,20 42,28 42,68 22,60"  fill="#334155"/>
-      <polygon points="42,28 62,16 62,56 42,68" fill="#475569"/>
-      <rect x="26" y="30" width="10" height="20" rx="1" fill="#475569"/>
-      <rect x="28" y="32" width="6"  height="8"  rx="1" fill="#94a3b8"/>
-      <circle cx="31" cy="48" r="2" fill="#22c55e"/>
-      {/* Cabinet 3 */}
-      <polygon points="62,4 82,12 62,24 42,16"  fill="#64748b"/>
-      <polygon points="42,16 62,24 62,64 42,56"  fill="#334155"/>
-      <polygon points="62,24 82,12 82,52 62,64" fill="#475569"/>
-      <rect x="46" y="26" width="10" height="20" rx="1" fill="#475569"/>
-      <rect x="48" y="28" width="6"  height="8"  rx="1" fill="#94a3b8"/>
-      <circle cx="51" cy="44" r="2" fill="#22c55e"/>
-      {/* Roof tint */}
-      <polygon points="2,24 22,12 42,8 22,20"  fill="#60a5fa" opacity="0.35"/>
-      <polygon points="22,20 42,8 62,4 42,16"  fill="#60a5fa" opacity="0.35"/>
-      <polygon points="42,16 62,4 82,12 62,12" fill="#60a5fa" opacity="0.35"/>
-      <ellipse cx="42" cy="74" rx="46" ry="5" fill="#e2e8f0" opacity="0.7"/>
-    </g>
-  </svg>
+  <Image src="/bess-icon.png" alt="BESS" width={170} height={140}
+    className={`${ICON_SHADOW} object-contain`} priority />
 )
 
 /* ─── Telemetry label ────────────────────────────────────────────────────── */
@@ -232,24 +102,36 @@ const Label = ({ title, p, q, soc, status, align = 'right' }: LabelProps) => (
 const W = 1400
 const H = 680
 
-// Path connection points to trace the exact isometric topology
+// 2D-isometric layout. Main bus diagonal: y = -0.5x + 665 (slope -0.5,
+// bottom-left → top-right). All branches use slope +0.5 (the perpendicular
+// isometric axis). Every line below has slope ±0.5 by construction.
 const P = {
-  grid_out:  { x: 220, y: 440 },
-  grid_turn: { x: 280, y: 470 },
-  sw_in:     { x: 410, y: 470 },
-  sw_out:    { x: 460, y: 470 },
-  j1:        { x: 650, y: 375 },
-  load_in:   { x: 500, y: 300 },
-  ev_in:     { x: 750, y: 425 },
-  j2:        { x: 850, y: 275 },
-  dg_in:     { x: 730, y: 215 },
-  pv_in:     { x: 1000, y: 350 },
-  bess_turn: { x: 950, y: 225 },
-  bess_in:   { x: 1100, y: 225 },
+  grid_out:  { x: 250, y: 540 },   // right-mid of Grid icon (on main diagonal)
+  sw_in:     { x: 350, y: 490 },   // left edge of Switch  (on main diagonal)
+  sw_out:    { x: 430, y: 450 },   // right edge of Switch (on main diagonal)
+  j1:        { x: 570, y: 380 },   // junction 1            (on main diagonal)
+  load_in:   { x: 390, y: 290 },   // bottom-right of Load  (branch slope +0.5)
+  ev_in:     { x: 750, y: 470 },   // top-left of EV        (branch slope +0.5)
+  j2:        { x: 870, y: 230 },   // junction 2            (on main diagonal)
+  dg_in:     { x: 690, y: 140 },   // bottom-right of DG    (branch slope +0.5)
+  pv_in:     { x: 1050, y: 320 },  // top-left of PV        (branch slope +0.5)
+  bess_turn: { x: 1000, y: 165 },  // collinear intermediate (on main diagonal)
+  bess_in:   { x: 1130, y: 100 },  // left-mid of BESS      (on main diagonal)
 }
 
 const toLeft = (x: number) => `${(x / W * 100).toFixed(3)}%`
 const toTop  = (y: number) => `${(y / H * 100).toFixed(3)}%`
+
+// Approximate polyline length (sum of segment distances). Used to give every
+// path the same arrow VELOCITY rather than the same arrow DURATION — so short
+// segments don't crawl while long ones sprint.
+const polylineLength = (points: {x: number, y: number}[]) => {
+  let len = 0
+  for (let i = 0; i < points.length - 1; i++) {
+    len += Math.hypot(points[i + 1].x - points[i].x, points[i + 1].y - points[i].y)
+  }
+  return len
+}
 
 // Helper to draw paths with rounded corners
 const roundedPath = (points: {x: number, y: number}[], radius = 12) => {
@@ -345,7 +227,7 @@ export default function MicrogridDiagram() {
 
   // Explicit isometric flow paths matching the UI reference
   const paths = [
-    { id: 'grid-sw',   points: [P.grid_out, P.grid_turn, P.sw_in], active: true, rev: data.grid.p < 0 },
+    { id: 'grid-sw',   points: [P.grid_out, P.sw_in], active: true, rev: data.grid.p < 0 },
     { id: 'sw-jct1',   points: [P.sw_out, P.j1], active: true, rev: false },
     { id: 'jct1-load', points: [P.j1, P.load_in], active: true, rev: false },
     { id: 'jct1-ev',   points: [P.j1, P.ev_in], active: data.ev.p > 0, rev: false },
@@ -365,23 +247,17 @@ export default function MicrogridDiagram() {
         viewBox={`0 0 ${W} ${H}`}
         preserveAspectRatio="none"
       >
-        <defs>
-          <filter id="glow" x="-30%" y="-30%" width="160%" height="160%">
-            <feGaussianBlur stdDeviation="2.5" result="b"/>
-            <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
-          </filter>
-        </defs>
-
-        {/* Isometric flow lines with rounded corners */}
+        {/* Flow lines with rounded corners */}
         {paths.map(path => {
-          const d = roundedPath(path.points, 12)
+          const d = roundedPath(path.points, 14)
           return (
             <g key={path.id}>
               <path
                 d={d}
                 stroke={path.active ? '#86efac' : '#e2e8f0'}
-                strokeWidth={path.active ? 3.5 : 2.5}
+                strokeWidth={path.active ? 2.5 : 2}
                 strokeLinecap="round"
+                strokeLinejoin="round"
                 fill="none"
               />
               {path.active && (
@@ -391,55 +267,65 @@ export default function MicrogridDiagram() {
           )
         })}
 
-        {/* Animated flow arrows */}
-        {mounted && paths.filter(p => p.active).map(path => (
-          <React.Fragment key={`a_${path.id}`}>
-            {/* Arrow 1 */}
-            <polygon points="-9,-5 9,0 -9,5" fill="#22c55e" filter="url(#glow)">
-              <animateMotion dur="1.8s" repeatCount="indefinite" rotate="auto"
-                keyPoints={path.rev ? '1;0' : '0;1'} keyTimes="0;1" calcMode="linear">
-                <mpath href={`#p_${path.id}`}/>
-              </animateMotion>
-            </polygon>
-            {/* Arrow 2 – offset by 0.6s */}
-            <polygon points="-9,-5 9,0 -9,5" fill="#22c55e" filter="url(#glow)" opacity="0.7">
-              <animateMotion dur="1.8s" repeatCount="indefinite" rotate="auto"
-                keyPoints={path.rev ? '1;0' : '0;1'} keyTimes="0;1" calcMode="linear" begin="0.6s">
-                <mpath href={`#p_${path.id}`}/>
-              </animateMotion>
-            </polygon>
-            {/* Arrow 3 – offset by 1.2s */}
-            <polygon points="-9,-5 9,0 -9,5" fill="#22c55e" filter="url(#glow)" opacity="0.4">
-              <animateMotion dur="1.8s" repeatCount="indefinite" rotate="auto"
-                keyPoints={path.rev ? '1;0' : '0;1'} keyTimes="0;1" calcMode="linear" begin="1.2s">
-                <mpath href={`#p_${path.id}`}/>
-              </animateMotion>
-            </polygon>
-          </React.Fragment>
-        ))}
+        {/* Animated flow arrows – uniform velocity, evenly spaced per path */}
+        {mounted && paths.filter(p => p.active).map(path => {
+          const len = polylineLength(path.points)
+          const SPEED = 170           // px / second along the path
+          const SPACING = 130         // approx distance between successive arrows
+          const dur = Math.max(0.6, len / SPEED)
+          const count = Math.max(1, Math.round(len / SPACING))
+          return (
+            <React.Fragment key={`a_${path.id}`}>
+              {Array.from({ length: count }).map((_, i) => (
+                <polygon
+                  key={i}
+                  points="-5,-3 4,0 -5,3"
+                  fill="#16a34a"
+                >
+                  <animateMotion
+                    dur={`${dur}s`}
+                    repeatCount="indefinite"
+                    rotate="auto"
+                    keyPoints={path.rev ? '1;0' : '0;1'}
+                    keyTimes="0;1"
+                    calcMode="linear"
+                    begin={`-${((i * dur) / count).toFixed(3)}s`}
+                  >
+                    <mpath href={`#p_${path.id}`}/>
+                  </animateMotion>
+                </polygon>
+              ))}
+            </React.Fragment>
+          )
+        })}
       </svg>
 
       {/* ── Node: Grid ────────────────────────────────────────── */}
+      {/* Icon 170×160. Right-mid (250, 540) = P.grid_out. */}
       <div className="absolute flex items-center gap-3"
-        style={{ left: toLeft(110), top: toTop(340) }}>
+        style={{ left: toLeft(80), top: toTop(460) }}>
         <GridIcon/>
         <Label title="Grid" p={data.grid.p} q={data.grid.q}/>
       </div>
 
       {/* ── Node: Load ────────────────────────────────────────── */}
-      <div className="absolute flex items-center gap-2 cursor-pointer group"
-        style={{ right: `calc(100% - ${toLeft(510)})`, top: toTop(215) }}
+      {/* Icon 160×140. Bottom-right (390, 290) = P.load_in. Label sits left of icon. */}
+      <div className="absolute cursor-pointer group"
+        style={{ left: toLeft(230), top: toTop(150) }}
         onClick={() => router.push('/monitor/meter')}
         title="Go to Meter">
-        <Label title="Load" p={data.load.p} q={data.load.q} align="left"/>
         <div className="transition-transform group-hover:scale-105"><FactoryIcon/></div>
+        <div className="absolute right-full top-1/2 -translate-y-1/2 mr-2 whitespace-nowrap">
+          <Label title="Load" p={data.load.p} q={data.load.q} align="left"/>
+        </div>
       </div>
 
       {/* ── Node: Switch ──────────────────────────────────────── */}
-      <div className="absolute flex flex-col items-center gap-0.5"
-        style={{ left: toLeft(410), top: toTop(430) }}>
+      {/* Icon 80×96. Diagonal crosses through: P.sw_in (350,490) at left edge,
+          P.sw_out (430,450) at right edge. Label hangs below. */}
+      <div className="absolute" style={{ left: toLeft(350), top: toTop(422) }}>
         <SwitchIcon/>
-        <div className="text-center -mt-0.5">
+        <div className="absolute left-1/2 -translate-x-1/2 top-full mt-0.5 text-center whitespace-nowrap">
           <div className="text-[12px] font-bold text-[#0f1724]">Switch</div>
           <div className="flex items-center justify-center gap-1">
             <span className="w-1.5 h-1.5 rounded-full bg-[#22c55e]"/>
@@ -449,17 +335,21 @@ export default function MicrogridDiagram() {
       </div>
 
       {/* ── Node: DG ─────────────────────────────────────────── */}
-      <div className="absolute flex items-center gap-2 cursor-pointer group"
-        style={{ right: `calc(100% - ${toLeft(740)})`, top: toTop(140) }}
+      {/* Icon 150×125. Bottom-right (690, 140) = P.dg_in. Label sits left of icon. */}
+      <div className="absolute cursor-pointer group"
+        style={{ left: toLeft(540), top: toTop(15) }}
         onClick={() => setModal('dg')}
         title="Genset Details">
-        <Label title="DG (1)" p={data.dg.p} q={data.dg.q} align="left"/>
         <div className="transition-transform group-hover:scale-105"><DgIcon/></div>
+        <div className="absolute right-full top-1/2 -translate-y-1/2 mr-2 whitespace-nowrap">
+          <Label title="DG (1)" p={data.dg.p} q={data.dg.q} align="left"/>
+        </div>
       </div>
 
       {/* ── Node: EV ─────────────────────────────────────────── */}
+      {/* Icon 140×155. Top-left (750, 470) = P.ev_in. */}
       <div className="absolute flex items-end gap-2 cursor-pointer group"
-        style={{ left: toLeft(725), top: toTop(355) }}
+        style={{ left: toLeft(750), top: toTop(470) }}
         onClick={() => setModal('ev')}
         title="EV Charger Details">
         <div className="transition-transform group-hover:scale-105"><EvIcon/></div>
@@ -467,8 +357,9 @@ export default function MicrogridDiagram() {
       </div>
 
       {/* ── Node: PV ─────────────────────────────────────────── */}
+      {/* Icon 175×140. Top-left (1050, 320) = P.pv_in. */}
       <div className="absolute flex items-center gap-2 cursor-pointer group"
-        style={{ left: toLeft(945), top: toTop(270) }}
+        style={{ left: toLeft(1050), top: toTop(320) }}
         onClick={() => setModal('pv')}
         title="PV Details">
         <div className="transition-transform group-hover:scale-105"><PvIcon/></div>
@@ -476,8 +367,9 @@ export default function MicrogridDiagram() {
       </div>
 
       {/* ── Node: BESS ───────────────────────────────────────── */}
+      {/* Icon 170×140. Left-mid (1130, 100) = P.bess_in. */}
       <div className="absolute flex items-center gap-2 cursor-pointer group"
-        style={{ left: toLeft(1090), top: toTop(175) }}
+        style={{ left: toLeft(1130), top: toTop(30) }}
         onClick={() => setModal('bess')}
         title="BESS Details">
         <div className="transition-transform group-hover:scale-105"><BessIcon/></div>
@@ -539,16 +431,8 @@ export default function MicrogridDiagram() {
                   <div className="flex justify-around w-full mb-0">
                     {[1, 2].map(i => (
                       <div key={i} className="flex flex-col items-center gap-1">
-                        <svg width="68" height="62" viewBox="0 0 80 72">
-                          <polygon points="40,5 64,15 40,26 16,16" fill="#64748b"/>
-                          <polygon points="16,16 40,26 40,60 16,50" fill="#334155"/>
-                          <polygon points="40,26 64,15 64,49 40,60" fill="#475569"/>
-                          <rect x="20" y="30" width="14" height="20" rx="1" fill="#475569"/>
-                          <rect x="21" y="31" width="10" height="10" rx="1" fill="#94a3b8"/>
-                          <circle cx="25" cy="49" r="3" fill="#22c55e"/>
-                          <polygon points="16,16 40,5 64,15 40,26" fill="#60a5fa" opacity="0.28"/>
-                          <ellipse cx="40" cy="62" rx="30" ry="4" fill="#e2e8f0" opacity="0.6"/>
-                        </svg>
+                        <Image src="/bess-icon.png" alt="BESS" width={110} height={92}
+                          className={`${ICON_SHADOW} object-contain`} />
                         <div className="text-[13px] font-bold text-[#0f1724]">{i}#PCS</div>
                         <div className="flex items-center gap-1.5">
                           <span className="w-2 h-2 rounded-full bg-[#22c55e]"/>
