@@ -20,7 +20,7 @@ export default function Page() {
       statusBar={
         <>
           <SettingsPageHeader
-            siteName="Demo"
+            siteName="Gvault"
             operatingMode="Auto"
             remoteControl="Enable"
             currentModeRuntime="3 Days 9 Hours 8 Minutes"

@@ -39,7 +39,7 @@ const COLUMNS: { key: keyof StationRow; label: string; defaultWidth: number }[] 
 
 const SAMPLE_ROWS: StationRow[] = [
   {
-    id: '37', name: 'Demo', abbreviation: '', aggregated: 'Normal Station', parent: '—', code: 'Demo',
+    id: '37', name: 'Gvault', abbreviation: '', aggregated: 'Normal Station', parent: '—', code: 'Gvault',
     address: '', type: 'PV+storage', status: 'In Operation', operationDate: '2026-03-18', capacityKw: '100', sorting: '10', version: 'New Version'
   }
 ]

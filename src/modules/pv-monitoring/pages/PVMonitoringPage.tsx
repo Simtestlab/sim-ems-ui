@@ -41,8 +41,8 @@ export default function PVMonitoringPage() {
 
   const data = useMemo<InverterData[]>(
     () => [
-      { id: 1, title: '1#Inverter', status: 'normal', branch: 'normal', location: 'Demo Site', activePower: '95.94', dailyEnergy: '311.5', loadRatio: '76.75', dailyEffective: '3.69' },
-      { id: 2, title: '2#Inverter', status: 'normal', branch: 'normal', location: 'Demo Site', activePower: '78.48', dailyEnergy: '254.8', loadRatio: '62.78', dailyEffective: '3.69' },
+      { id: 1, title: '1#Inverter', status: 'normal', branch: 'normal', location: 'Gvault Site', activePower: '95.94', dailyEnergy: '311.5', loadRatio: '76.75', dailyEffective: '3.69' },
+      { id: 2, title: '2#Inverter', status: 'normal', branch: 'normal', location: 'Gvault Site', activePower: '78.48', dailyEnergy: '254.8', loadRatio: '62.78', dailyEffective: '3.69' },
     ],
     [],
   )

@@ -179,57 +179,79 @@ export default function MicrogridDiagram() {
   useEffect(() => {
     setMounted(true)
 
-    // Realistic EMS simulation tied to wall-clock hour-of-day.
+    // Fast-forwarded 24-hour simulation: each 2s tick advances 15 simulated minutes,
+    // so a full day cycles in 192 seconds. Start at 8 AM (factory shift begins).
+    let simulatedHour = 8
+
     const tick = setInterval(() => {
+      simulatedHour += 0.25
+      if (simulatedHour >= 24) simulatedHour = 0
+
       setData(prev => {
-        // Calculate current fractional hour (0.0 to 23.99)
-        const now = new Date()
-        const hour = now.getHours() + now.getMinutes() / 60 + now.getSeconds() / 3600
-
-        // 1. PV (Solar): Bell curve 6 AM to 6 PM, peaking at 200kW at noon. Cloud noise.
+        // 1. PV Generation (bell curve 06:00–18:00, peak 200kW at noon, ±5kW cloud noise)
         let pvBase = 0
-        if (hour > 6 && hour < 18) {
-          pvBase = 200 * Math.sin(((hour - 6) / 12) * Math.PI)
+        if (simulatedHour > 6 && simulatedHour < 18) {
+          pvBase = 200 * Math.sin(((simulatedHour - 6) / 12) * Math.PI)
         }
-        const pvP = +(Math.max(0, pvBase + (Math.random() * 10 - 5))).toFixed(2)
+        const pvP = Math.max(0, pvBase + (Math.random() * 10 - 5))
 
-        // 2. Load: Factory base 60kW, ramps to 150kW during working hours (8 AM - 6 PM).
-        const loadBase = (hour >= 8 && hour <= 18) ? 150 : 60
-        const loadP = +(loadBase + (Math.random() * 8 - 4)).toFixed(2)
+        // 2. Factory Load (60kW base, 150kW during 08:00–18:00 shift)
+        const isWorkingHour = simulatedHour >= 8 && simulatedHour <= 18
+        const loadBase = isWorkingHour ? 150 : 60
+        const loadP = loadBase + (Math.random() * 10 - 5)
 
-        // 3. EV: Cars plugged in and charging between 9 AM and 2 PM.
-        const evBase = (hour >= 9 && hour <= 14) ? 50 : 0
-        const evP = +(evBase + (evBase > 0 ? (Math.random() * 4 - 2) : 0)).toFixed(2)
+        // 3. EV Fleet Charging (50kW between 09:00 and 14:00)
+        const isEvCharging = simulatedHour >= 9 && simulatedHour <= 14
+        const evP = isEvCharging ? 50 + (Math.random() * 4 - 2) : 0
 
-        // 4. BESS Logic: Smart EMS.
-        //    Excess solar → charge (negative P). Deficit → discharge (positive P).
-        const netDemand = loadP + evP - pvP
+        // 4. Initial net demand (before storage + generator dispatch).
+        //    Positive = deficit. Negative = excess solar.
+        let netDemand = loadP + evP - pvP
+
+        // 5. BESS dispatch
         let bessP = 0
         let newSoc = prev.bess.soc
+        const maxBessPower = 100
 
         if (netDemand < 0 && prev.bess.soc < 100) {
-          bessP = Math.max(netDemand, -100)        // cap charge rate at 100kW
-          newSoc = Math.min(100, prev.bess.soc + 0.05)
+          // CHARGING — absorb excess solar (bessP is negative).
+          bessP = Math.max(netDemand, -maxBessPower)
+          newSoc = Math.min(100, prev.bess.soc - (bessP * 0.05))
+          netDemand -= bessP
         } else if (netDemand > 0 && prev.bess.soc > 10) {
-          bessP = Math.min(netDemand, 100)         // cap discharge rate at 100kW
-          newSoc = Math.max(10, prev.bess.soc - 0.05)
+          // DISCHARGING — cover deficit (bessP is positive).
+          bessP = Math.min(netDemand, maxBessPower)
+          newSoc = Math.max(10, prev.bess.soc - (bessP * 0.05))
+          netDemand -= bessP
         }
-        bessP = +bessP.toFixed(2)
-        newSoc = +newSoc.toFixed(1)
 
-        // 5. Grid: slack variable. + = importing, − = exporting.
-        const gridP = +(loadP + evP - pvP - bessP).toFixed(2)
+        // 6. Diesel Generator — backup only when SOC critical and deficit remains.
+        let dgP = 0
+        if (newSoc < 15 && netDemand > 20) {
+          dgP = Math.min(netDemand, 150)
+          netDemand -= dgP
+        }
 
-        // DG stays offline in this scenario (would be standby for outages).
-        const dgP = 0
+        // 7. Grid — slack variable. + = importing, − = exporting.
+        const gridP = netDemand
+
+        const format = (val: number) => +(Math.round(val * 100) / 100).toFixed(2)
 
         return {
-          grid: { p: gridP, q: +(gridP * 0.062).toFixed(2) },
-          load: { p: loadP, q: +(loadP * 0.125).toFixed(2) },
-          dg:   { p: dgP,   q: +(dgP   * 0.080).toFixed(2) },
-          ev:   { p: evP,   q: +(evP   * 0.095).toFixed(2) },
-          pv:   { p: pvP,   q: +(pvP   * 0.104).toFixed(2) },
-          bess: { p: bessP, q: +(bessP * 0.076).toFixed(2), soc: newSoc, status: 'Normal' },
+          grid: { p: format(gridP), q: format(gridP * 0.05) },
+          load: { p: format(loadP), q: format(loadP * 0.12) },
+          dg:   { p: format(dgP),   q: format(dgP   * 0.08) },
+          ev:   { p: format(evP),   q: format(evP   * 0.09) },
+          pv:   { p: format(pvP),   q: format(pvP   * 0.10) },
+          bess: {
+            p: format(bessP),
+            q: format(bessP * 0.07),
+            soc: format(newSoc),
+            status: newSoc <= 10 ? 'Depleted'
+                  : bessP < 0   ? 'Charging'
+                  : bessP > 0   ? 'Discharging'
+                                : 'Standby',
+          },
         }
       })
     }, 2000)

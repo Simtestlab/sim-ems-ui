@@ -1,5 +1,5 @@
 export const appConfig = {
-  name: 'EMS Platform',
-  description: 'Energy Management System',
+  name: 'Gvault EMS',
+  description: 'Gvault Energy Management System',
   version: '1.0.0',
 }

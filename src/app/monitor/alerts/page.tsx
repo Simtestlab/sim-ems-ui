@@ -17,17 +17,17 @@ type AlertRow = {
 }
 
 const SAMPLE: AlertRow[] = [
-  { station: 'Demo', eventTime: '2026-05-14 08:20:35', deviceSN: 'EV-001', eventLevel: 'Alert', deviceType: 'EV Charger', eventContent: 'Charging session started at...', eventType: 'EV_START_CHARGE', action: 'Happen' },
-  { station: 'Demo', eventTime: '2026-05-14 07:20:35', deviceSN: 'PCS-001', eventLevel: 'Normal', deviceType: 'PCS', eventContent: 'PCS entered standby mode...', eventType: 'PCS_MODE_CHANGE', action: 'Happen' },
-  { station: 'Demo', eventTime: '2026-05-14 04:20:35', deviceSN: 'DB-GRID-37', eventLevel: 'Alert', deviceType: 'Meter', eventContent: 'Grid import exceeded 180 k...', eventType: 'GRID_IMPORT_HIGH', action: 'Happen' },
-  { station: 'Demo', eventTime: '2026-05-14 02:20:35', deviceSN: 'BC-01-01-37', eventLevel: 'Normal', deviceType: 'BESS', eventContent: 'Cell voltage spread reache...', eventType: 'BMS_VOLTAGE_SPREAD', action: 'Disappear' },
-  { station: 'Demo', eventTime: '2026-05-13 23:20:35', deviceSN: 'NBQ-001', eventLevel: 'Alert', deviceType: 'Inverter', eventContent: 'PV inverter output dropped ...', eventType: 'PV_OUTPUT_DEVIATION', action: 'Happen' },
-  { station: 'Demo', eventTime: '2026-05-13 19:20:35', deviceSN: 'DB-BESS-01-37', eventLevel: 'Normal', deviceType: 'Meter', eventContent: 'Reactive power fluctuation ...', eventType: 'PQ_REACTIVE_RECOVER', action: 'Disappear' },
-  { station: 'Demo', eventTime: '2026-05-13 15:20:35', deviceSN: 'PCS-002', eventLevel: 'Faulty', deviceType: 'PCS', eventContent: 'PCS DC bus voltage deviat...', eventType: 'PCS_DCBUS_WARN', action: 'Happen' },
+  { station: 'Gvault', eventTime: '2026-05-14 08:20:35', deviceSN: 'EV-001', eventLevel: 'Alert', deviceType: 'EV Charger', eventContent: 'Charging session started at...', eventType: 'EV_START_CHARGE', action: 'Happen' },
+  { station: 'Gvault', eventTime: '2026-05-14 07:20:35', deviceSN: 'PCS-001', eventLevel: 'Normal', deviceType: 'PCS', eventContent: 'PCS entered standby mode...', eventType: 'PCS_MODE_CHANGE', action: 'Happen' },
+  { station: 'Gvault', eventTime: '2026-05-14 04:20:35', deviceSN: 'DB-GRID-37', eventLevel: 'Alert', deviceType: 'Meter', eventContent: 'Grid import exceeded 180 k...', eventType: 'GRID_IMPORT_HIGH', action: 'Happen' },
+  { station: 'Gvault', eventTime: '2026-05-14 02:20:35', deviceSN: 'BC-01-01-37', eventLevel: 'Normal', deviceType: 'BESS', eventContent: 'Cell voltage spread reache...', eventType: 'BMS_VOLTAGE_SPREAD', action: 'Disappear' },
+  { station: 'Gvault', eventTime: '2026-05-13 23:20:35', deviceSN: 'NBQ-001', eventLevel: 'Alert', deviceType: 'Inverter', eventContent: 'PV inverter output dropped ...', eventType: 'PV_OUTPUT_DEVIATION', action: 'Happen' },
+  { station: 'Gvault', eventTime: '2026-05-13 19:20:35', deviceSN: 'DB-BESS-01-37', eventLevel: 'Normal', deviceType: 'Meter', eventContent: 'Reactive power fluctuation ...', eventType: 'PQ_REACTIVE_RECOVER', action: 'Disappear' },
+  { station: 'Gvault', eventTime: '2026-05-13 15:20:35', deviceSN: 'PCS-002', eventLevel: 'Faulty', deviceType: 'PCS', eventContent: 'PCS DC bus voltage deviat...', eventType: 'PCS_DCBUS_WARN', action: 'Happen' },
 ]
 
 export default function Page() {
-  const [station, setStation] = useState('Demo')
+  const [station, setStation] = useState('Gvault')
   const [eventLevel, setEventLevel] = useState('')
   const [from, setFrom] = useState('2026-05-13T13:31')
   const [to, setTo] = useState('2026-05-14T13:31')
@@ -47,7 +47,7 @@ export default function Page() {
               <div className="flex items-center gap-3">
                 <label className="text-sm">Station:</label>
                 <select value={station} onChange={(e) => setStation(e.target.value)} className="h-11 min-w-[180px] rounded-[8px] border border-[#dce4ee] bg-white px-3 text-[14px]">
-                  <option>Demo</option>
+                  <option>Gvault</option>
                 </select>
               </div>
 

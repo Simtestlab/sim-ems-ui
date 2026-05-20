@@ -1,11 +1,11 @@
 "use client"
 
 import { useEffect, useRef, useState } from 'react'
+import Image from 'next/image'
 import { ChevronDown, Menu } from 'lucide-react'
-import LogoIcon from '@/shared/components/icons/LogoIcon'
 
 const SITES = [
-  { id: 'demo', label: 'Demo Site', capacity: '100kW / 215kWh' },
+  { id: 'gvault', label: 'Gvault Site', capacity: '100kW / 215kWh' },
   { id: 'beta', label: 'Beta Plant', capacity: '250kW / 514kWh' },
 ]
 
@@ -47,10 +47,17 @@ export default function DashboardHeader({
           sidebarCollapsed ? 'w-11 justify-center px-0' : 'w-56 px-4'
         }`}
       >
-        <div className="flex items-center gap-3 min-w-0">
-          <LogoIcon className="text-emerald-500 w-6 h-6 shrink-0" />
+        <div className="flex items-center gap-2.5 min-w-0">
+          <Image
+            src="/logo.png"
+            alt="Gvault EMS"
+            width={32}
+            height={32}
+            className="shrink-0 object-contain"
+            priority
+          />
           {!sidebarCollapsed && (
-            <span className="text-[15px] font-semibold tracking-widest text-slate-800 uppercase">DEMO</span>
+            <span className="text-[14px] font-bold tracking-wide text-slate-800 whitespace-nowrap">Gvault EMS</span>
           )}
         </div>
       </div>
@@ -109,8 +116,14 @@ export default function DashboardHeader({
           </div>
           <div className="w-px h-5 bg-slate-100" />
           <div className="flex items-center gap-2.5 cursor-pointer group">
-            <LogoIcon className="text-emerald-500 w-6 h-6" />
-            <span className="text-[12px] font-semibold text-slate-700">demo</span>
+            <Image
+              src="/logo.png"
+              alt="Gvault EMS"
+              width={24}
+              height={24}
+              className="object-contain"
+            />
+            <span className="text-[12px] font-semibold text-slate-700">Gvault</span>
           </div>
         </div>
       </div>
