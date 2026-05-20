@@ -132,12 +132,8 @@ export default function PlantOverview() {
       <div className="flex flex-col rounded-xl border border-slate-200 bg-white shadow-sm p-5 min-w-[300px] w-[300px] shrink-0">
         <h2 className="text-[20px] font-bold text-[#0f172a] mb-6">Project Information</h2>
         
-        <div className="mb-6 overflow-hidden rounded-lg">
-          <div
-            className="w-full h-[160px] rounded-lg bg-slate-100 flex items-center justify-center text-slate-400 text-[13px] select-none"
-          >
-            Project Site
-          </div>
+        <div className="mb-6 overflow-hidden rounded-lg bg-[#f8fafc] flex items-center justify-center">
+          <BessIllustration />
         </div>
 
         <div className="space-y-4">
@@ -181,7 +177,6 @@ export default function PlantOverview() {
       <StatisticColumn
         title="BESS Operation Statistics"
         subTitle="BESS Real-time Power"
-        illustration={<BessIllustration />}
         value={0}
         max={250}
         unit="kW"

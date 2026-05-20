@@ -286,12 +286,12 @@ export default function MicrogridDiagram() {
 
   // ── Live telemetry state (initial values from reference) ────────────────
   const [data, setData] = useState({
-    grid:  { p: 20,    q: 1.98 },
-    load:  { p: 100,   q: 8.37 },
+    grid:  { p: -30,   q: -1.84 },
+    load:  { p: 100,   q: 12.48 },
     dg:    { p: 0,     q: 0 },
-    ev:    { p: 0,     q: 0 },
-    pv:    { p: 200,   q: 22.21 },
-    bess:  { p: 80,    q: 7.57, soc: 61.9, status: 'Normal' },
+    ev:    { p: 50,    q: 4.73 },
+    pv:    { p: 200,   q: 20.87 },
+    bess:  { p: 80,    q: 5.05, soc: 51.5, status: 'Normal' },
   })
 
   useEffect(() => {
@@ -306,36 +306,40 @@ export default function MicrogridDiagram() {
         const pvReversion = (pvTarget - prev.pv.p) * 0.15
         const pvP = +Math.min(220, Math.max(160, prev.pv.p + pvDrift + pvReversion)).toFixed(2)
         
-        // BESS with mean reversion toward 70 kW discharge
-        const bessTarget = 70
-        const bessDrift = (Math.random() - 0.5) * 6
-        const bessReversion = (bessTarget - prev.bess.p) * 0.12
-        const bessP = +Math.min(100, Math.max(40, prev.bess.p + bessDrift + bessReversion)).toFixed(2)
-        
         // Load with mean reversion toward 100 kW
         const loadTarget = 100
         const loadDrift = (Math.random() - 0.5) * 5
         const loadReversion = (loadTarget - prev.load.p) * 0.15
         const loadP = +Math.min(120, Math.max(85, prev.load.p + loadDrift + loadReversion)).toFixed(2)
         
-        // EV constant charging
-        const evP = prev.ev.p
+        // EV with mean reversion toward 50 kW (charging)
+        const evTarget = 50
+        const evDrift = (Math.random() - 0.5) * 3
+        const evReversion = (evTarget - prev.ev.p) * 0.12
+        const evP = +Math.min(60, Math.max(40, prev.ev.p + evDrift + evReversion)).toFixed(2)
         
-        // Grid absorbs / provides the residual (positive = grid importing, negative = grid exporting)
-        const gridP = +(loadP + evP - pvP - bessP).toFixed(2)
+        // BESS charging with mean reversion toward 80 kW (positive = charging)
+        const bessTarget = 80
+        const bessDrift = (Math.random() - 0.5) * 5
+        const bessReversion = (bessTarget - prev.bess.p) * 0.12
+        const bessP = +Math.min(100, Math.max(60, prev.bess.p + bessDrift + bessReversion)).toFixed(2)
         
-        // SOC decreases slowly while discharging (0.08% per 2s tick)
+        // Grid P: negative = grid supplying INTO microgrid, positive = microgrid exporting TO grid
+        // Energy balance: PV + |Grid| = Load + EV + BESS  →  gridP = pvP - loadP - evP - bessP
+        const gridP = +(pvP - loadP - evP - bessP).toFixed(2)
+        
+        // SOC increases slowly while charging (BESS charging means positive P)
         const newSoc = +Math.min(100, Math.max(10,
-          prev.bess.soc + (bessP > 0 ? -0.08 : 0.05)
+          prev.bess.soc + (bessP > 0 ? 0.05 : -0.08)
         )).toFixed(1)
 
         return {
-          grid:  { p: gridP,  q: +(gridP  * 0.062).toFixed(2) },
+          grid:  { p: gridP,  q: +(gridP  * 0.061).toFixed(2) },
           load:  { p: loadP,  q: +(loadP  * 0.125).toFixed(2) },
           dg:    { p: 0,      q: 0 },
           ev:    { p: evP,    q: +(evP    * 0.095).toFixed(2) },
           pv:    { p: pvP,    q: +(pvP    * 0.104).toFixed(2) },
-          bess:  { p: bessP,  q: +(bessP  * 0.076).toFixed(2), soc: newSoc, status: 'Normal' },
+          bess:  { p: bessP,  q: +(bessP  * 0.063).toFixed(2), soc: newSoc, status: 'Normal' },
         }
       })
     }, 2000)
@@ -345,14 +349,17 @@ export default function MicrogridDiagram() {
 
   // Explicit isometric flow paths matching the UI reference
   const paths = [
-    { id: 'grid-sw',   points: [P.grid_out, P.grid_turn, P.sw_in], active: true, rev: data.grid.p < 0 },
+    // grid.p negative = grid supplying → arrows forward (grid_out → sw_in); positive = exporting → reversed
+    { id: 'grid-sw',   points: [P.grid_out, P.grid_turn, P.sw_in], active: true, rev: data.grid.p > 0 },
     { id: 'sw-jct1',   points: [P.sw_out, P.j1], active: true, rev: false },
     { id: 'jct1-load', points: [P.j1, P.load_in], active: true, rev: false },
     { id: 'jct1-ev',   points: [P.j1, P.ev_in], active: data.ev.p > 0, rev: false },
-    { id: 'jct1-jct2', points: [P.j1, P.j2], active: true, rev: false },
+    // PV (200 kW) is the main source; surplus flows j2→j1 to feed Load+EV, so reversed
+    { id: 'jct1-jct2', points: [P.j1, P.j2], active: true, rev: true },
     { id: 'jct2-dg',   points: [P.dg_in, P.j2], active: data.dg.p !== 0, rev: false },
     { id: 'pv-jct2',   points: [P.pv_in, P.j2], active: data.pv.p > 0, rev: false },
-    { id: 'jct2-bess', points: [P.bess_in, P.bess_turn, P.j2], active: data.bess.p !== 0, rev: data.bess.p < 0 },
+    // bess.p positive = charging → path [bess_in→j2] must be reversed so arrows flow junction→bess
+    { id: 'jct2-bess', points: [P.bess_in, P.bess_turn, P.j2], active: data.bess.p !== 0, rev: data.bess.p > 0 },
   ]
 
   return (
@@ -391,38 +398,23 @@ export default function MicrogridDiagram() {
           )
         })}
 
-        {/* Animated flow arrows */}
+        {/* Animated flow arrows – one arrow per active path */}
         {mounted && paths.filter(p => p.active).map(path => (
-          <React.Fragment key={`a_${path.id}`}>
-            {/* Arrow 1 */}
-            <polygon points="-9,-5 9,0 -9,5" fill="#22c55e" filter="url(#glow)">
-              <animateMotion dur="1.8s" repeatCount="indefinite" rotate="auto"
-                keyPoints={path.rev ? '1;0' : '0;1'} keyTimes="0;1" calcMode="linear">
-                <mpath href={`#p_${path.id}`}/>
-              </animateMotion>
-            </polygon>
-            {/* Arrow 2 – offset by 0.6s */}
-            <polygon points="-9,-5 9,0 -9,5" fill="#22c55e" filter="url(#glow)" opacity="0.7">
-              <animateMotion dur="1.8s" repeatCount="indefinite" rotate="auto"
-                keyPoints={path.rev ? '1;0' : '0;1'} keyTimes="0;1" calcMode="linear" begin="0.6s">
-                <mpath href={`#p_${path.id}`}/>
-              </animateMotion>
-            </polygon>
-            {/* Arrow 3 – offset by 1.2s */}
-            <polygon points="-9,-5 9,0 -9,5" fill="#22c55e" filter="url(#glow)" opacity="0.4">
-              <animateMotion dur="1.8s" repeatCount="indefinite" rotate="auto"
-                keyPoints={path.rev ? '1;0' : '0;1'} keyTimes="0;1" calcMode="linear" begin="1.2s">
-                <mpath href={`#p_${path.id}`}/>
-              </animateMotion>
-            </polygon>
-          </React.Fragment>
+          <polygon key={`a_${path.id}`} points="-9,-5 9,0 -9,5" fill="#22c55e" filter="url(#glow)">
+            <animateMotion dur="2.2s" repeatCount="indefinite" rotate="auto"
+              keyPoints={path.rev ? '1;0' : '0;1'} keyTimes="0;1" calcMode="linear">
+              <mpath href={`#p_${path.id}`}/>
+            </animateMotion>
+          </polygon>
         ))}
       </svg>
 
       {/* ── Node: Grid ────────────────────────────────────────── */}
-      <div className="absolute flex items-center gap-3"
-        style={{ left: toLeft(110), top: toTop(340) }}>
-        <GridIcon/>
+      <div className="absolute flex items-center gap-3 cursor-pointer group"
+        style={{ left: toLeft(110), top: toTop(340) }}
+        onClick={() => router.push('/monitor/meter')}
+        title="Go to Meter">
+        <div className="transition-transform group-hover:scale-105"><GridIcon/></div>
         <Label title="Grid" p={data.grid.p} q={data.grid.q}/>
       </div>
 
