@@ -55,12 +55,6 @@ export default function ChartPlaceholder({ height = 480 }: { height?: number }) 
           </svg>
         </div>
 
-        {/* date (top-right) */}
-        <div className="absolute top-3 right-4 text-[12px] text-[#6b7280]">
-          <div className="inline-flex items-center gap-2">
-            <input type="date" className="h-8 rounded-md border border-[#e6edf5] px-2 text-[13px]" defaultValue="2026-05-13" />
-          </div>
-        </div>
       </div>
     </div>
   )
