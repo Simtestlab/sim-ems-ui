@@ -1,4 +1,4 @@
-import { Network, Settings, BarChart2, LayoutGrid, LineChart, JapaneseYen } from 'lucide-react'
+import { Network, ServerCog, Monitor, JapaneseYen, BarChart2, LayoutGrid } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 
 export type SidebarItem = {
@@ -13,11 +13,11 @@ export type SidebarItem = {
  */
 export const SIDEBAR_ITEMS: SidebarItem[] = [
   { key: 'System', icon: Network, label: 'System' },
-  { key: 'Settings', icon: Settings, label: 'Settings' },
-  { key: 'Monitoring', icon: BarChart2, label: 'Monitoring', hasChildren: true },
-  { key: 'Reports', icon: LayoutGrid, label: 'Reports', hasChildren: true },
-  { key: 'Economics', icon: LineChart, label: 'Economics', hasChildren: true },
-  { key: 'Admin', icon: JapaneseYen, label: 'Admin', hasChildren: true },
+  { key: 'Settings', icon: ServerCog, label: 'Settings' },
+  { key: 'Monitoring', icon: Monitor, label: 'Monitoring', hasChildren: true },
+  { key: 'Economics', icon: JapaneseYen, label: 'Economics', hasChildren: true },
+  { key: 'Reports', icon: BarChart2, label: 'Reports', hasChildren: true },
+  { key: 'Admin', icon: LayoutGrid, label: 'Admin', hasChildren: true },
 ]
 
 /**

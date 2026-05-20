@@ -15,6 +15,7 @@ type MonitoringFiltersProps = {
 	queryClassName?: string
 	showQuery?: boolean
 	showActions?: boolean
+	showReset?: boolean
 }
 
 export default function MonitoringFilters({
@@ -28,6 +29,7 @@ export default function MonitoringFilters({
 	queryClassName,
 	showQuery = true,
 	showActions = true,
+	showReset = true,
 }: MonitoringFiltersProps) {
 	return (
 		<div className={cn('border-b border-[#edf1f5] bg-white px-4 py-3 shadow-sm', className)}>
@@ -60,9 +62,11 @@ export default function MonitoringFilters({
 							<button className="h-11 rounded-[10px] bg-[#2563f6] px-8 text-[14px] font-semibold text-white shadow-[0_4px_12px_rgba(37,99,246,0.24)] transition-all hover:bg-[#3c75f8]" onClick={onSearch}>
 								Search
 							</button>
-							<button className="h-11 rounded-[10px] border border-[#dce4ee] bg-white px-6 text-[14px] font-semibold text-[#617187] shadow-[0_2px_7px_rgba(15,23,42,0.03)] transition-all hover:border-[#bcc6d2]" onClick={onReset}>
-								Reset
-							</button>
+							{showReset ? (
+								<button className="h-11 rounded-[10px] border border-[#dce4ee] bg-white px-6 text-[14px] font-semibold text-[#617187] shadow-[0_2px_7px_rgba(15,23,42,0.03)] transition-all hover:border-[#bcc6d2]" onClick={onReset}>
+									Reset
+								</button>
+							) : null}
 						</div>
 					)}
 			</div>
