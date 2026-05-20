@@ -358,31 +358,6 @@ export default function MicrogridDiagram() {
   return (
     <div className="relative w-full bg-white overflow-hidden" style={{ aspectRatio: `${W} / ${H}` }}>
 
-      {/* ── Station Status (top-left) ──────────────── */}
-      <div className="absolute top-6 left-6 flex items-center gap-2 z-10">
-        <span className="text-[13px] font-medium text-[#64748b]">Station Status:</span>
-        <span className="flex items-center gap-1.5">
-          <span className="w-2 h-2 rounded-full bg-[#22c55e]"/>
-          <span className="text-[13px] font-bold text-[#22c55e]">Normal</span>
-        </span>
-      </div>
-
-      {/* ── PV & BESS capacity cards (top-right) ──────────────── */}
-      <div className="absolute top-6 right-6 flex gap-3 z-10">
-        <div className="bg-white border border-[#e2e8f0] rounded shadow-sm px-4 py-2 text-center min-w-[90px]">
-          <div className="text-[10px] text-[#94a3b8] font-medium leading-tight">PV Capacity</div>
-          <div className="text-[16px] font-black text-[#0f1724] leading-snug">
-            200 <span className="text-[11px] font-semibold text-[#64748b]">kWp</span>
-          </div>
-        </div>
-        <div className="bg-white border border-[#e2e8f0] rounded shadow-sm px-4 py-2 text-center min-w-[120px]">
-          <div className="text-[10px] text-[#94a3b8] font-medium leading-tight">BESS Capacity</div>
-          <div className="text-[16px] font-black text-[#0f1724] leading-snug">
-            250/514 <span className="text-[11px] font-semibold text-[#64748b]">kW/kWh</span>
-          </div>
-        </div>
-      </div>
-
       {/* ── SVG – lines + animated arrows ─────────────────────── */}
       <svg
         className="absolute inset-0 pointer-events-none"

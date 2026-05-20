@@ -63,7 +63,7 @@ export default function DashboardLayout({
   }, [visitedRoute])
 
   return (
-    <div className="h-screen bg-[#f5f7fa] font-sans text-gray-800 flex flex-col text-[14px] ui-compact">
+    <div className="h-screen bg-[#f7fbfc] font-sans text-gray-800 flex flex-col text-[14px]">
       <DashboardHeader
         sidebarCollapsed={sidebarCollapsed}
         currentTimeLabel={formatDateTime(currentTime)}

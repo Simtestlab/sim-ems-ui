@@ -67,7 +67,7 @@ export default function DashboardSidebar({
     <aside
       className={`transition-all duration-300 ease-in-out flex flex-col overflow-hidden shrink-0 z-20 self-stretch ${
         sidebarCollapsed ? 'w-[44px]' : 'w-[222px]'
-      } bg-[#0d2e3e] text-[#b8d4e0]`}
+      } bg-white border-r border-slate-100 text-slate-500`}
     >
       {/* NAVIGATION SECTION */}
       <nav className="flex-1 pt-2 overflow-y-auto scrollbar-thin">
@@ -98,11 +98,11 @@ export default function DashboardSidebar({
                       w-full flex items-center transition-all duration-200 group relative
                       ${sidebarCollapsed 
                         ? 'justify-center px-0 py-3.5' 
-                        : 'justify-between px-4 py-2.5'
+                        : 'justify-between px-3 py-2 mx-1.5 !w-[calc(100%-12px)] rounded-lg'
                       }
                       ${isDirectlyActive
-                        ? 'bg-[#1a8cff] text-white' 
-                        : 'text-[#8ca9b8] hover:bg-[#1a3d4f] hover:text-white'
+                        ? 'bg-emerald-50 text-emerald-600 font-semibold shadow-sm' 
+                        : 'text-slate-500 hover:bg-slate-100 hover:text-slate-900'
                       }
                     `}
                   >
@@ -110,7 +110,7 @@ export default function DashboardSidebar({
                       <Icon 
                         className={`
                           w-5 h-5 shrink-0 transition-colors duration-200
-                          ${isActive ? 'text-white' : 'text-[#6a8fa3] group-hover:text-white'}
+                          ${isActive ? 'text-emerald-600' : 'text-slate-400 group-hover:text-slate-900'}
                         `} 
                       />
                       {!sidebarCollapsed && (
@@ -121,7 +121,7 @@ export default function DashboardSidebar({
                     </div>
                     {!sidebarCollapsed && item.hasChildren && (
                       <div className={`transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`}>
-                        <ChevronDown className="w-4 h-4 opacity-60" />
+                        <ChevronDown className="w-4 h-4 text-slate-400" />
                       </div>
                     )}
                   </button>
@@ -138,11 +138,12 @@ export default function DashboardSidebar({
                                 onClick={() => navigate(sub)}
                                 onMouseEnter={() => prefetchRoute(sub)}
                                 className={`
-                                  w-full text-left pl-12 pr-4 py-2 text-[13px] 
+                                  text-left pl-10 pr-3 py-1.5 text-[13px] mx-1.5 
+                                  w-[calc(100%-12px)] rounded-lg
                                   transition-all duration-200 relative
                                   ${isSubActive
-                                    ? 'bg-[#1a8cff] text-white font-medium'
-                                    : 'text-[#8ca9b8] hover:text-white hover:bg-[#1a3d4f]'
+                                    ? 'bg-emerald-50 text-emerald-600 font-medium'
+                                    : 'text-slate-500 hover:text-slate-900 hover:bg-slate-100'
                                   }
                                 `}
                               >

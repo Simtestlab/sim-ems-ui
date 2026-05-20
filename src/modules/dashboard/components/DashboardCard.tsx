@@ -17,7 +17,7 @@ export default function DashboardCard({ title, settings = false, headerRight, ch
   const titleSize = compact ? 'text-[18px]' : 'text-[22px]'
 
   return (
-    <section className={`flex flex-col h-full rounded-none border border-[#e6edf5] bg-white ${paddingClass} shadow-[0_6px_24px_rgba(15,23,42,0.04)] ${className}`}>
+    <section className={`flex flex-col h-full rounded-xl border border-slate-100 bg-white ${paddingClass} shadow-[0_4px_20px_rgba(0,0,0,0.03)] ${className}`}>
       <header className={`flex items-start justify-between ${headerMb} gap-4`}>
         <h3 className={`${titleSize} font-semibold tracking-tight text-[#0f1724]`}>{title}</h3>
 
