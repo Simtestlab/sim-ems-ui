@@ -5,8 +5,7 @@ import Image from 'next/image'
 import { ChevronDown, Menu } from 'lucide-react'
 
 const SITES = [
-  { id: 'gvault', label: 'Gvault Site', capacity: '100kW / 215kWh' },
-  { id: 'beta', label: 'Beta Plant', capacity: '250kW / 514kWh' },
+  { id: 'gvault', label: 'Gvault Site', capacity: '100kW / 215kWh' }
 ]
 
 export type DashboardHeaderProps = {

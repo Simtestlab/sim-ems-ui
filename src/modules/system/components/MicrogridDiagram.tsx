@@ -294,15 +294,27 @@ export default function MicrogridDiagram() {
         viewBox={`0 0 ${W} ${H}`}
         preserveAspectRatio="none"
       >
-        {/* Flow lines with rounded corners */}
+        {/* Flow lines with rounded corners.
+            Active paths get a soft glow underlay + a crisper top stroke. */}
         {paths.map(path => {
           const d = roundedPath(path.points, 14)
           return (
             <g key={path.id}>
+              {path.active && (
+                <path
+                  d={d}
+                  stroke="#86efac"
+                  strokeWidth={8}
+                  strokeOpacity={0.35}
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  fill="none"
+                />
+              )}
               <path
                 d={d}
-                stroke={path.active ? '#86efac' : '#e2e8f0'}
-                strokeWidth={path.active ? 2.5 : 2}
+                stroke={path.active ? '#22c55e' : '#e2e8f0'}
+                strokeWidth={path.active ? 3 : 2}
                 strokeLinecap="round"
                 strokeLinejoin="round"
                 fill="none"
@@ -317,8 +329,8 @@ export default function MicrogridDiagram() {
         {/* Animated flow arrows – uniform velocity, evenly spaced per path */}
         {mounted && paths.filter(p => p.active).map(path => {
           const len = polylineLength(path.points)
-          const SPEED = 170           // px / second along the path
-          const SPACING = 130         // approx distance between successive arrows
+          const SPEED = 90            // px / second along the path (slower = more readable)
+          const SPACING = 150         // approx distance between successive arrows
           const dur = Math.max(0.6, len / SPEED)
           const count = Math.max(1, Math.round(len / SPACING))
           return (
@@ -326,8 +338,8 @@ export default function MicrogridDiagram() {
               {Array.from({ length: count }).map((_, i) => (
                 <polygon
                   key={i}
-                  points="-5,-3 4,0 -5,3"
-                  fill="#16a34a"
+                  points="-7,-5 6,0 -7,5 -3,0"
+                  fill="#15803d"
                 >
                   <animateMotion
                     dur={`${dur}s`}
