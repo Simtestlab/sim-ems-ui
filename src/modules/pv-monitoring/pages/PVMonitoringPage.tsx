@@ -34,11 +34,6 @@ export default function PVMonitoringPage() {
   const setHoveredId = usePVMonitoringStore((s) => s.setHoveredId)
   const setHoveredMetric = usePVMonitoringStore((s) => s.setHoveredMetric)
 
-  useEffect(() => {
-    addVisitedTab('/pv')
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
-
   const data = useMemo<InverterData[]>(
     () => [
       { id: 1, title: '1#Inverter', status: 'normal', branch: 'normal', location: 'Demo Site', activePower: '95.94', dailyEnergy: '311.5', loadRatio: '76.75', dailyEffective: '3.69' },

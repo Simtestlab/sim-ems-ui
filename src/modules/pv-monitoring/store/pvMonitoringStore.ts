@@ -100,6 +100,10 @@ export const usePVMonitoringStore = create<State>((set, get) => {
 
         // PV and PCS detail tabs collapse to a single slot (keep last-visited route).
         // Other routes keep their full route so they can appear individually.
+        // Skip any entry that could not be resolved to a known label — navigating
+        // to such a route would produce a 404 page.
+        if (label === 'Unknown') continue
+
         const key = route.includes('/monitor/pv/details') ? '/monitor/pv/details' : route.includes('/monitor/pcs/details') ? '/monitor/pcs/details' : route
         if (!seen.has(key)) {
           seen.add(key)
@@ -108,7 +112,13 @@ export const usePVMonitoringStore = create<State>((set, get) => {
       }
 
       // restore original order (but with duplicates collapsed)
-      return { tabs: out.reverse() }
+      const cleaned = out.reverse()
+      // Write cleaned list back so stale/unknown entries are immediately purged
+      // from sessionStorage and won't reappear on the next reload.
+      if (typeof window !== 'undefined') {
+        sessionStorage.setItem('visitedTabs', JSON.stringify(cleaned))
+      }
+      return { tabs: cleaned }
     } catch {
       return { tabs: [] as Tab[] }
     }
@@ -233,6 +243,9 @@ export const usePVMonitoringStore = create<State>((set, get) => {
         }
         return
       }
+
+      // Do not create a tab for unrecognised routes
+      if (label === 'Unknown') return
 
       const updated = [...current, { label, route }]
       set({ visitedTabs: updated })
