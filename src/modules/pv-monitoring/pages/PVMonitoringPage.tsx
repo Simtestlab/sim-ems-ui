@@ -35,7 +35,7 @@ export default function PVMonitoringPage() {
   const setHoveredMetric = usePVMonitoringStore((s) => s.setHoveredMetric)
 
   useEffect(() => {
-    addVisitedTab('/pv')
+    addVisitedTab('/monitor/pv')
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
