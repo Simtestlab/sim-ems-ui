@@ -183,26 +183,40 @@ export default function MicrogridDiagram() {
     // so a full day cycles in 192 seconds. Start at 8 AM (factory shift begins).
     let simulatedHour = 8
 
+    // Stateful "random walk" noise. Instead of a fresh white-noise offset every
+    // tick, we carry these offsets forward, nudge them by a tiny fraction, and
+    // damp them back toward zero (mean reversion) — so telemetry drifts smoothly
+    // with momentum rather than jittering.
+    let pvNoise = 0
+    let loadNoise = 0
+    let evNoise = 0
+
     const tick = setInterval(() => {
       simulatedHour += 0.25
       if (simulatedHour >= 24) simulatedHour = 0
 
+      // Advance each random walk: small random impulse, then damping toward 0.
+      pvNoise   = (pvNoise   + (Math.random() - 0.5) * 1.5) * 0.9
+      loadNoise = (loadNoise + (Math.random() - 0.5) * 1.5) * 0.9
+      evNoise   = (evNoise   + (Math.random() - 0.5) * 0.6) * 0.9
+
       setData(prev => {
-        // 1. PV Generation (bell curve 06:00–18:00, peak 200kW at noon, ±5kW cloud noise)
+        // 1. PV Generation (bell curve 06:00–18:00, peak 200kW at noon).
+        //    Smooth cloud drift comes from the pvNoise random walk.
         let pvBase = 0
         if (simulatedHour > 6 && simulatedHour < 18) {
           pvBase = 200 * Math.sin(((simulatedHour - 6) / 12) * Math.PI)
         }
-        const pvP = Math.max(0, pvBase + (Math.random() * 10 - 5))
+        const pvP = pvBase > 0 ? Math.max(0, pvBase + pvNoise) : 0
 
         // 2. Factory Load (60kW base, 150kW during 08:00–18:00 shift)
         const isWorkingHour = simulatedHour >= 8 && simulatedHour <= 18
         const loadBase = isWorkingHour ? 150 : 60
-        const loadP = loadBase + (Math.random() * 10 - 5)
+        const loadP = loadBase + loadNoise
 
         // 3. EV Fleet Charging (50kW between 09:00 and 14:00)
         const isEvCharging = simulatedHour >= 9 && simulatedHour <= 14
-        const evP = isEvCharging ? 50 + (Math.random() * 4 - 2) : 0
+        const evP = isEvCharging ? Math.max(0, 50 + evNoise) : 0
 
         // 4. Initial net demand (before storage + generator dispatch).
         //    Positive = deficit. Negative = excess solar.
