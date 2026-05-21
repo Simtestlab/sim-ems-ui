@@ -7,7 +7,7 @@ type PageContainerProps = {
 
 export default function PageContainer({ children, className = '' }: PageContainerProps) {
   return (
-    <div className={`min-h-screen w-full ${className}`}>
+    <div className={`h-full w-full ${className}`}>
       {children}
     </div>
   )

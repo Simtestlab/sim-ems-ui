@@ -47,7 +47,7 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen flex bg-white">
+    <div className="h-full flex bg-white">
       <div className="flex-1" />
 
       <div className="w-1/3 flex flex-col items-center justify-center px-8">

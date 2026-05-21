@@ -1,6 +1,7 @@
 import React from 'react'
 import { Space_Grotesk } from 'next/font/google'
 import '@/styles/globals.css'
+import ViewportScaler from '@/shared/components/layout/ViewportScaler'
 
 const spaceGrotesk = Space_Grotesk({
   subsets: ['latin'],
@@ -30,7 +31,9 @@ export const metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" className={spaceGrotesk.variable}>
-      <body>{children}</body>
+      <body>
+        <ViewportScaler>{children}</ViewportScaler>
+      </body>
     </html>
   )
 }
